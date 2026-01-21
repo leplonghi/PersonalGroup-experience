@@ -1,0 +1,8 @@
+{
+  "name": "PersonalGroup Exclusive",
+  "description": "Plataforma premium para gestão de treinos e acompanhamento personalizado de alta performance.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
