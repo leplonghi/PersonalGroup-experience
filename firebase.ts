@@ -1,14 +1,14 @@
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { 
-  getFirestore, 
-  collection, 
-  doc, 
-  setDoc, 
-  getDoc, 
-  updateDoc, 
-  query, 
-  where, 
+import {
+  getFirestore,
+  collection,
+  doc,
+  setDoc,
+  getDoc,
+  updateDoc,
+  query,
+  where,
   getDocs,
   addDoc,
   serverTimestamp,
@@ -19,13 +19,13 @@ import {
   arrayRemove,
   deleteField
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-import { 
-  User, 
-  TrainingCycle, 
-  Protocol, 
-  SessionLog, 
-  Assessment, 
-  TimelineEntry, 
+import {
+  User,
+  TrainingCycle,
+  Protocol,
+  SessionLog,
+  Assessment,
+  TimelineEntry,
   AppMessage,
   MessageType,
   UserRole,
@@ -34,12 +34,12 @@ import {
 } from "./types";
 
 const firebaseConfig = {
-  apiKey: process.env.API_KEY,
-  authDomain: "personalgroup-exclusive.firebaseapp.com",
-  projectId: "personalgroup-exclusive",
-  storageBucket: "personalgroup-exclusive.appspot.com",
-  messagingSenderId: "123456789",
-  appId: "1:123456789:web:abcdef"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "personalgroup-exclusive.firebaseapp.com",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "personalgroup-exclusive",
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "personalgroup-exclusive.appspot.com",
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "123456789",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:123456789:web:abcdef"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -90,10 +90,10 @@ export const syncUser = async (user: User): Promise<User> => {
     const userRef = doc(db, "users", user.id);
     const snap = await getDoc(userRef);
     if (!snap.exists()) {
-      const newUser = { 
-        ...user, 
-        createdAt: serverTimestamp(), 
-        wellnessSessionsUsed: 0, 
+      const newUser = {
+        ...user,
+        createdAt: serverTimestamp(),
+        wellnessSessionsUsed: 0,
         lastWellnessResetMonth: new Date().getMonth(),
         activeWellnessBookings: []
       };
@@ -133,12 +133,12 @@ export const logSession = async (userId: string, cycleId: string, logs: SessionL
     const avgRpe = logs.reduce((acc, l) => acc + l.rpe, 0) / logs.length;
     let suggestedIncrement = 0;
     if (avgRpe < 7) suggestedIncrement = 5;
-    
+
     const cycleRef = doc(db, "ciclos", cycleId);
     const cycleSnap = await getDoc(cycleRef);
     const cycleData = cycleSnap.data() as TrainingCycle;
 
-    await updateDoc(cycleRef, { 
+    await updateDoc(cycleRef, {
       currentSession: increment(1),
       suggestedLoadIncrement: suggestedIncrement
     });
@@ -180,7 +180,7 @@ export const startNewCycle = async (userId: string, cycle: TrainingCycle) => {
     const cycleRef = doc(db, "ciclos", cycle.id);
     await setDoc(cycleRef, { ...cycle, userId, createdAt: serverTimestamp() });
     await updateDoc(doc(db, "users", userId), { currentCycle: cycle, needsAssessment: false });
-    
+
     await triggerSystemAlert(userId, "Novo Ciclo Ativado", `Sua nova jornada "${cycle.name}" começou. Foco na execução!`, "MOTIVATIONAL");
 
     await addDoc(timelineCol, {
@@ -222,11 +222,11 @@ export const terminateCycle = async (userId: string) => {
 export const saveAssessment = async (assessment: Assessment, newStatus: HealthStatus) => {
   try {
     const assessmentRef = await addDoc(avaliacoesCol, { ...assessment, timestamp: serverTimestamp() });
-    
+
     await updateDoc(doc(db, "users", assessment.studentId), {
       needsAssessment: false,
       lastAssessmentDate: assessment.date,
-      healthStatus: newStatus 
+      healthStatus: newStatus
     });
 
     await addDoc(timelineCol, {
@@ -286,7 +286,7 @@ export const bookWellness = async (userId: string, serviceId: string, serviceNam
       message: "Wellness Confirmado.",
       details: `${serviceId} em ${date} às ${time}`
     });
-    
+
     return booking;
   } catch (error) {
     console.error("Erro bookWellness:", error);
@@ -297,7 +297,7 @@ export const bookWellness = async (userId: string, serviceId: string, serviceNam
 export const cancelWellness = async (userId: string, booking: WellnessBooking) => {
   try {
     const userRef = doc(db, "users", userId);
-    
+
     await updateDoc(userRef, {
       wellnessSessionsUsed: increment(-1),
       activeWellnessBookings: arrayRemove(booking)
@@ -321,7 +321,7 @@ export const saveProtocol = async (protocol: Protocol) => {
   try {
     const protocolRef = doc(db, "protocolos", protocol.id);
     const snap = await getDoc(protocolRef);
-    
+
     let version = protocol.version;
     if (snap.exists()) {
       const oldData = snap.data() as Protocol;
@@ -330,21 +330,21 @@ export const saveProtocol = async (protocol: Protocol) => {
       }
     }
 
-    await setDoc(protocolRef, { 
-      ...protocol, 
-      version, 
+    await setDoc(protocolRef, {
+      ...protocol,
+      version,
       serverTimestamp: serverTimestamp(),
       lastUpdated: new Date().toLocaleDateString('pt-BR')
     }, { merge: true });
 
     if (snap.exists()) {
-       await addDoc(timelineCol, {
-         userId: 'SYSTEM_ADMIN', 
-         type: "VERSION_UPDATE",
-         referenceId: protocol.id,
-         timestamp: serverTimestamp(),
-         message: `Protocolo "${protocol.name}" atualizado para v${version}`
-       });
+      await addDoc(timelineCol, {
+        userId: 'SYSTEM_ADMIN',
+        type: "VERSION_UPDATE",
+        referenceId: protocol.id,
+        timestamp: serverTimestamp(),
+        message: `Protocolo "${protocol.name}" atualizado para v${version}`
+      });
     }
   } catch (error) {
     console.error("Erro saveProtocol:", error);

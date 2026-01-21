@@ -19,7 +19,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage('');
-    
+
     if (mode === 'signup') {
       if (!name || !email || !password || !accessKey) {
         setErrorMessage('Preencha todos os campos obrigatórios.');
@@ -90,27 +90,30 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
       <div className="absolute inset-0 bg-white/5 dark:bg-transparent pointer-events-none"></div>
 
       <div className="w-full max-w-sm flex flex-col items-center z-10">
-        
+
         {/* Branding */}
         <div className={`text-center transition-all duration-700 transform ${mode === 'signup' ? 'mb-4 scale-90' : 'mb-10'}`}>
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-white rounded-[24px] shadow-2xl mb-4 border border-blue-50/50 p-3.5">
-            <Icons.Logo className="w-full h-full text-[#002B54]" />
+          <div className="inline-flex items-center justify-center bg-white rounded-[24px] shadow-2xl mb-4 border border-blue-50/50 overflow-hidden">
+            <img
+              src="/logo.png"
+              alt="PersonalGroup Logo"
+              className="h-16 w-auto object-contain p-2"
+            />
           </div>
-          <h1 className="text-white text-2xl font-black tracking-tight drop-shadow-lg leading-none">PersonalGroup</h1>
           <p className="text-white/70 text-[7px] font-bold tracking-[0.5em] uppercase mt-2">Exclusive Experience</p>
         </div>
 
         {/* AUTH CARD */}
         <section className="w-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl rounded-[40px] shadow-[0_32px_64px_rgba(0,0,0,0.15)] dark:shadow-[0_32px_64px_rgba(0,0,0,0.4)] p-8 border border-white/50 dark:border-white/5 animate-in slide-in-from-bottom-12 duration-700 transition-colors">
-          
+
           <div className="flex bg-slate-100/50 dark:bg-white/5 p-1 rounded-[20px] mb-8 border border-slate-200/20 dark:border-white/5">
-            <button 
+            <button
               onClick={() => { setMode('login'); setErrorMessage(''); }}
               className={`flex-1 py-2.5 rounded-[16px] text-[10px] font-black uppercase tracking-widest transition-all duration-300 ${mode === 'login' ? 'bg-white dark:bg-slate-800 text-[#002B54] dark:text-white shadow-sm' : 'text-slate-400'}`}
             >
               Entrar
             </button>
-            <button 
+            <button
               onClick={() => { setMode('signup'); setErrorMessage(''); }}
               className={`flex-1 py-2.5 rounded-[16px] text-[10px] font-black uppercase tracking-widest transition-all duration-300 ${mode === 'signup' ? 'bg-white dark:bg-slate-800 text-[#002B54] dark:text-white shadow-sm' : 'text-slate-400'}`}
             >
@@ -122,7 +125,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
             {mode === 'signup' && (
               <div>
                 <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-1 block">Nome Completo</label>
-                <input 
+                <input
                   type="text" placeholder="Como devemos lhe chamar?" value={name} onChange={e => setName(e.target.value)}
                   className="w-full bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5 rounded-2xl px-5 py-3 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all text-slate-900 dark:text-white"
                 />
@@ -131,7 +134,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
             <div>
               <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-1 block">Identificação</label>
-              <input 
+              <input
                 type="email" placeholder="nome@exclusivo.com" value={email} onChange={e => setEmail(e.target.value)}
                 className="w-full bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5 rounded-2xl px-5 py-3 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all text-slate-900 dark:text-white"
               />
@@ -139,7 +142,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
             <div>
               <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-1 block">Chave Privada</label>
-              <input 
+              <input
                 type="password" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)}
                 className="w-full bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5 rounded-2xl px-5 py-3 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all text-slate-900 dark:text-white"
               />
@@ -148,7 +151,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
             {mode === 'signup' && (
               <div>
                 <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-1 block">Chave de Pista</label>
-                <input 
+                <input
                   type="text" placeholder="PG-EXCLUSIVE" value={accessKey} onChange={e => setAccessKey(e.target.value)}
                   className="w-full bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/30 rounded-2xl px-5 py-3 text-xs font-black text-blue-600 dark:text-blue-400 focus:outline-none focus:border-[#002B54] transition-all uppercase placeholder:text-blue-200"
                 />
@@ -159,8 +162,8 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
               <p className="text-[9px] font-black text-red-500 text-center uppercase tracking-tighter animate-shake">{errorMessage}</p>
             )}
 
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               disabled={status === 'loading'}
               className="w-full py-4 rounded-[20px] blue-gradient text-white font-black text-[10px] uppercase tracking-[0.25em] shadow-xl shadow-blue-900/20 active:scale-[0.98] transition-all flex items-center justify-center border border-white/20"
             >
@@ -173,12 +176,12 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
           </form>
 
           <div className="flex items-center my-6">
-             <div className="flex-1 h-px bg-slate-100 dark:bg-white/5"></div>
-             <span className="px-4 text-[8px] font-black text-slate-300 dark:text-slate-600 uppercase tracking-widest">Connect</span>
-             <div className="flex-1 h-px bg-slate-100 dark:bg-white/5"></div>
+            <div className="flex-1 h-px bg-slate-100 dark:bg-white/5"></div>
+            <span className="px-4 text-[8px] font-black text-slate-300 dark:text-slate-600 uppercase tracking-widest">Connect</span>
+            <div className="flex-1 h-px bg-slate-100 dark:bg-white/5"></div>
           </div>
 
-          <button 
+          <button
             disabled={status === 'loading'}
             className="w-full py-3.5 rounded-[18px] bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400 font-bold text-[9px] uppercase tracking-widest flex items-center justify-center space-x-3 active:bg-slate-50 dark:active:bg-white/10 transition-all shadow-sm"
           >

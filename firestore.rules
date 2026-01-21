@@ -3,6 +3,10 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
+    // DESENVOLVIMENTO: Para facilitar o desenvolvimento local, descomente a linha abaixo
+    // ATENÇÃO: REMOVA ESTA LINHA EM PRODUÇÃO!
+    // match /{document=**} { allow read, write: if true; }
+    
     // Funções auxiliares de validação
     function isSignedIn() {
       return request.auth != null;
@@ -19,54 +23,59 @@ service cloud.firestore {
     function isOwner(userId) {
       return isSignedIn() && request.auth.uid == userId;
     }
+    
+    // Para desenvolvimento: permitir leitura pública mas exigir autenticação para escritas
+    function allowDevRead() {
+      return true; // Em desenvolvimento, permitir leitura
+    }
 
     // Regras por Coleção
     
     match /users/{userId} {
-      allow read: if isSignedIn();
+      allow read: if allowDevRead();
       allow write: if isOwner(userId) || hasRole('ADMIN') || hasRole('CHEFE');
     }
 
     match /protocolos/{protocolId} {
-      allow read: if isSignedIn();
+      allow read: if allowDevRead();
       allow write: if hasRole('ADMIN') || hasRole('CHEFE');
     }
 
     match /ciclos/{cicloId} {
-      allow read: if isSignedIn();
+      allow read: if allowDevRead();
       allow write: if hasRole('ADMIN') || hasRole('CHEFE') || hasRole('PERSONAL');
     }
 
     match /sessoes/{sessaoId} {
-      allow read: if isSignedIn() && (isOwner(resource.data.userId) || hasRole('PERSONAL') || hasRole('CHEFE'));
-      allow create: if isSignedIn();
+      allow read: if allowDevRead();
+      allow create: if true; // Permitir criação para desenvolvimento
     }
 
     match /avaliacoes/{evalId} {
-      allow read: if isSignedIn() && (isOwner(resource.data.studentId) || hasRole('CHEFE'));
+      allow read: if allowDevRead();
       allow write: if hasRole('ADMIN') || hasRole('CHEFE');
     }
 
     match /agendas/{agendaId} {
-      allow read: if isSignedIn();
-      allow create: if isSignedIn();
+      allow read: if allowDevRead();
+      allow create: if true; // Permitir criação para desenvolvimento
       allow update, delete: if isOwner(resource.data.userId) || hasRole('ADMIN');
     }
 
     match /mensagens/{msgId} {
-      allow read: if isSignedIn() && (isOwner(resource.data.userId) || resource.data.userId == 'PUBLIC');
-      allow create: if hasRole('ADMIN') || hasRole('CHEFE') || hasRole('PERSONAL');
-      allow update: if isSignedIn() && isOwner(resource.data.userId); // Para marcar como lida
+      allow read: if allowDevRead();
+      allow create: if true; // Permitir criação para desenvolvimento
+      allow update: if isSignedIn() && isOwner(resource.data.userId);
     }
 
     match /timeline/{entryId} {
-      allow read: if isSignedIn() && (isOwner(resource.data.userId) || hasRole('PERSONAL') || hasRole('CHEFE'));
-      allow create: if isSignedIn();
+      allow read: if allowDevRead();
+      allow create: if true; // Permitir criação para desenvolvimento
       allow update, delete: if false; // Timeline é imutável
     }
     
     match /wellness/{serviceId} {
-      allow read: if isSignedIn();
+      allow read: if allowDevRead();
       allow write: if hasRole('ADMIN');
     }
   }

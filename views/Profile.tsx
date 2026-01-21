@@ -31,7 +31,7 @@ const Profile: React.FC<ProfileProps> = ({ user, onLogout, onGoTimeline }) => {
       <header className="flex flex-col items-center mb-12">
         <div className="relative mb-8">
           <div className="w-32 h-32 rounded-[48px] border-[6px] border-white dark:border-slate-800 shadow-2xl overflow-hidden bg-slate-50 dark:bg-slate-900">
-             <img src={user.avatar} className="w-full h-full object-cover" alt="Avatar" />
+            <img src={user.avatar} className="w-full h-full object-cover" alt="Avatar" />
           </div>
           <button className="absolute -bottom-2 -right-2 bg-[#002B54] dark:bg-blue-600 text-white p-3 rounded-2xl shadow-xl active:scale-90 transition-all border-4 border-white dark:border-slate-900">
             <Icons.Edit className="w-4 h-4" />
@@ -63,7 +63,7 @@ const Profile: React.FC<ProfileProps> = ({ user, onLogout, onGoTimeline }) => {
         <div className="space-y-3">
           {faqs.map((faq, i) => (
             <div key={i} className="rounded-[28px] border border-slate-100 dark:border-white/5 bg-white dark:bg-slate-900 overflow-hidden transition-all shadow-sm">
-              <button 
+              <button
                 onClick={() => setActiveFaq(activeFaq === i ? null : i)}
                 className={`w-full p-6 text-left flex items-center justify-between transition-all ${activeFaq === i ? 'bg-[#002B54] text-white' : 'text-slate-900 dark:text-white'}`}
               >
@@ -83,7 +83,7 @@ const Profile: React.FC<ProfileProps> = ({ user, onLogout, onGoTimeline }) => {
         </div>
       </section>
 
-      <button 
+      <button
         onClick={onLogout}
         className="w-full py-6 bg-red-50 text-red-600 font-black text-xs uppercase tracking-[0.2em] rounded-[32px] flex items-center justify-center gap-3 active:bg-red-100 transition-all border border-red-100/50 mb-16 shadow-sm"
       >
@@ -92,20 +92,24 @@ const Profile: React.FC<ProfileProps> = ({ user, onLogout, onGoTimeline }) => {
 
       <footer className="text-center space-y-8 pt-10 border-t border-slate-100 dark:border-white/5">
         <div className="flex justify-center">
-           <div className="w-16 h-16 bg-[#002B54] dark:bg-blue-600 rounded-3xl flex items-center justify-center text-white shadow-2xl shadow-blue-900/20">
-             <Icons.Logo className="w-10 h-10" />
-           </div>
+          <div className="bg-white dark:bg-slate-800 rounded-3xl flex items-center justify-center shadow-2xl shadow-blue-900/20 overflow-hidden border-2 border-slate-100 dark:border-white/5">
+            <img
+              src="/logo.png"
+              alt="PersonalGroup Logo"
+              className="h-16 w-auto object-contain p-2"
+            />
+          </div>
         </div>
         <div className="space-y-4">
           <p className="text-[10px] font-black text-slate-950 dark:text-white uppercase tracking-[0.4em]">Unidade Península</p>
           <p className="text-[10px] text-slate-400 dark:text-slate-500 font-bold leading-relaxed max-w-[220px] mx-auto uppercase tracking-widest">
-            Av. Jackson Kepler Lago s/n<br/>
+            Av. Jackson Kepler Lago s/n<br />
             Ponta D'areia, São Luís - MA
           </p>
           <div className="flex items-center justify-center space-x-3 text-[10px] font-black text-[#002B54] dark:text-blue-400">
-             <span className="tracking-widest">98 9 9133-2316</span>
-             <span className="w-1.5 h-1.5 bg-slate-200 dark:bg-white/10 rounded-full"></span>
-             <span className="tracking-widest">@personalgroup</span>
+            <span className="tracking-widest">98 9 9133-2316</span>
+            <span className="w-1.5 h-1.5 bg-slate-200 dark:bg-white/10 rounded-full"></span>
+            <span className="tracking-widest">@personalgroup</span>
           </div>
         </div>
         <p className="text-[8px] font-bold text-slate-200 dark:text-slate-800 uppercase tracking-[0.5em] pb-10">Exclusive Journey v1.5.0</p>

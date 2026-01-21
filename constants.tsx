@@ -14,17 +14,17 @@ export const COLORS = {
 export const Icons = {
   Logo: ({ className }: { className?: string }) => (
     <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-      <path d="M50 5C25 5 5 25 5 50C5 75 25 95 50 95C75 95 95 75 95 50" stroke="currentColor" strokeWidth="8" strokeLinecap="round"/>
-      <path d="M50 30C38.9543 30 30 38.9543 30 50C30 61.0457 38.9543 70 50 70C61.0457 70 70 61.0457 70 50H50V40H80C80 56.5685 66.5685 70 50 70" fill="currentColor" opacity="0.2"/>
-      <path d="M80 35L90 25M90 25L80 15M90 25L50 25" stroke="currentColor" strokeWidth="6" strokeLinecap="round" strokeJoin="round"/>
+      <path d="M50 5C25 5 5 25 5 50C5 75 25 95 50 95C75 95 95 75 95 50" stroke="currentColor" strokeWidth="8" strokeLinecap="round" />
+      <path d="M50 30C38.9543 30 30 38.9543 30 50C30 61.0457 38.9543 70 50 70C61.0457 70 70 61.0457 70 50H50V40H80C80 56.5685 66.5685 70 50 70" fill="currentColor" opacity="0.2" />
+      <path d="M80 35L90 25M90 25L80 15M90 25L50 25" stroke="currentColor" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   ),
   Google: ({ className }: { className?: string }) => (
     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" className={className}>
-      <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-      <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-      <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
-      <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+      <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+      <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+      <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05" />
+      <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
     </svg>
   ),
   Home: ({ className }: { className?: string }) => (
@@ -135,23 +135,23 @@ export const Icons = {
   ),
   Leaf: ({ className }: { className?: string }) => (
     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-      <path d="M12 2L9 5M12 2L15 5M12 2V22M12 10C12 10 7 11 5 15C3 19 4 22 4 22M12 10C12 10 17 11 19 15C21 19 20 22 20 22" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeJoin="round"/>
+      <path d="M12 2L9 5M12 2L15 5M12 2V22M12 10C12 10 7 11 5 15C3 19 4 22 4 22M12 10C12 10 17 11 19 15C21 19 20 22 20 22" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   ),
   Swimming: ({ className }: { className?: string }) => (
     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-      <path d="M2 12C2 12 5 9 8 12C11 15 13 15 16 12C19 9 22 12 22 12M2 17C2 17 5 14 8 17C11 20 13 20 16 17C19 14 22 17 22 17M15 5C15 6.10457 14.1046 7 13 7C11.8954 7 11 6.10457 11 5C11 3.89543 11.8954 3 13 3C14.1046 3 15 3.89543 15 5Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeJoin="round"/>
+      <path d="M2 12C2 12 5 9 8 12C11 15 13 15 16 12C19 9 22 12 22 12M2 17C2 17 5 14 8 17C11 20 13 20 16 17C19 14 22 17 22 17M15 5C15 6.10457 14.1046 7 13 7C11.8954 7 11 6.10457 11 5C11 3.89543 11.8954 3 13 3C14.1046 3 15 3.89543 15 5Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   ),
   Yoga: ({ className }: { className?: string }) => (
     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-      <circle cx="12" cy="5" r="2" stroke="currentColor" strokeWidth="2"/>
-      <path d="M6 15C6 15 9 12 12 12C15 12 18 15 18 15M12 12V21M9 21H15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeJoin="round"/>
+      <circle cx="12" cy="5" r="2" stroke="currentColor" strokeWidth="2" />
+      <path d="M6 15C6 15 9 12 12 12C15 12 18 15 18 15M12 12V21M9 21H15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   ),
   Dumbbell: ({ className }: { className?: string }) => (
     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-      <path d="M18 8H20C21.1046 8 22 8.89543 22 10V14C22 15.1046 21.1046 16 20 16H18M6 8H4C2.89543 8 2 8.89543 2 10V14C2 15.1046 2.89543 16 4 16H6M6 12H18M18 6V18M6 6V18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeJoin="round"/>
+      <path d="M18 8H20C21.1046 8 22 8.89543 22 10V14C22 15.1046 21.1046 16 20 16H18M6 8H4C2.89543 8 2 8.89543 2 10V14C2 15.1046 2.89543 16 4 16H6M6 12H18M18 6V18M6 6V18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   ),
   QRCode: ({ className }: { className?: string }) => (
