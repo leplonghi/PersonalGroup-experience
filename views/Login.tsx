@@ -5,9 +5,11 @@ import { Icons } from '../constants';
 
 interface LoginProps {
   onLogin: (user: User) => void;
+  isDarkMode?: boolean;
+  onToggleTheme?: () => void;
 }
 
-const Login: React.FC<LoginProps> = ({ onLogin }) => {
+const Login: React.FC<LoginProps> = ({ onLogin, isDarkMode = false, onToggleTheme }) => {
   const [mode, setMode] = useState<'login' | 'signup'>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -22,17 +24,17 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
     if (mode === 'signup') {
       if (!name || !email || !password || !accessKey) {
-        setErrorMessage('Preencha todos os campos obrigatórios.');
+        setErrorMessage('Campos obrigatórios ausentes.');
         return;
       }
       const validKeys = ['PG2025', 'EXCLUSIVE', 'PG-2025'];
       if (!validKeys.includes(accessKey.toUpperCase().replace(/\s/g, ''))) {
-        setErrorMessage('Chave de Acesso inválida.');
+        setErrorMessage('Chave de Hardware inválida.');
         return;
       }
     } else {
       if (!email || !password) {
-        setErrorMessage('Informe e-mail e senha.');
+        setErrorMessage('Credenciais do sistema exigidas.');
         return;
       }
     }
@@ -41,7 +43,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
     setTimeout(() => {
       if (mode === 'login' && password === 'erro') {
         setStatus('error');
-        setErrorMessage('Credenciais incorretas.');
+        setErrorMessage('Acesso não autorizado.');
         return;
       }
 
@@ -71,7 +73,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
   const injectUser = (config: Partial<User>) => {
     const baseUser: User = {
       id: 'dev_' + Math.random().toString(36).substr(2, 5),
-      name: 'Test Profile',
+      name: 'Perfil de Teste',
       email: 'exclusive@personalgroup.com',
       role: UserRole.ALUNO,
       avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${config.name}`,
@@ -85,131 +87,158 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
   };
 
   return (
-    <div className="h-screen w-full flex flex-col items-center justify-center animate-gradient-bg overflow-hidden relative p-6">
-      {/* Overlay para suavizar o gradiente no modo claro se necessário */}
-      <div className="absolute inset-0 bg-white/5 dark:bg-transparent pointer-events-none"></div>
+    <div className="min-h-screen w-full flex flex-col items-center justify-center relative overflow-hidden p-6 bg-app grain-overlay">
+      <div className="precision-bg absolute inset-0 z-0 opacity-40"></div>
 
-      <div className="w-full max-w-sm flex flex-col items-center z-10">
+      {/* Theme Toggle Button */}
+      {onToggleTheme && (
+        <button
+          onClick={onToggleTheme}
+          className="absolute top-6 right-6 z-50 w-12 h-12 border border-white/20 bg-white/10 flex items-center justify-center text-white active:scale-95 transition-all hover:bg-white/20 rounded-lg backdrop-blur-md shadow-lg"
+          aria-label="Alternar tema"
+        >
+          {isDarkMode ? <Icons.Sun className="w-5 h-5 text-amber-400" /> : <Icons.Moon className="w-5 h-5 text-slate-200" />}
+        </button>
+      )}
 
-        {/* Branding */}
-        <div className={`text-center transition-all duration-700 transform ${mode === 'signup' ? 'mb-4 scale-90' : 'mb-10'}`}>
-          <div className="inline-flex items-center justify-center bg-white rounded-[24px] shadow-2xl mb-4 border border-blue-50/50 overflow-hidden">
-            <img
-              src="/logo.png"
-              alt="PersonalGroup Logo"
-              className="h-16 w-auto object-contain p-2"
-            />
+      <div className="w-full max-w-sm z-10 space-y-10 animate-in fade-in slide-in-from-bottom-12 duration-1000">
+        {/* Logo Section */}
+        <div className="text-center space-y-8 animate-in fade-in zoom-in duration-1000">
+          <div className="flex justify-center p-2 relative group">
+            <img src="/personalgroup-logo.png" className="h-24 w-auto object-contain filter drop-shadow-[0_0_25px_rgba(37,99,235,0.4)] relative z-10 transition-transform duration-500 group-hover:scale-105" alt="PersonalGroup logo" />
           </div>
-          <p className="text-white/70 text-[7px] font-bold tracking-[0.5em] uppercase mt-2">Exclusive Experience</p>
+          <div className="space-y-3">
+
+            <p className="text-[11px] font-medium text-blue-400 uppercase tracking-[0.4em] opacity-80">Experiência Exclusive</p>
+          </div>
         </div>
 
-        {/* AUTH CARD */}
-        <section className="w-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl rounded-[40px] shadow-[0_32px_64px_rgba(0,0,0,0.15)] dark:shadow-[0_32px_64px_rgba(0,0,0,0.4)] p-8 border border-white/50 dark:border-white/5 animate-in slide-in-from-bottom-12 duration-700 transition-colors">
+        {/* Auth Interface */}
+        <div className="glass-panel p-8 shadow-2xl relative group overflow-hidden border-white/5">
 
-          <div className="flex bg-slate-100/50 dark:bg-white/5 p-1 rounded-[20px] mb-8 border border-slate-200/20 dark:border-white/5">
+
+          <div className="flex border-b border-white/5 mb-8">
             <button
               onClick={() => { setMode('login'); setErrorMessage(''); }}
-              className={`flex-1 py-2.5 rounded-[16px] text-[10px] font-black uppercase tracking-widest transition-all duration-300 ${mode === 'login' ? 'bg-white dark:bg-slate-800 text-[#002B54] dark:text-white shadow-sm' : 'text-slate-400'}`}
+              className={`flex-1 py-4 text-[10px] font-bold uppercase tracking-[0.2em] transition-all relative ${mode === 'login' ? 'text-blue-500' : 'text-slate-600'}`}
             >
               Entrar
+              {mode === 'login' && <div className="absolute bottom-0 left-0 right-0 h-1 bg-blue-600 shadow-[0_0_10px_#2563EB]"></div>}
             </button>
             <button
               onClick={() => { setMode('signup'); setErrorMessage(''); }}
-              className={`flex-1 py-2.5 rounded-[16px] text-[10px] font-black uppercase tracking-widest transition-all duration-300 ${mode === 'signup' ? 'bg-white dark:bg-slate-800 text-[#002B54] dark:text-white shadow-sm' : 'text-slate-400'}`}
+              className={`flex-1 py-4 text-[10px] font-bold uppercase tracking-[0.2em] transition-all relative ${mode === 'signup' ? 'text-blue-500' : 'text-slate-600'}`}
             >
-              Cadastrar
+              Criar Conta
+              {mode === 'signup' && <div className="absolute bottom-0 left-0 right-0 h-1 bg-blue-600 shadow-[0_0_10px_#2563EB]"></div>}
             </button>
           </div>
 
-          <form onSubmit={handleAuth} className={`${mode === 'signup' ? 'space-y-3' : 'space-y-5'}`}>
+          <form onSubmit={handleAuth} className="space-y-6">
             {mode === 'signup' && (
-              <div>
-                <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-1 block">Nome Completo</label>
+              <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
+                <label className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Nome Completo</label>
                 <input
-                  type="text" placeholder="Como devemos lhe chamar?" value={name} onChange={e => setName(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5 rounded-2xl px-5 py-3 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all text-slate-900 dark:text-white"
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full h-12 bg-white/5 border border-white/10 px-4 text-sm font-semibold text-white focus:border-blue-500/50 outline-none transition-all"
+                  placeholder="EX // JOÃO SILVA"
                 />
               </div>
             )}
 
-            <div>
-              <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-1 block">Identificação</label>
+            <div className="space-y-2">
+              <label className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">E-mail</label>
               <input
-                type="email" placeholder="nome@exclusivo.com" value={email} onChange={e => setEmail(e.target.value)}
-                className="w-full bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5 rounded-2xl px-5 py-3 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all text-slate-900 dark:text-white"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full h-14 bg-white/5 border border-white/10 px-4 text-sm font-semibold text-white focus:border-blue-500/50 outline-none transition-all placeholder:text-slate-800"
+                placeholder="seu@email.com"
               />
             </div>
 
-            <div>
-              <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-1 block">Chave Privada</label>
+            <div className="space-y-2">
+              <label className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Senha</label>
               <input
-                type="password" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)}
-                className="w-full bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5 rounded-2xl px-5 py-3 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all text-slate-900 dark:text-white"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full h-14 bg-white/5 border border-white/10 px-4 text-sm font-semibold text-white focus:border-blue-500/50 outline-none transition-all"
+                placeholder="••••••••"
               />
             </div>
-
-            {mode === 'signup' && (
-              <div>
-                <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-1 block">Chave de Pista</label>
-                <input
-                  type="text" placeholder="PG-EXCLUSIVE" value={accessKey} onChange={e => setAccessKey(e.target.value)}
-                  className="w-full bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/30 rounded-2xl px-5 py-3 text-xs font-black text-blue-600 dark:text-blue-400 focus:outline-none focus:border-[#002B54] transition-all uppercase placeholder:text-blue-200"
-                />
-              </div>
-            )}
 
             {errorMessage && (
-              <p className="text-[9px] font-black text-red-500 text-center uppercase tracking-tighter animate-shake">{errorMessage}</p>
+              <div className="bg-red-950/20 border border-red-500/30 p-4 text-[9px] font-bold text-red-500 text-center uppercase tracking-widest">
+                Ops! {errorMessage}
+              </div>
             )}
 
             <button
               type="submit"
               disabled={status === 'loading'}
-              className="w-full py-4 rounded-[20px] blue-gradient text-white font-black text-[10px] uppercase tracking-[0.25em] shadow-xl shadow-blue-900/20 active:scale-[0.98] transition-all flex items-center justify-center border border-white/20"
+              className="w-full h-16 bg-blue-600 hover:bg-blue-500 text-white font-bold text-[11px] uppercase tracking-[0.4em] transition-all relative overflow-hidden group/btn shadow-[0_0_20px_rgba(37,99,235,0.3)]"
             >
+              <div className="absolute inset-0 bg-white translate-x-[-101%] group-hover/btn:translate-x-0 transition-transform duration-700 mix-blend-difference"></div>
               {status === 'loading' ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-              ) : (
-                <span>{mode === 'login' ? 'Acessar Pista' : 'Finalizar Adesão'}</span>
-              )}
+              ) : mode === 'login' ? 'Acessar' : 'Confirmar Cadastro'}
             </button>
           </form>
+        </div>
 
-          <div className="flex items-center my-6">
-            <div className="flex-1 h-px bg-slate-100 dark:bg-white/5"></div>
-            <span className="px-4 text-[8px] font-black text-slate-300 dark:text-slate-600 uppercase tracking-widest">Connect</span>
-            <div className="flex-1 h-px bg-slate-100 dark:bg-white/5"></div>
+        {/* Debug / Dev Profiles */}
+        <div className="space-y-6 pt-4">
+          <div className="flex items-center space-x-4 opacity-30">
+            <div className="flex-1 h-[1px] bg-white/10"></div>
+            <span className="text-[8px] font-bold uppercase tracking-[0.4em]">Acesso Rápido</span>
+            <div className="flex-1 h-[1px] bg-white/10"></div>
           </div>
 
-          <button
-            disabled={status === 'loading'}
-            className="w-full py-3.5 rounded-[18px] bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400 font-bold text-[9px] uppercase tracking-widest flex items-center justify-center space-x-3 active:bg-slate-50 dark:active:bg-white/10 transition-all shadow-sm"
-          >
-            <Icons.Google className="w-4 h-4" />
-            <span>Google Account</span>
-          </button>
-        </section>
-
-        {/* Quick Access Lab */}
-        {mode === 'login' && (
-          <div className="mt-8 grid grid-cols-4 gap-2 w-full opacity-40 hover:opacity-100 transition-opacity">
-            <MiniTestButton label="AL" onClick={() => injectUser({ name: 'Augusto Silva', role: UserRole.ALUNO })} />
-            <MiniTestButton label="P1" onClick={() => injectUser({ name: 'Prof. Ricardo', role: UserRole.PERSONAL })} />
-            <MiniTestButton label="CH" onClick={() => injectUser({ name: 'Coordenador', role: UserRole.CHEFE })} />
-            <MiniTestButton label="AD" onClick={() => injectUser({ name: 'Admin', role: UserRole.ADMIN })} />
+          <div className="grid grid-cols-2 gap-3">
+            {[
+              { label: 'Aluno', role: UserRole.ALUNO, icon: Icons.User },
+              { label: 'Professor', role: UserRole.PERSONAL, icon: Icons.Dumbbell },
+              { label: 'Gestor', role: UserRole.CHEFE, icon: Icons.Chart },
+              { label: 'Admin', role: UserRole.ADMIN, icon: Icons.Shield }
+            ].map((p, i) => (
+              <button
+                key={i}
+                onClick={() => injectUser({ name: p.label, role: p.role })}
+                className="flex items-center space-x-4 p-4 border border-white/5 bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/10 transition-all group text-left"
+              >
+                <div className="w-8 h-8 flex items-center justify-center border border-white/10 group-hover:border-blue-500 transition-colors">
+                  <p.icon className="w-4 h-4 text-slate-500 group-hover:text-blue-500 transition-colors" />
+                </div>
+                <span className="text-[9px] font-bold text-slate-400 group-hover:text-white uppercase tracking-widest">{p.label}</span>
+              </button>
+            ))}
           </div>
-        )}
-
-        <p className="mt-8 text-[6px] text-white/30 font-bold uppercase tracking-[0.6em]">Legado Digital v1.5.0</p>
+        </div>
       </div>
     </div>
   );
 };
 
-const MiniTestButton = ({ label, onClick }: any) => (
-  <button onClick={onClick} className="p-2 rounded-xl bg-white/10 border border-white/10 text-white font-black text-[9px] flex items-center justify-center active:scale-90 transition-all backdrop-blur-md">
-    {label}
-  </button>
-);
+const TestProfileButton: React.FC<{
+  label: string;
+  icon: any;
+  color: string;
+  onClick: () => void;
+}> = ({ label, icon: Icon, color, onClick }) => {
+  return (
+    <button
+      onClick={onClick}
+      className={`flex items-center space-x-3 p-3 rounded-2xl bg-white/50 dark:bg-white/5 border border-slate-100/30 dark:border-white/5 shadow-sm hover:shadow-md transition-all active:scale-[0.97] group text-left`}
+    >
+      <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${color} flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform`}>
+        <Icon className="w-4 h-4" />
+      </div>
+      <span className="text-[10px] font-bold text-slate-900 dark:text-slate-950 dark:text-white uppercase tracking-tight leading-none">{label}</span>
+    </button>
+  );
+};
 
 export default Login;

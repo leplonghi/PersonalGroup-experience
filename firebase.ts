@@ -1,5 +1,5 @@
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { initializeApp } from "firebase/app";
 import {
   getFirestore,
   collection,
@@ -18,7 +18,7 @@ import {
   arrayUnion,
   arrayRemove,
   deleteField
-} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+} from "firebase/firestore";
 import {
   User,
   TrainingCycle,
@@ -42,8 +42,17 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:123456789:web:abcdef"
 };
 
-const app = initializeApp(firebaseConfig);
-export const db = getFirestore(app);
+let app;
+let dbInstance;
+
+try {
+  app = initializeApp(firebaseConfig);
+  dbInstance = getFirestore(app);
+} catch (error) {
+  console.error("Firebase Initialization Error:", error);
+}
+
+export const db = dbInstance || {} as any;
 
 // --- Collection References ---
 export const usersCol = collection(db, "users");

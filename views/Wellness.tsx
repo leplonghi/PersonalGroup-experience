@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import Card from '../components/Card';
 import { User, WellnessService, WellnessBooking } from '../types';
-import { Icons } from '../constants';
+import { Icons, WELLNESS_SERVICES_DATA } from '../constants';
 
 interface WellnessProps {
   user: User;
@@ -16,36 +16,8 @@ const Wellness: React.FC<WellnessProps> = ({ user, onBack }) => {
   const [step, setStep] = useState<'SERVICES' | 'SCHEDULE' | 'CONFIRM'>('SERVICES');
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const services: WellnessService[] = [
-    { 
-      id: 's1', 
-      name: 'Massagem Relaxante', 
-      description: 'Foco em redução de cortisol e relaxamento muscular profundo.',
-      duration: '50 min',
-      icon: 'leaf'
-    },
-    { 
-      id: 's2', 
-      name: 'Deep Tissue (Recuperação)', 
-      description: 'Liberação de trigger points e melhora da circulação pós-treino intenso.',
-      duration: '60 min',
-      icon: 'shield'
-    },
-    { 
-      id: 's3', 
-      name: 'Liberação Miofascial Técnica', 
-      description: 'Aumento da amplitude de movimento e redução de tensões fasciais.',
-      duration: '45 min',
-      icon: 'chart'
-    },
-    { 
-      id: 's4', 
-      name: 'Drenagem Linfática', 
-      description: 'Redução de edema e otimização do sistema linfático.',
-      duration: '50 min',
-      icon: 'shield'
-    }
-  ];
+  // Using real data from constants
+  const services = WELLNESS_SERVICES_DATA;
 
   const dates = [
     { label: 'SEG', day: '15', available: true },
@@ -66,86 +38,92 @@ const Wellness: React.FC<WellnessProps> = ({ user, onBack }) => {
   };
 
   const renderServices = () => (
-    <div className="space-y-6 animate-fade-in">
-      <div className="px-1">
-        <h3 className="text-xl font-black text-slate-900 dark:text-white tracking-tight uppercase">Selecione o Serviço</h3>
-        <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mt-1">Sua jornada de recuperação</p>
+    <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="px-1 border-l-4 border-blue-600 pl-6">
+        <h3 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight uppercase">Selecionar Serviço</h3>
+        <p className="text-[10px] font-bold text-blue-500 uppercase tracking-[0.3em] mt-2 leading-none">Recuperação e Bem-estar</p>
       </div>
-      
-      <div className="space-y-4">
-        {services.map(service => (
-          <Card 
-            key={service.id}
-            variant="flat"
-            onClick={() => { setSelectedService(service); setStep('SCHEDULE'); }}
-            className="p-6 bg-white dark:bg-[#0F172A] border-slate-100 dark:border-white/5 shadow-sm active:scale-[0.98] transition-all flex items-center justify-between group"
-          >
-            <div className="flex items-center space-x-5">
-              <div className="w-14 h-14 bg-blue-50 dark:bg-blue-900/30 rounded-[20px] flex items-center justify-center text-blue-600 dark:text-blue-400">
-                {service.icon === 'leaf' && <Icons.Leaf className="w-7 h-7" />}
-                {service.icon === 'shield' && <Icons.Shield className="w-7 h-7" />}
-                {service.icon === 'chart' && <Icons.Chart className="w-7 h-7" />}
+
+      <div className="grid grid-cols-1 gap-4">
+        {services.map(service => {
+          // Dynamic icon rendering
+          const IconComponent = Icons[service.icon as keyof typeof Icons] || Icons.Leaf;
+
+          return (
+            <div
+              key={service.id}
+              onClick={() => { setSelectedService(service as unknown as WellnessService); setStep('SCHEDULE'); }}
+              className="glass-panel p-8 group relative overflow-hidden active:scale-[0.99] transition-all border-white/5 cursor-pointer"
+            >
+              <div className="flex items-center space-x-6 relative z-10">
+                <div className="w-14 h-14 border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 flex items-center justify-center text-blue-500 shadow-xl group-hover:border-blue-600 transition-all">
+                  <IconComponent className="w-7 h-7" />
+                </div>
+                <div className="flex-1">
+                  <h4 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight uppercase">{service.name}</h4>
+                  <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 mb-3">{service.description}</p>
+                  <div className="flex items-center text-[9px] font-bold text-slate-500 uppercase tracking-widest leading-none">
+                    <Icons.Clock className="w-3 h-3 mr-2" /> {service.duration}
+                  </div>
+                </div>
               </div>
-              <div className="flex-1">
-                <h4 className="text-sm font-black text-slate-900 dark:text-white tracking-tight">{service.name}</h4>
-                <p className="text-[10px] text-slate-400 font-semibold leading-relaxed mt-1 line-clamp-2 uppercase tracking-tighter">{service.description}</p>
+              <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-20 transition-opacity">
+                <Icons.ChevronRight className="w-12 h-12" />
               </div>
             </div>
-            <div className="text-right ml-4">
-               <span className="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest">{service.duration}</span>
-            </div>
-          </Card>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
 
   const renderSchedule = () => (
-    <div className="space-y-10 animate-fade-in">
-      <header className="flex items-center space-x-4">
-        <button onClick={() => setStep('SERVICES')} className="w-10 h-10 bg-slate-100 dark:bg-white/5 rounded-xl flex items-center justify-center text-slate-400">
+    <div className="space-y-12 animate-in fade-in slide-in-from-right-4 duration-700">
+      <header className="flex items-center space-x-6">
+        <button onClick={() => setStep('SERVICES')} className="w-12 h-12 border border-white/10 bg-white/5 flex items-center justify-center text-white active:scale-95 transition-all">
           <Icons.ChevronRight className="w-5 h-5 rotate-180" />
         </button>
         <div>
-          <h3 className="text-lg font-black text-slate-900 dark:text-white tracking-tight uppercase leading-none">{selectedService?.name}</h3>
-          <p className="text-[9px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-[0.2em] mt-1.5">{selectedService?.duration}</p>
+          <h3 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight uppercase leading-none">{selectedService?.name}</h3>
+          <p className="text-[9px] font-bold text-blue-500 uppercase tracking-[0.3em] mt-3">Agendar Sessão</p>
         </div>
       </header>
 
       {/* Date Picker */}
-      <section className="space-y-4">
-        <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-widest px-1">Escolha o Dia</h4>
+      <section className="space-y-8">
+        <div className="flex items-baseline justify-between px-1">
+          <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.3em]">Escolha do Período</h4>
+          <span className="text-[8px] font-bold text-blue-600 uppercase tracking-widest">Janeiro 2026</span>
+        </div>
         <div className="flex space-x-3 overflow-x-auto no-scrollbar pb-2">
           {dates.map(d => (
-            <button 
+            <button
               key={d.day}
               onClick={() => setSelectedDate(d.day)}
-              className={`min-w-[68px] h-[88px] flex flex-col items-center justify-center rounded-[24px] transition-all duration-300 ${
-                selectedDate === d.day 
-                  ? 'bg-blue-600 text-white shadow-xl shadow-blue-600/20 scale-105' 
-                  : 'bg-white dark:bg-white/5 text-slate-400 dark:text-slate-600 border border-slate-100 dark:border-white/10'
-              }`}
+              className={`min-w-[80px] h-24 flex flex-col items-center justify-center border transition-all duration-500 relative ${selectedDate === d.day
+                ? 'bg-blue-600 border-blue-600 text-white shadow-[0_0_20px_rgba(37,99,235,0.4)]'
+                : 'bg-white border-slate-200 text-slate-600 dark:bg-white/5 dark:text-slate-600 dark:border-white/5'
+                }`}
             >
-              <span className="text-[9px] font-black mb-1.5 uppercase opacity-60 tracking-widest">{d.label}</span>
-              <span className="text-lg font-black tracking-tight">{d.day}</span>
+              <span className="text-[9px] font-bold mb-2 uppercase opacity-60 tracking-widest relative z-10">{d.label}</span>
+              <span className="text-2xl font-bold tracking-tight relative z-10">{d.day}</span>
             </button>
           ))}
         </div>
       </section>
 
       {/* Time Picker */}
-      <section className="space-y-4">
-        <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-widest px-1">Horário de Pista</h4>
+      <section className="space-y-8">
+        <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.3em] px-1">Horários Disponíveis</h4>
         <div className="grid grid-cols-4 gap-3">
           {timeSlots.map(time => (
-            <button 
+            <button
               key={time}
               onClick={() => setSelectedTime(time)}
-              className={`py-4 rounded-2xl text-[11px] font-black transition-all border ${
-                selectedTime === time 
-                  ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-950 border-transparent shadow-lg scale-105' 
-                  : 'bg-white dark:bg-white/5 text-slate-600 dark:text-slate-400 border-slate-100 dark:border-white/10'
-              }`}
+              className={`py-5 border text-[10px] font-bold transition-all ${selectedTime === time
+                ? 'bg-white text-black border-white shadow-[0_0_20px_white] scale-[1.02]'
+                : 'bg-white border-slate-200 text-slate-800 dark:bg-white/5 dark:text-slate-400 dark:border-white/10'
+                }`}
             >
               {time}
             </button>
@@ -153,22 +131,24 @@ const Wellness: React.FC<WellnessProps> = ({ user, onBack }) => {
         </div>
       </section>
 
-      <div className="pt-8">
-        <button 
+      <div className="pt-10">
+        <button
           disabled={!selectedTime || isProcessing}
           onClick={handleBooking}
-          className={`w-full py-6 rounded-[32px] font-black text-xs uppercase tracking-[0.25em] shadow-2xl transition-all flex items-center justify-center space-x-3 ${
-            selectedTime && !isProcessing
-              ? 'blue-gradient text-white shadow-blue-900/40 active:scale-95' 
-              : 'bg-slate-100 dark:bg-white/5 text-slate-300 dark:text-slate-700 cursor-not-allowed'
-          }`}
+          className={`w-full h-20 font-black text-[11px] uppercase tracking-[0.6em] transition-all relative overflow-hidden group ${selectedTime && !isProcessing
+            ? 'bg-blue-600 text-white active:scale-[0.98]'
+            : 'bg-slate-100 dark:bg-white/5 text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-white/5 cursor-not-allowed'
+            }`}
         >
           {isProcessing ? (
-            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+            <div className="w-6 h-6 border-2 border-white/30 border-t-white animate-spin"></div>
           ) : (
             <>
-              <Icons.Calendar className="w-5 h-5" />
-              <span>Confirmar Reserva</span>
+              <div className="absolute inset-0 bg-white translate-x-[-101%] group-hover:translate-x-0 transition-transform duration-700 mix-blend-difference"></div>
+              <div className="flex items-center justify-center space-x-4 relative z-10">
+                <Icons.Calendar className="w-5 h-5" />
+                <span>Confirmar Reserva</span>
+              </div>
             </>
           )}
         </button>
@@ -177,55 +157,52 @@ const Wellness: React.FC<WellnessProps> = ({ user, onBack }) => {
   );
 
   const renderConfirm = () => (
-    <div className="flex flex-col items-center justify-center py-20 text-center animate-in zoom-in duration-500">
-      <div className="w-24 h-24 bg-green-500 text-white rounded-[36px] flex items-center justify-center mb-10 shadow-3xl shadow-green-500/30">
-        <Icons.Shield className="w-12 h-12" />
+    <div className="flex flex-col items-center justify-center py-20 text-center animate-in zoom-in-95 fade-in duration-1000">
+      <div className="w-32 h-32 border-4 border-blue-600 bg-white/5 flex items-center justify-center mb-12 shadow-[0_0_50px_rgba(37,99,235,0.3)] relative">
+        <div className="absolute inset-0 border border-blue-600/50 animate-ping opacity-20"></div>
+        <Icons.Shield className="w-14 h-14 text-blue-600" />
       </div>
-      <h3 className="text-4xl font-black text-slate-900 dark:text-white tracking-tighter leading-none mb-6">RESERVA<br/>CONFIRMADA</h3>
-      <div className="bg-slate-50 dark:bg-white/5 p-8 rounded-[40px] w-full max-w-[280px] mb-12 border border-slate-100 dark:border-white/10">
-         <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-4">Seu Horário no SPA</p>
-         <h4 className="text-lg font-black text-slate-900 dark:text-white leading-tight mb-2">{selectedService?.name}</h4>
-         <p className="text-base font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest">Dia {selectedDate} às {selectedTime}</p>
+      <h3 className="text-5xl font-bold text-slate-900 dark:text-white tracking-tight leading-none mb-10 uppercase">Reserva<br /><span className="text-blue-600">Consolidada</span></h3>
+
+      <div className="glass-panel p-10 w-full max-w-[340px] mb-16 border-white/10">
+        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.3em] mb-6 leading-none">Voucher de Identidade</p>
+        <h4 className="text-lg font-bold text-slate-900 dark:text-white leading-tight mb-4 uppercase">{selectedService?.name}</h4>
+        <div className="flex items-center justify-center space-x-4 mt-6 text-blue-500">
+          <Icons.Calendar className="w-5 h-5" />
+          <p className="text-sm font-bold uppercase tracking-[0.2em]">DIA {selectedDate} • {selectedTime}</p>
+        </div>
       </div>
-      <button 
+
+      <button
         onClick={onBack}
-        className="w-full max-w-[280px] py-6 blue-gradient text-white rounded-[32px] font-black text-xs uppercase tracking-[0.2em] shadow-xl active:scale-95 transition-all"
+        className="w-full max-w-[300px] h-20 bg-blue-600 text-white font-black text-[11px] uppercase tracking-[0.6em] transition-all hover:bg-blue-500 active:scale-[0.98] shadow-2xl"
       >
-        Voltar à Home
+        Concluir Operação
       </button>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-white dark:bg-[#020617] flex flex-col animate-fade-in relative transition-colors duration-500">
-      
-      {/* PREMIUM HEADER - CONSISTENTE */}
-      <header className="px-8 pt-14 pb-8 flex items-center justify-between sticky top-0 bg-white/90 dark:bg-[#020617]/90 backdrop-blur-xl z-50 border-b border-slate-50 dark:border-white/5">
-        <div>
-          <p className="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-[0.3em] mb-1.5">Wellness Center</p>
-          <h1 className="text-3xl font-black text-slate-950 dark:text-white leading-tight tracking-tight">Recovery & Spa</h1>
-        </div>
-        <button onClick={onBack} className="w-12 h-12 bg-slate-50 dark:bg-white/5 rounded-2xl flex items-center justify-center border border-slate-100 dark:border-white/10 active:scale-90 transition-transform">
-           <Icons.ChevronRight className="w-6 h-6 text-slate-400 rotate-180" />
-        </button>
-      </header>
+    <div className="min-h-screen bg-app flex flex-col transition-colors duration-500 grain-overlay relative p-8">
+      <div className="precision-bg absolute inset-0 z-0 opacity-40"></div>
 
-      <div className="flex-1 px-8 py-10 pb-40 overflow-y-auto no-scrollbar">
-        {/* Status Section - Always visible unless confirmed */}
+      <div className="flex-1 pb-40 pt-4 relative z-10 no-scrollbar overflow-y-auto">
+
+        {/* Status Section */}
         {step !== 'CONFIRM' && (
-          <Card variant="flat" className="p-8 bg-slate-50 dark:bg-[#0F172A] border-none mb-12 shadow-inner">
-            <div className="flex justify-between items-center mb-8">
-              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Sessões Disponíveis</span>
-              <Icons.Leaf className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+          <div className="glass-panel p-10 border-white/10 mb-12">
+            <div className="flex justify-between items-center mb-10">
+              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-[0.3em]">Créditos Disponíveis</span>
+              <Icons.Leaf className="w-6 h-6 text-blue-600" />
             </div>
-            <div className="flex items-baseline space-x-2">
-              <span className="text-5xl font-black text-slate-900 dark:text-white tracking-tighter">01</span>
-              <span className="text-xl font-black text-slate-300 dark:text-slate-700">/ 02 exclusivas</span>
+            <div className="flex items-baseline space-x-3">
+              <span className="text-6xl font-bold text-slate-900 dark:text-white tracking-tight">01</span>
+              <span className="text-xl font-bold text-slate-700 tracking-tight">/ 02 DISPONÍVEIS</span>
             </div>
-            <div className="w-full h-1.5 bg-white dark:bg-white/5 rounded-full mt-6 overflow-hidden">
-               <div className="h-full bg-blue-600 w-[50%] rounded-full"></div>
+            <div className="w-full h-1 bg-white/10 mt-10 relative">
+              <div className="h-full bg-blue-600 w-[50%] shadow-[0_0_10px_#2563EB]"></div>
             </div>
-          </Card>
+          </div>
         )}
 
         {step === 'SERVICES' && renderServices()}

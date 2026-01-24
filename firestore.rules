@@ -1,82 +1,18 @@
+rules_version='2'
 
-rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // DESENVOLVIMENTO: Para facilitar o desenvolvimento local, descomente a linha abaixo
-    // ATENÇÃO: REMOVA ESTA LINHA EM PRODUÇÃO!
-    // match /{document=**} { allow read, write: if true; }
-    
-    // Funções auxiliares de validação
-    function isSignedIn() {
-      return request.auth != null;
-    }
-    
-    function getUserData() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
-    }
-    
-    function hasRole(role) {
-      return isSignedIn() && getUserData().role == role;
-    }
-    
-    function isOwner(userId) {
-      return isSignedIn() && request.auth.uid == userId;
-    }
-    
-    // Para desenvolvimento: permitir leitura pública mas exigir autenticação para escritas
-    function allowDevRead() {
-      return true; // Em desenvolvimento, permitir leitura
-    }
-
-    // Regras por Coleção
-    
-    match /users/{userId} {
-      allow read: if allowDevRead();
-      allow write: if isOwner(userId) || hasRole('ADMIN') || hasRole('CHEFE');
-    }
-
-    match /protocolos/{protocolId} {
-      allow read: if allowDevRead();
-      allow write: if hasRole('ADMIN') || hasRole('CHEFE');
-    }
-
-    match /ciclos/{cicloId} {
-      allow read: if allowDevRead();
-      allow write: if hasRole('ADMIN') || hasRole('CHEFE') || hasRole('PERSONAL');
-    }
-
-    match /sessoes/{sessaoId} {
-      allow read: if allowDevRead();
-      allow create: if true; // Permitir criação para desenvolvimento
-    }
-
-    match /avaliacoes/{evalId} {
-      allow read: if allowDevRead();
-      allow write: if hasRole('ADMIN') || hasRole('CHEFE');
-    }
-
-    match /agendas/{agendaId} {
-      allow read: if allowDevRead();
-      allow create: if true; // Permitir criação para desenvolvimento
-      allow update, delete: if isOwner(resource.data.userId) || hasRole('ADMIN');
-    }
-
-    match /mensagens/{msgId} {
-      allow read: if allowDevRead();
-      allow create: if true; // Permitir criação para desenvolvimento
-      allow update: if isSignedIn() && isOwner(resource.data.userId);
-    }
-
-    match /timeline/{entryId} {
-      allow read: if allowDevRead();
-      allow create: if true; // Permitir criação para desenvolvimento
-      allow update, delete: if false; // Timeline é imutável
-    }
-    
-    match /wellness/{serviceId} {
-      allow read: if allowDevRead();
-      allow write: if hasRole('ADMIN');
+    match /{document=**} {
+      // This rule allows anyone with your database reference to view, edit,
+      // and delete all data in your database. It is useful for getting
+      // started, but it is configured to expire after 30 days because it
+      // leaves your app open to attackers. At that time, all client
+      // requests to your database will be denied.
+      //
+      // Make sure to write security rules for your app before that time, or
+      // else all client requests to your database will be denied until you
+      // update your rules.
+      allow read, write: if request.time < timestamp.date(2026, 2, 20);
     }
   }
 }

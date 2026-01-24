@@ -12,232 +12,340 @@ interface HomeProps {
   onGoMessages?: () => void;
   onGoAgenda?: () => void;
   onGoCheckIn?: () => void;
+  onGoClub?: () => void;
 }
 
-const Home: React.FC<HomeProps> = ({ 
-  user, 
-  onStartSession, 
-  onGoWellness, 
+const Home: React.FC<HomeProps> = ({
+  user,
+  onStartSession,
+  onGoWellness,
   onGoTimeline,
   onGoMessages,
   onGoAgenda,
-  onGoCheckIn
+  onGoCheckIn,
+  onGoClub
 }) => {
   const renderStudentHome = () => (
-    <div className="animate-slide-up flex flex-col min-h-screen">
-      {/* 1. TOP GREETING & STATUS */}
-      <div className="px-6 py-6 flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <div className="relative">
-            <div className="w-12 h-12 rounded-2xl border-2 border-white dark:border-slate-800 shadow-xl overflow-hidden">
-              <img src={user.avatar} className="w-full h-full object-cover" alt="Profile" />
-            </div>
-            <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white dark:border-[#020617] ${user.healthStatus === 'NORMAL' ? 'bg-green-500' : 'bg-amber-500'}`}></div>
+    <div className="animate-in fade-in duration-1000 space-y-8 px-6 pb-24 pt-6 grain-overlay">
+
+      {/* 1. ASYMMETRIC PRECISION HEADER */}
+      <div className="flex flex-col space-y-0.5 pt-2">
+        <div className="flex justify-between items-start">
+          <div className="flex flex-col">
+            <span className="text-[10px] font-bold text-blue-500 uppercase tracking-[0.3em] mb-3">
+              Bem-vindo ao Personal Group
+            </span>
+            <h1 className="text-5xl font-bold tracking-tight leading-none">
+              {user.name.split(' ')[0]}<span className="text-blue-600">.</span>
+            </h1>
+            <button onClick={onGoClub} className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mt-2 flex items-center hover:text-blue-500 transition-colors group/status text-left">
+              <span className="w-1.5 h-1.5 bg-green-500 rounded-full mr-2 shadow-[0_0_8px_#22C55E] group-hover/status:animate-ping"></span>
+              Minha Unidade: Península
+            </button>
           </div>
-          <div>
-            <p className="text-[10px] font-black text-slate-500 dark:text-slate-500 uppercase tracking-widest leading-none mb-1.5">Membro Exclusive</p>
-            <h2 className="text-lg font-black text-slate-900 dark:text-white leading-none tracking-tight">{user.name}</h2>
+          <div className="relative group">
+            <div className="w-20 h-20 rounded-sm p-0.5 bg-white dark:bg-white/5 border border-blue-100 dark:border-white/10 group-hover:border-blue-500/50 transition-all duration-700 shadow-2xl">
+              <img src={user.avatar} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" alt="Identity" />
+            </div>
+            <div className="absolute -top-2 -right-2 w-6 h-6 bg-blue-600 rounded-sm flex items-center justify-center text-[10px] font-bold shadow-lg">
+              9/10
+            </div>
           </div>
         </div>
-        <button className="w-12 h-12 rounded-2xl bg-white dark:bg-white/5 border border-slate-100 dark:border-white/5 flex items-center justify-center shadow-sm active:scale-90 transition-all">
-          <Icons.Bell className="w-6 h-6 text-slate-500" />
-          <div className="absolute top-3.5 right-3.5 w-2 h-2 bg-blue-600 rounded-full border border-white"></div>
-        </button>
       </div>
 
-      {/* 2. CHECK-IN SECTION (INTERLIGADO) */}
+      {/* 2. OPERATIONAL GATE (CHECK-IN) */}
       {!user.isCheckedIn ? (
-        <div className="px-5 mb-8">
-          <Card 
-            variant="flat" 
-            onClick={onGoCheckIn}
-            className="p-8 border-blue-100 dark:border-blue-900/30 bg-blue-50/20 dark:bg-blue-900/10 flex items-center justify-between group active:scale-[0.98]"
-          >
-            <div className="flex items-center space-x-6">
-              <div className="w-14 h-14 bg-blue-600 rounded-3xl flex items-center justify-center text-white shadow-lg animate-pulse">
-                <Icons.QRCode className="w-7 h-7" />
-              </div>
-              <div>
-                <h4 className="text-sm font-black text-blue-900 dark:text-blue-400 uppercase tracking-tight">Check-in na Unidade</h4>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Sincronize sua presença agora</p>
+        <Card
+          variant="outline"
+          onClick={onGoCheckIn}
+          className="p-8 scanline-effect border-slate-200 dark:border-white/10 group hover:border-blue-500/30 transition-all active:scale-[0.99]"
+        >
+          <div className="flex justify-between items-center">
+            <div className="space-y-4">
+              <h4 className="text-xs font-black tracking-[0.3em] opacity-50">Check-in</h4>
+              <div className="flex items-center space-x-6">
+                <div className="w-16 h-16 border border-blue-200 dark:border-white/10 flex items-center justify-center group-hover:border-blue-500/50 transition-all">
+                  <Icons.QRCode className="w-8 h-8 opacity-40 group-hover:opacity-100 group-hover:text-blue-500 transition-all" />
+                </div>
+                <div>
+                  <div className="h-4 w-48 bg-blue-100 dark:bg-white/5 relative overflow-hidden">
+                    <div className="absolute inset-0 bg-blue-600/20 animate-[shimmer_2s_infinite]"></div>
+                  </div>
+                  <p className="text-[9px] font-bold text-blue-500 uppercase tracking-[0.5em] mt-3">Toque para realizar Check-in...</p>
+                </div>
               </div>
             </div>
-            <Icons.ChevronRight className="w-5 h-5 text-blue-300" />
-          </Card>
-        </div>
+            <Icons.ChevronRight className="w-5 h-5 opacity-20 group-hover:opacity-100 transition-all" />
+          </div>
+        </Card>
       ) : (
-        <div className="px-5 mb-8">
-          <div className="bg-green-500/10 border border-green-500/20 rounded-[32px] p-6 flex items-center space-x-4">
-             <div className="w-10 h-10 bg-green-500 text-white rounded-2xl flex items-center justify-center shadow-lg">
-                <Icons.Shield className="w-5 h-5" />
-             </div>
-             <div>
-                <p className="text-[9px] font-black text-green-600 uppercase tracking-widest leading-none mb-1">Presença Validada</p>
-                <p className="text-xs font-black text-slate-900 dark:text-white tracking-tight leading-none uppercase">Em Pista: Unidade Península</p>
-             </div>
+        <div className="glass-panel border-green-500/20 p-6 flex justify-between items-center group overflow-hidden relative">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-green-500/5 blur-3xl rounded-full"></div>
+          <div className="flex items-center space-x-5 z-10">
+            <div className="w-12 h-12 border border-green-500/30 flex items-center justify-center">
+              <Icons.Shield className="w-6 h-6 text-green-500" />
+            </div>
+            <div className="space-y-1">
+              <p className="text-[9px] font-bold text-green-500 uppercase tracking-widest">Check-in Confirmado</p>
+              <p className="text-lg font-bold tracking-tight uppercase text-white">Studio Península</p>
+            </div>
+          </div>
+          <div className="text-right z-10">
+            <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">ENTRADA</p>
+            <p className="text-xl font-bold">{user.checkInTime || '14:30'}</p>
           </div>
         </div>
       )}
 
-      {/* 3. HERO WORKOUT CARD */}
-      <div className="px-5 mb-8">
-        <Card variant="blue" className={`relative aspect-[4/5] p-10 flex flex-col justify-end group shadow-2xl shadow-blue-900/30 transition-all ${!user.isCheckedIn ? 'opacity-80 grayscale-[0.2]' : ''}`}>
-          <img 
-            src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80&w=800" 
-            className="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-overlay group-hover:scale-105 transition-transform duration-[3s]" 
-            alt="Workout" 
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#002B54] via-transparent to-transparent"></div>
-          
-          <div className="relative z-10">
-            <div className="inline-flex items-center px-4 py-1.5 bg-white/20 backdrop-blur-md rounded-full text-[9px] font-black text-white uppercase tracking-widest mb-6 border border-white/20">
-              <Icons.Clock className="w-3 h-3 mr-2" />
-              Sessão Sugerida: 18:00
-            </div>
-            
-            <h3 className="text-4xl font-black text-white leading-[0.9] tracking-tighter mb-4">
-              MEMBROS<br/>SUPERIORES
-            </h3>
-            <p className="text-blue-100/70 text-sm font-bold mb-8 uppercase tracking-widest">Protocolo Hipertrofia A2</p>
-            
-            <button 
-              onClick={() => onStartSession?.()}
-              className={`w-full py-6 bg-white text-[#002B54] rounded-[24px] font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center space-x-3 active:scale-[0.98] transition-all shadow-xl ${!user.isCheckedIn ? 'opacity-50' : ''}`}
-            >
-              <div className="w-0 h-0 border-t-[5px] border-t-transparent border-l-[9px] border-l-[#002B54] border-b-[5px] border-b-transparent ml-1"></div>
-              <span>INICIAR GOVERNANÇA</span>
-            </button>
-            {!user.isCheckedIn && (
-              <p className="text-white/40 text-[8px] font-black uppercase text-center mt-6 tracking-[0.2em]">Faça check-in para liberar a governança</p>
-            )}
-          </div>
-        </Card>
-      </div>
-
-      {/* 4. QUICK METRICS */}
-      <div className="px-6 grid grid-cols-2 gap-4 mb-8">
-        <Card variant="flat" className="p-8 flex flex-col justify-between h-40">
-          <div className="flex justify-between items-start">
-            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Frequência</span>
-            <div className="p-2 bg-green-50 dark:bg-green-500/10 rounded-xl">
-              <Icons.TrendingUp className="w-4 h-4 text-green-500" />
-            </div>
-          </div>
-          <div>
-            <h4 className="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">85<span className="text-lg opacity-30">%</span></h4>
-            <p className="text-[9px] font-bold text-slate-500 uppercase mt-1 tracking-widest">Aderência ao Plano</p>
-          </div>
-        </Card>
-
-        <Card variant="flat" className="p-8 flex flex-col justify-between h-40">
-          <div className="flex justify-between items-start">
-            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Performance</span>
-            <div className="p-2 bg-blue-50 dark:bg-blue-500/10 rounded-xl">
-              <Icons.Chart className="w-4 h-4 text-blue-600" />
-            </div>
-          </div>
-          <div>
-            <h4 className="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">1.4<span className="text-lg opacity-30">k</span></h4>
-            <p className="text-[9px] font-bold text-slate-500 uppercase mt-1 tracking-widest">Tonelagem/Sessão</p>
-          </div>
-        </Card>
-      </div>
-
-      {/* 5. RECOVERY SECTION */}
-      <div className="px-6 mb-12">
-        <Card variant="outline" onClick={onGoWellness} className="p-8 flex items-center justify-between group active:bg-slate-50 dark:active:bg-white/5 border-slate-200 dark:border-white/5">
-          <div className="flex items-center space-x-6">
-            <div className="w-14 h-14 bg-[#002B54] dark:bg-blue-600 rounded-3xl flex items-center justify-center text-white shadow-lg group-hover:rotate-12 transition-transform">
-              <Icons.Leaf className="w-7 h-7" />
-            </div>
+      {/* 2.5. SISTEMA FLEX IDENTITY */}
+      <Card variant="flat" className="relative overflow-hidden group border-blue-100 dark:border-white/5 bg-white dark:bg-slate-900/40">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-yellow-500/5 blur-[80px] rounded-full pointer-events-none"></div>
+        <div className="p-8 relative z-10">
+          <div className="flex justify-between items-start mb-6">
             <div>
-              <h4 className="text-base font-black text-slate-900 dark:text-white uppercase tracking-tight">Recovery & SPA</h4>
-              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">1 de 2 sessões disponíveis</p>
+              <span className="text-[10px] font-bold text-yellow-500 uppercase tracking-[0.3em] mb-2 block">
+                Metodologia Exclusiva
+              </span>
+              <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white uppercase italic">
+                Sistema <span className="text-yellow-500">Flex</span>
+              </h2>
+            </div>
+            <Icons.Star className="w-6 h-6 text-yellow-500 opacity-50" />
+          </div>
+
+          <p className="text-sm text-slate-600 dark:text-slate-300 mb-6 leading-relaxed max-w-lg">
+            Acompanhamento multiprofissional para desenvolver todas as suas capacidades físicas.
+            Estabilidade, mobilidade, força e bem-estar em um só lugar.
+          </p>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex items-center space-x-3">
+              <div className="w-1.5 h-1.5 bg-yellow-500 rounded-full"></div>
+              <span className="text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Treinos Personalizados</span>
+            </div>
+            <div className="flex items-center space-x-3">
+              <div className="w-1.5 h-1.5 bg-yellow-500 rounded-full"></div>
+              <span className="text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Avaliação Constante</span>
+            </div>
+            <div className="flex items-center space-x-3">
+              <div className="w-1.5 h-1.5 bg-yellow-500 rounded-full"></div>
+              <span className="text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Saúde Integral</span>
+            </div>
+            <div className="flex items-center space-x-3">
+              <div className="w-1.5 h-1.5 bg-yellow-500 rounded-full"></div>
+              <span className="text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Equipe Multidisciplinar</span>
             </div>
           </div>
-          <Icons.ChevronRight className="w-5 h-5 text-slate-400" />
+        </div>
+      </Card>
+
+      {/* 3. HERO PROTOCOL - TYPOGRAPHIC BRUTALISM */}
+      <div className="relative group overflow-hidden animate-slide-up">
+        <Card variant="flat" className="relative h-[280px] border-white/5 hover:border-white/10 transition-all p-0">
+          <img
+            src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80&w=1200"
+            className="absolute inset-0 w-full h-full object-cover opacity-30 grayscale group-hover:scale-105 transition-transform duration-[20s]"
+            alt="Workout"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-midnight via-midnight/60 to-transparent"></div>
+
+          <div className="absolute top-8 right-8 flex flex-col items-end">
+            <span className="text-[9px] font-bold text-blue-500 tracking-[0.3em]">SEU TREINO</span>
+            <div className="text-2xl font-bold mt-1">A2 // 04</div>
+          </div>
+
+          <div className="relative h-full flex flex-col justify-end p-8 space-y-6">
+            <div className="space-y-2">
+              <h2 className="text-6xl font-extrabold tracking-tighter leading-none text-white overflow-hidden">
+                <span className="block translate-y-2 group-hover:translate-y-0 transition-transform duration-500">MEMBROS</span>
+                <span className="block text-blue-600 translate-y-3 group-hover:translate-y-0 transition-transform duration-700 delay-75">SUPERIORES</span>
+              </h2>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <p className="text-[10px] font-bold text-slate-300 uppercase tracking-[0.2em] flex items-center">
+                <span className="w-3 h-0.5 bg-blue-600 mr-2"></span>
+                Foco Hipertrofia
+              </p>
+              <div className="flex items-center text-xs font-bold">
+                <Icons.Clock className="w-4 h-4 mr-2 text-blue-500" /> 55:00
+              </div>
+            </div>
+
+            <button
+              onClick={() => onStartSession?.()}
+              disabled={!user.isCheckedIn}
+              className={`h-16 w-full relative group/btn overflow-hidden transition-all duration-500 ${!user.isCheckedIn ? 'opacity-30' : 'hover:scale-[1.02]'}`}
+            >
+              <div className="absolute inset-0 bg-blue-600 flex items-center justify-center group-hover/btn:bg-blue-500 transition-colors">
+                <span className="text-[12px] font-bold uppercase tracking-[0.4em] text-white">Começar Treino</span>
+              </div>
+              <div className="absolute inset-0 bg-white translate-x-[-101%] group-hover/btn:translate-x-0 transition-transform duration-700 mix-blend-difference"></div>
+            </button>
+          </div>
         </Card>
       </div>
 
-      <div className="h-24"></div>
+      {/* 4. PERFORMANCE ANALYTICS */}
+      <div className="grid grid-cols-2 gap-4">
+        {[
+          { label: 'Frequência', val: '85', unit: '%', icon: Icons.TrendingUp, color: 'text-green-500', trend: 'Regular' },
+          { label: 'Volume Total', val: '1.4', unit: 'ton', icon: Icons.Chart, color: 'text-blue-500', trend: 'Alto' }
+        ].map((m, i) => (
+          <Card key={i} variant="flat" className="p-6 border-blue-100 dark:border-white/5 hover:bg-blue-50/50 dark:hover:bg-white/[0.02] transition-colors relative group">
+            <div className="absolute top-4 right-4 text-[8px] font-black text-slate-600 tracking-widest">{m.trend}</div>
+            <div className="space-y-6">
+              <div className="w-10 h-10 border border-white/5 flex items-center justify-center opacity-40 group-hover:opacity-100 group-hover:border-white/20 transition-all">
+                <m.icon className={`w-5 h-5 ${m.color}`} />
+              </div>
+              <div className="space-y-1">
+                <p className="text-[9px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-widest">{m.label}</p>
+                <div className="flex items-baseline">
+                  <span className="text-4xl font-bold tracking-tight">{m.val}</span>
+                  <span className="text-sm font-bold text-slate-600 dark:text-slate-400 ml-1">{m.unit}</span>
+                </div>
+              </div>
+              <div className="w-full h-[1px] bg-white/5 relative">
+                <div className={`absolute top-0 left-0 h-full ${i === 0 ? 'w-[85%] bg-green-500' : 'w-[65%] bg-blue-600'} shadow-[0_0_10px_currentColor]`}></div>
+              </div>
+            </div>
+          </Card>
+        ))}
+      </div>
+
+      {/* 5. NEXT EXPERIENCE */}
+      <button
+        onClick={onGoWellness}
+        className="w-full group relative overflow-hidden h-24 border border-blue-100 dark:border-white/10 hover:border-blue-500/30 transition-all active:scale-[0.99]"
+      >
+        <div className="absolute inset-0 bg-blue-50/50 dark:bg-white/[0.02] group-hover:bg-blue-600/5 transition-colors"></div>
+        <div className="flex items-center px-8 h-full justify-between relative z-10">
+          <div className="flex items-center space-x-6">
+            <div className="w-12 h-12 flex items-center justify-center border border-white/10 group-hover:border-blue-600 transition-all">
+              <Icons.Leaf className="w-6 h-6 text-blue-500" />
+            </div>
+            <div className="text-left">
+              <p className="text-[10px] font-bold text-blue-500 uppercase tracking-[0.3em] mb-1 leading-none">Relaxamento</p>
+              <h4 className="text-xl font-bold tracking-tight uppercase text-app dark:text-white leading-none">Reservar Wellness</h4>
+            </div>
+          </div>
+          <div className="text-right">
+            <span className="text-[8px] font-bold text-slate-500 tracking-[0.1em] uppercase">Créditos //</span>
+            <p className="text-sm font-bold text-app dark:text-white">01 Disponível</p>
+          </div>
+        </div>
+      </button>
     </div>
   );
 
   const renderPersonalHome = () => (
-    <div className="space-y-10 animate-slide-up p-8 pt-24 min-h-screen">
-      <header>
-        <p className="text-[11px] font-black text-blue-700 dark:text-blue-400 uppercase tracking-[0.4em] mb-2 leading-none">High Performance Team</p>
-        <h2 className="text-4xl font-black text-slate-900 dark:text-white leading-tight tracking-tighter">Olá, Prof. {user.name.split(' ')[0]}</h2>
+    <div className="animate-in fade-in duration-1000 space-y-8 px-6 pb-24 pt-10">
+      <header className="space-y-2">
+        <p className="text-[10px] font-bold text-blue-500 uppercase tracking-[0.4em] leading-none opacity-50">Área do Treinador</p>
+        <h2 className="text-5xl font-bold tracking-tight uppercase">Prof. <span className="text-blue-600">{user.name.split(' ')[0]}</span></h2>
       </header>
 
-      {/* STATUS DE PISTA PARA PERSONAL */}
-      <Card variant="flat" className="p-8 bg-white border-blue-100 shadow-sm">
-        <div className="flex justify-between items-center mb-6">
-          <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Alunos em Pista (Presentes)</h4>
-          <span className="px-3 py-1 bg-green-500 text-white text-[9px] font-black uppercase rounded-lg animate-pulse tracking-widest">Real Time</span>
+      {/* LIVE STUDIO STATUS */}
+      <Card variant="flat" className="p-8 border-blue-100 dark:border-white/10 relative overflow-hidden group">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/5 blur-[100px] rounded-full pointer-events-none"></div>
+
+        <div className="flex justify-between items-end mb-10 relative z-10 border-b border-blue-100 dark:border-white/5 pb-6">
+          <div className="space-y-2">
+            <h4 className="text-[10px] font-bold text-blue-500 uppercase tracking-[0.3em]">Visão do Studio // Península</h4>
+            <div className="flex items-center space-x-3">
+              <div className="w-2.5 h-2.5 bg-green-500 animate-pulse shadow-[0_0_10px_#22C55E]"></div>
+              <p className="text-2xl font-bold uppercase">ALUNOS TREINANDO: <span className="text-app dark:text-white">06</span></p>
+            </div>
+          </div>
+          <div className="text-right">
+            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest leading-none">Eficiência</span>
+            <p className="text-2xl font-bold text-blue-500 leading-none mt-1">98.4%</p>
+          </div>
         </div>
-        
-        <div className="flex -space-x-3">
-           {['Augusto Silva', 'Maria Fernanda'].map((name, i) => (
-             <div key={i} className="w-12 h-12 rounded-2xl border-4 border-white bg-slate-100 flex items-center justify-center font-black text-xs text-slate-400 shadow-lg">
-                {name[0]}
-             </div>
-           ))}
-           <div className="w-12 h-12 rounded-2xl border-4 border-white bg-blue-50 flex items-center justify-center text-blue-600 font-black text-xs shadow-lg">
-              +4
-           </div>
+
+        <div className="flex items-center justify-between relative z-10">
+          <div className="flex -space-x-4">
+            {[1, 2, 3, 4].map((_, i) => (
+              <div key={i} className="w-14 h-14 rounded-sm border-[3px] border-app bg-card overflow-hidden hover:translate-y-[-4px] transition-transform">
+                <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=student_${i + 10}`} className="w-full h-full object-cover grayscale" alt="Aluno" />
+              </div>
+            ))}
+            <div className="w-14 h-14 border-[3px] border-app bg-blue-600 flex items-center justify-center text-xs font-bold shadow-xl">
+              +2
+            </div>
+          </div>
+          <div className="p-4 border border-app bg-card">
+            <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Ocupação</p>
+            <p className="text-xs font-bold uppercase mt-1">Normal</p>
+          </div>
         </div>
-        <p className="text-[10px] font-bold text-blue-700 mt-6 uppercase tracking-widest">6 alunos aguardando governança técnica</p>
       </Card>
 
-      <div className="grid grid-cols-2 gap-5">
-        <Card variant="blue" className="p-8 h-48 flex flex-col justify-between shadow-2xl shadow-blue-900/20">
-          <p className="text-[10px] font-black text-blue-100/60 uppercase tracking-widest">Check-ins Hoje</p>
-          <h4 className="text-6xl font-black tracking-tighter italic">18</h4>
+      {/* STRATEGIC METRICS */}
+      <div className="grid grid-cols-2 gap-4">
+        <Card variant="blue" className="p-8 h-48 border-none relative group overflow-hidden bg-blue-600">
+          <div className="absolute top-0 right-0 p-4 opacity-20 transform translate-x-4 -translate-y-4">
+            <Icons.Chart className="w-32 h-32" />
+          </div>
+          <div className="relative z-10 h-full flex flex-col justify-between">
+            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/60">Treinos Hoje</p>
+            <div>
+              <div className="flex items-baseline space-x-2">
+                <h4 className="text-7xl font-bold tracking-tight leading-none text-white">18</h4>
+                <span className="text-xs font-bold uppercase text-white/40">/ 20</span>
+              </div>
+              <div className="mt-6 flex h-[2px] w-full bg-white/20">
+                <div className="h-full bg-white w-[90%] shadow-[0_0_10px_white]"></div>
+              </div>
+            </div>
+          </div>
         </Card>
-        <Card variant="flat" className="p-8 h-48 flex flex-col justify-between">
-          <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">NPS Técnico</p>
-          <div className="text-center">
-            <h4 className="text-5xl font-black text-blue-700 tracking-tighter">9.9</h4>
-            <div className="flex justify-center mt-2 space-x-1">
-              {[1,2,3,4,5].map(i => <div key={i} className="w-1.5 h-1.5 rounded-full bg-blue-700"></div>)}
+
+        <Card variant="flat" className="p-8 h-48 border-blue-100 dark:border-white/10 hover:bg-blue-50/50 dark:hover:bg-white/[0.02] transition-all group">
+          <div className="h-full flex flex-col justify-between">
+            <p className="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-[0.3em]">Satisfação (NPS)</p>
+            <div>
+              <h4 className="text-6xl font-bold tracking-tight text-app dark:text-white">9.9</h4>
+              <p className="text-[10px] font-bold text-green-500 uppercase tracking-widest mt-4">+0.2 da média</p>
             </div>
           </div>
         </Card>
       </div>
 
+      {/* OPERATIONAL QUEUE */}
       <section className="space-y-6">
-        <div className="flex justify-between items-center px-1">
-          <h4 className="text-xs font-black text-slate-500 uppercase tracking-[0.2em]">Agenda de Pista</h4>
-          <button 
+        <div className="flex justify-between items-center border-b border-blue-100 dark:border-white/5 pb-4">
+          <h4 className="text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-[0.4em]">Próximos Alunos</h4>
+          <button
             onClick={onGoAgenda}
-            className="text-[10px] font-black text-blue-700 uppercase tracking-widest hover:bg-blue-50 dark:hover:bg-blue-900/20 px-3 py-1.5 rounded-lg transition-colors active:scale-95"
+            className="group flex items-center text-[10px] font-bold text-blue-500 uppercase tracking-widest"
           >
-            Ver Agenda
+            Agenda Completa
+            <Icons.ChevronRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </button>
         </div>
-        
-        <div className="space-y-4">
+
+        <div className="space-y-3">
           {['Augusto Silva', 'Maria Fernanda', 'Rafael Lima'].map((student, idx) => (
-            <Card key={idx} variant="flat" className="p-6 flex items-center justify-between active:scale-[0.98] transition-all relative">
-              {idx === 0 && <div className="absolute top-0 left-0 bottom-0 w-1.5 bg-green-500 rounded-l-full"></div>}
-              <div className="flex items-center space-x-5">
-                <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center font-black text-slate-500 shadow-inner">
-                  {student.split(' ').map(n => n[0]).join('')}
+            <Card key={idx} variant="flat" className="p-6 border-blue-100 dark:border-white/5 hover:border-blue-200 dark:hover:border-white/20 transition-all flex items-center justify-between group active:scale-[0.99]">
+              <div className="flex items-center space-x-6">
+                <div className="w-14 h-14 border border-white/10 group-hover:border-blue-500/50 transition-all p-0.5">
+                  <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${student}`} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all" alt={student} />
                 </div>
                 <div>
-                  <div className="flex items-center space-x-2">
-                    <h5 className="text-sm font-black text-slate-900 dark:text-white">{student}</h5>
-                    {idx === 0 && <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>}
+                  <div className="flex items-center space-x-3">
+                    <h5 className="text-lg font-bold tracking-tight uppercase">{student}</h5>
+                    {idx === 0 && <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-[0_0_8px_#22C55E]"></div>}
                   </div>
-                  <p className="text-[10px] text-blue-700 font-bold uppercase tracking-widest mt-0.5">
-                    {idx === 0 ? 'Presente na Pista' : 'Membros Inferiores'}
+                  <p className="text-[9px] font-bold text-blue-400 uppercase tracking-[0.2em] mt-2 leading-none">
+                    {idx === 0 ? 'STATUS: TREINANDO // UNIDADE A1' : 'STATUS: AGUARDANDO // UNIDADE A1'}
                   </p>
                 </div>
               </div>
               <div className="text-right">
-                <span className="text-xs font-black text-slate-900 dark:text-white">18:00</span>
-                <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Pista 02</p>
+                <span className="text-xl font-bold">18:00</span>
+                <p className="text-[9px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-widest mt-2">{idx === 0 ? 'Estação 1' : 'Chegou'}</p>
               </div>
             </Card>
           ))}
@@ -247,8 +355,10 @@ const Home: React.FC<HomeProps> = ({
   );
 
   return (
-    <div className="min-h-screen">
-      {user.role === UserRole.PERSONAL ? renderPersonalHome() : renderStudentHome()}
+    <div className="min-h-screen bg-app transition-colors duration-1000">
+      <div className="precision-bg min-h-screen">
+        {user.role === UserRole.PERSONAL ? renderPersonalHome() : renderStudentHome()}
+      </div>
     </div>
   );
 };

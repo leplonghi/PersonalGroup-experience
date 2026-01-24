@@ -8,25 +8,26 @@ interface CardProps {
   variant?: 'flat' | 'elevated' | 'glass' | 'blue' | 'outline';
 }
 
-const Card: React.FC<CardProps> = ({ children, className = '', onClick, variant = 'elevated' }) => {
-  const baseStyles = "rounded-[32px] transition-all duration-400 overflow-hidden";
-  
+const Card: React.FC<CardProps> = ({ children, variant = 'flat', className = '', onClick }) => {
   const variants = {
-    flat: "bg-white dark:bg-[#0F172A] border border-slate-100 dark:border-white/5",
-    elevated: "bg-white dark:bg-[#0F172A] shadow-[0_8px_30px_rgba(0,0,0,0.02)] dark:shadow-none border border-slate-50 dark:border-white/5",
-    glass: "glass-card shadow-lg",
-    blue: "blue-gradient text-white border-none shadow-xl shadow-blue-900/20",
-    outline: "bg-transparent border-2 border-slate-100 dark:border-white/10"
+    flat: 'bg-white/80 dark:bg-ocean/60 border border-blue-200/30 dark:border-blue-400/20 shadow-lg backdrop-blur-sm',
+    elevated: 'bg-white/90 dark:bg-ocean/70 border border-blue-300/40 dark:border-blue-400/30 shadow-2xl card-shadow backdrop-blur-md',
+    glass: 'glass-panel',
+    blue: 'mesh-gradient text-white border border-blue-400/30 shadow-2xl shadow-blue-500/20',
+    outline: 'bg-transparent border border-blue-300/30 dark:border-blue-400/30 hover:border-blue-500/50 transition-colors'
   };
 
-  const interactiveStyles = onClick ? "active:scale-[0.96] cursor-pointer hover:shadow-md" : "";
-
   return (
-    <div 
+    <div
       onClick={onClick}
-      className={`${baseStyles} ${variants[variant]} ${interactiveStyles} ${className}`}
+      className={`rounded-sm overflow-hidden transition-all duration-500 ${variants[variant]} ${onClick ? 'cursor-pointer active:scale-[0.99] active:brightness-110' : ''} ${className}`}
     >
-      {children}
+      {variant === 'blue' && (
+        <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent pointer-events-none opacity-50"></div>
+      )}
+      <div className="relative z-10 h-full">
+        {children}
+      </div>
     </div>
   );
 };

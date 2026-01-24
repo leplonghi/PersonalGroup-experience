@@ -34,7 +34,7 @@ const CycleBuilder: React.FC<CycleBuilderProps> = ({ student, onBack, onConfirm 
 
   const handleConfirm = () => {
     if (!name.trim()) return alert("Nomeie o ciclo estrategicamente.");
-    
+
     const cycle: TrainingCycle = {
       id: Math.random().toString(36).substring(2, 11),
       protocolId: selectedProtocolId,
@@ -51,82 +51,83 @@ const CycleBuilder: React.FC<CycleBuilderProps> = ({ student, onBack, onConfirm 
   };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col animate-in slide-in-from-right duration-300">
-      <header className="px-6 pt-10 pb-6 border-b border-gray-50 flex items-center justify-between sticky top-0 bg-white z-50">
-        <button onClick={onBack} className="p-2 bg-gray-50 rounded-xl">
-          <Icons.ChevronRight className="w-5 h-5 text-gray-400 rotate-180" />
-        </button>
-        <div className="text-center">
-          <h2 className="text-sm font-black text-blue-900 uppercase tracking-widest">Configurar Novo Ciclo</h2>
-          <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">{student.name}</p>
-        </div>
-        <div className="w-10"></div>
-      </header>
+    <div className="min-h-screen bg-app flex flex-col transition-colors duration-500 grain-overlay relative">
+      <div className="precision-bg absolute inset-0 z-0 opacity-40"></div>
 
-      <div className="flex-1 px-8 py-10 space-y-10">
+      <div className="flex-1 px-8 pt-4 pb-32 space-y-10 relative z-10 max-w-md mx-auto w-full">
+
         {/* Identificação */}
-        <section className="space-y-4">
-           <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1">Nomenclatura Estratégica</label>
-           <input 
-             type="text" 
-             value={name}
-             onChange={e => setName(e.target.value)}
-             placeholder="Ex: Hipertrofia III: Volume Adaptativo"
-             className="w-full text-lg font-black text-blue-900 bg-gray-50 rounded-2xl px-6 py-5 border-none focus:ring-4 focus:ring-blue-900/5 placeholder:text-gray-200"
-           />
+        <section className="space-y-6">
+          <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] italic ml-1 leading-none">Nome do Plano</label>
+          <input
+            type="text"
+            value={name}
+            onChange={e => setName(e.target.value)}
+            placeholder="Ex: Hipertrofia - Foco em Braços"
+            className="w-full text-2xl font-black text-slate-900 dark:text-white bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 px-8 py-6 focus:outline-none focus:border-blue-600 italic tracking-tighter placeholder:text-slate-400 dark:placeholder:text-white/20 transition-all"
+          />
         </section>
 
         {/* Seleção de Protocolo */}
-        <section className="space-y-4">
-           <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1">Protocolo Corporativo Base</label>
-           <div className="grid grid-cols-1 gap-3">
-             {isLoading ? (
-               <div className="py-4 animate-pulse bg-gray-50 rounded-2xl h-16"></div>
-             ) : (
-               protocols.map(p => (
-                 <button 
-                   key={p.id}
-                   onClick={() => setSelectedProtocolId(p.id)}
-                   className={`p-5 rounded-2xl border-2 text-left transition-all flex items-center justify-between ${selectedProtocolId === p.id ? 'border-blue-900 bg-blue-50/30' : 'border-gray-50 bg-white'}`}
-                 >
-                   <div>
-                     <p className={`text-sm font-black ${selectedProtocolId === p.id ? 'text-blue-900' : 'text-gray-400'}`}>{p.name}</p>
-                     <p className="text-[9px] font-bold text-gray-300 uppercase tracking-widest">Versão {p.version}</p>
-                   </div>
-                   {selectedProtocolId === p.id && <Icons.Shield className="w-4 h-4 text-blue-900" />}
-                 </button>
-               ))
-             )}
-           </div>
+        <section className="space-y-6">
+          <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] italic ml-1 leading-none">Protocolo Base</label>
+          <div className="grid grid-cols-1 gap-4">
+            {isLoading ? (
+              <div className="h-24 bg-white/5 animate-pulse"></div>
+            ) : (
+              protocols.map(p => (
+                <button
+                  key={p.id}
+                  onClick={() => setSelectedProtocolId(p.id)}
+                  className={`p-8 border transition-all text-left relative overflow-hidden ${selectedProtocolId === p.id ? 'bg-blue-600 border-blue-600 shadow-[0_0_20px_rgba(37,99,235,0.3)]' : 'bg-white border-slate-200 dark:bg-white/5 dark:border-white/5 hover:border-blue-500/30'}`}
+                >
+                  <div>
+                    <p className={`text-base font-black uppercase tracking-widest italic ${selectedProtocolId === p.id ? 'text-white' : 'text-slate-600 dark:text-slate-500'}`}>{p.name}</p>
+                    <p className={`text-[10px] font-black uppercase mt-2 tracking-widest opacity-60 ${selectedProtocolId === p.id ? 'text-white' : 'text-slate-700'}`}>Versão {p.version}</p>
+                  </div>
+                  {selectedProtocolId === p.id && <Icons.Shield className="absolute top-4 right-4 w-6 h-6 text-white/20" />}
+                </button>
+              ))
+            )}
+          </div>
         </section>
 
         {/* Duração */}
-        <section className="space-y-6">
-           <div className="flex justify-between items-end">
-             <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1">Volume de Sessões</label>
-             <span className="text-3xl font-black text-blue-900">{sessions} <span className="text-sm text-gray-300">treinos</span></span>
-           </div>
-           <input 
-             type="range" min="4" max="36" step="4" 
-             value={sessions} 
-             onChange={e => setSessions(parseInt(e.target.value))}
-             className="w-full h-2 bg-gray-50 rounded-lg appearance-none accent-blue-900"
-           />
-           <div className="flex justify-between text-[8px] font-black text-gray-300 uppercase tracking-widest">
-             <span>Impacto Inicial</span>
-             <span>Médio Prazo</span>
-             <span>Consolidação</span>
-           </div>
+        <section className="space-y-12 pt-10">
+          <div className="flex justify-between items-end px-1">
+            <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] italic leading-none">Quantidade de Treinos</label>
+            <div className="flex items-baseline space-x-3">
+              <span className="text-6xl font-black text-slate-900 dark:text-white italic tracking-tighter leading-none">{sessions}</span>
+              <span className="text-xs font-black text-blue-500 uppercase italic">treinos</span>
+            </div>
+          </div>
+          <input
+            type="range" min="4" max="36" step="4"
+            value={sessions}
+            onChange={e => setSessions(parseInt(e.target.value))}
+            className="w-full h-1.5 bg-slate-200 dark:bg-white/5 appearance-none accent-blue-600 cursor-pointer"
+          />
+          <div className="flex justify-between text-[8px] font-black text-slate-800 uppercase tracking-widest italic">
+            <span>Curto Prazo</span>
+            <span>Médio Prazo</span>
+            <span>Longo Prazo</span>
+          </div>
         </section>
       </div>
 
-      <footer className="p-8">
-        <button 
-          onClick={handleConfirm}
-          className="w-full py-5 blue-gradient text-white rounded-[24px] font-black text-sm uppercase tracking-widest shadow-2xl shadow-blue-900/40 active:scale-95 transition-all"
-        >
-          Iniciar Ciclo Exclusive
-        </button>
+      <footer className="fixed bottom-0 left-0 right-0 p-8 glass-panel border-t border-white/5 z-[120] shadow-2xl">
+        <div className="max-w-md mx-auto">
+          <button
+            onClick={handleConfirm}
+            className="w-full h-22 bg-blue-600 text-white font-black text-[12px] uppercase tracking-[0.8em] transition-all relative overflow-hidden group/finish shadow-[0_0_30px_rgba(37,99,235,0.4)]"
+          >
+            <div className="absolute inset-0 bg-white translate-x-[-101%] group-hover/finish:translate-x-0 transition-transform duration-700 mix-blend-difference"></div>
+            <div className="flex items-center justify-center space-x-6 relative z-10">
+              <span className="italic">Criar Ciclo</span>
+              <Icons.ChevronRight className="w-5 h-5 animate-pulse" />
+            </div>
+          </button>
+        </div>
       </footer>
     </div>
   );

@@ -15,7 +15,6 @@ const Messages: React.FC<MessagesProps> = ({ user }) => {
   const mockMessages: AppMessage[] = [
     {
       id: '1',
-      // Added missing userId to satisfy AppMessage type
       userId: user.id,
       type: 'MOTIVATIONAL',
       title: 'Mentalidade de Pico',
@@ -26,7 +25,6 @@ const Messages: React.FC<MessagesProps> = ({ user }) => {
     },
     {
       id: '2',
-      // Added missing userId to satisfy AppMessage type
       userId: 'PUBLIC',
       type: 'INSTITUTIONAL',
       title: 'Manutenção Pista 02',
@@ -37,7 +35,6 @@ const Messages: React.FC<MessagesProps> = ({ user }) => {
     },
     {
       id: '3',
-      // Added missing userId to satisfy AppMessage type
       userId: user.id,
       type: 'SEGMENTED',
       title: 'Resultado de Avaliação',
@@ -48,15 +45,15 @@ const Messages: React.FC<MessagesProps> = ({ user }) => {
     }
   ];
 
-  const filteredMessages = filter === 'ALL' 
-    ? mockMessages 
+  const filteredMessages = filter === 'ALL'
+    ? mockMessages
     : mockMessages.filter(m => m.type === filter);
 
   const getTypeStyle = (type: MessageType) => {
     switch (type) {
-      case 'INSTITUTIONAL': return 'bg-blue-50 text-blue-900 border-blue-100';
-      case 'SEGMENTED': return 'bg-gray-50 text-gray-500 border-gray-100';
-      case 'MOTIVATIONAL': return 'bg-amber-50 text-amber-600 border-amber-100';
+      case 'INSTITUTIONAL': return 'bg-blue-500/10 text-[#191970] dark:text-blue-400 border-blue-500/20';
+      case 'SEGMENTED': return 'bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20';
+      case 'MOTIVATIONAL': return 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20';
     }
   };
 
@@ -69,88 +66,95 @@ const Messages: React.FC<MessagesProps> = ({ user }) => {
   };
 
   return (
-    <div className="px-6 py-8 space-y-8 animate-in fade-in duration-500 pb-32">
-      <header className="flex justify-between items-center">
-        <div>
-          <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1">Comunicação</p>
-          <h2 className="text-2xl font-black text-blue-900">Exclusive Center</h2>
-        </div>
-      </header>
+    <div className="space-y-8 animate-in fade-in duration-1000 pb-32 pt-4 relative px-8">
 
-      {/* Quote Card (Fixed Top) */}
-      <Card className="blue-gradient text-white p-6 border-none shadow-xl relative overflow-hidden">
+
+      {/* Quote Card Impactante */}
+      <Card variant="blue" className="p-8 relative overflow-hidden group rounded-[40px] shadow-2xl shadow-blue-900/40">
+        <div className="absolute top-0 right-0 w-48 h-48 mesh-gradient opacity-20 rounded-full -mr-24 -mt-24 group-hover:scale-150 transition-transform duration-[20s]"></div>
         <div className="relative z-10">
-           <p className="text-[10px] font-black uppercase tracking-widest opacity-60 mb-3">Daily Performance Mindset</p>
-           <p className="text-lg font-black leading-tight">"A consistência é o único atalho para a alta performance. Cada RPE validado é um tijolo no seu legado físico."</p>
+          <div className="flex items-center space-x-2 mb-4">
+            <div className="w-8 h-8 rounded-xl mesh-gradient flex items-center justify-center text-slate-950 dark:text-white shadow-lg">
+              <Icons.Logo className="w-4 h-4" />
+            </div>
+            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-950 dark:text-white/60">Mindset do Dia</p>
+          </div>
+          <p className="text-xl font-black text-slate-950 dark:text-white leading-tight italic tracking-tight">"A consistência é o único atalho para a alta performance. Cada RPE validado é um tijolo no seu legado físico."</p>
         </div>
-        <Icons.Plus className="absolute -top-4 -right-4 w-24 h-24 opacity-10 rotate-45" />
+        <Icons.Plus className="absolute -bottom-6 -left-6 w-32 h-32 opacity-10 rotate-12" />
       </Card>
 
-      {/* Filter Strip */}
-      <div className="flex space-x-2 overflow-x-auto no-scrollbar py-2">
+      {/* Filter Strip Premium */}
+      <div className="flex space-x-3 overflow-x-auto no-scrollbar py-2 -mx-2 px-2">
         {(['ALL', 'INSTITUTIONAL', 'SEGMENTED', 'MOTIVATIONAL'] as const).map(f => (
-          <button 
+          <button
             key={f}
             onClick={() => setFilter(f)}
-            className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest whitespace-nowrap transition-all border ${
-              filter === f 
-                ? 'bg-blue-900 text-white border-blue-900 shadow-lg' 
-                : 'bg-white text-gray-400 border-gray-100'
-            }`}
+            className={`px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] whitespace-nowrap transition-all border duration-500 ${filter === f
+              ? 'mesh-gradient text-white border-transparent shadow-2xl shadow-blue-900/40 scale-105'
+              : 'glass-panel text-slate-600 dark:text-slate-400 border-slate-200 dark:border-white/5 active:scale-95'
+              }`}
           >
             {f === 'ALL' ? 'Todas' : getTypeName(f as MessageType)}
           </button>
         ))}
       </div>
 
-      {/* Messages List */}
-      <div className="space-y-3">
+      {/* Grid de Mensagens */}
+      <div className="space-y-4">
         {filteredMessages.map(msg => (
-          <div 
+          <div
             key={msg.id}
             onClick={() => setSelectedMsg(msg)}
-            className={`bg-white rounded-[28px] p-6 border shadow-sm transition-all active:scale-[0.98] ${msg.read ? 'border-gray-50' : 'border-blue-100 ring-1 ring-blue-50'}`}
+            className={`glass-panel rounded-[32px] p-6 border transition-all active:scale-[0.98] cursor-pointer group relative overflow-hidden ${msg.read ? 'border-slate-200 dark:border-white/5' : 'border-blue-500/30 ring-1 ring-blue-500/10'}`}
           >
-            <div className="flex justify-between items-start mb-3">
-              <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded-lg border ${getTypeStyle(msg.type)}`}>
+            {!msg.read && (
+              <div className="absolute top-0 left-0 bottom-0 w-1.5 mesh-gradient shadow-[0_0_15px_rgba(59,130,246,0.4)]"></div>
+            )}
+            <div className="flex justify-between items-center mb-4">
+              <span className={`text-[9px] font-black uppercase px-3 py-1 rounded-xl border ${getTypeStyle(msg.type)}`}>
                 {getTypeName(msg.type)}
               </span>
-              <span className="text-[8px] font-bold text-gray-300 uppercase">{msg.date}</span>
+              <span className="text-[9px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-widest">{msg.date}</span>
             </div>
-            <h4 className={`text-sm font-black mb-1 ${msg.read ? 'text-gray-700' : 'text-blue-900'}`}>{msg.title}</h4>
-            <p className="text-[11px] text-gray-400 font-medium line-clamp-2 leading-relaxed">
+            <h4 className={`text-base font-black mb-2 tracking-tight uppercase ${msg.read ? 'text-slate-950 dark:text-white/80' : 'text-gradient'}`}>{msg.title}</h4>
+            <p className="text-xs text-slate-500 dark:text-slate-600 dark:text-slate-400 font-bold line-clamp-2 leading-relaxed tracking-wide">
               {msg.content}
             </p>
+            <div className="mt-4 pt-4 border-t border-slate-100/30 dark:border-white/5 flex items-center justify-between">
+              <p className="text-[9px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-widest">{msg.author}</p>
+              <Icons.ChevronRight className="w-4 h-4 text-[#191970] dark:text-blue-400 group-hover:translate-x-1 transition-transform" />
+            </div>
           </div>
         ))}
       </div>
 
-      {/* Message Modal Overlay */}
+      {/* Message Modal Experience */}
       {selectedMsg && (
-        <div className="fixed inset-0 z-[100] bg-blue-900/40 backdrop-blur-sm flex items-end animate-in fade-in duration-300">
-           <div className="w-full bg-white rounded-t-[40px] p-8 pb-12 animate-in slide-in-from-bottom-10 duration-500">
-              <div className="flex justify-between items-start mb-6">
-                <div>
-                  <span className={`text-[9px] font-black uppercase px-3 py-1 rounded-xl border ${getTypeStyle(selectedMsg.type)}`}>
-                    {getTypeName(selectedMsg.type)}
-                  </span>
-                  <p className="text-[10px] text-gray-300 font-bold uppercase mt-3 tracking-widest">{selectedMsg.date} • {selectedMsg.author}</p>
-                </div>
-                <button onClick={() => setSelectedMsg(null)} className="p-2 bg-gray-50 rounded-xl">
-                   <Icons.Plus className="w-5 h-5 text-gray-400 rotate-45" />
-                </button>
+        <div className="fixed inset-0 z-[100] bg-slate-950/40 dark:bg-[#020617]/80 backdrop-blur-xl flex items-end animate-in fade-in duration-500">
+          <div className="w-full bg-white dark:bg-[#020617] rounded-t-[48px] p-10 pb-16 border-t border-slate-200 dark:border-white/20 animate-in slide-in-from-bottom-20 duration-700 shadow-[0_-20px_50px_rgba(0,0,0,0.3)]">
+            <div className="flex justify-between items-start mb-8">
+              <div>
+                <span className={`text-[10px] font-black uppercase px-4 py-1.5 rounded-2xl border ${getTypeStyle(selectedMsg.type)}`}>
+                  {getTypeName(selectedMsg.type)}
+                </span>
+                <p className="text-[10px] text-slate-600 dark:text-slate-400 font-black uppercase mt-4 tracking-[0.3em]">{selectedMsg.date} • {selectedMsg.author}</p>
               </div>
-              <h3 className="text-2xl font-black text-blue-900 mb-4">{selectedMsg.title}</h3>
-              <p className="text-sm text-gray-500 font-medium leading-relaxed whitespace-pre-wrap">
-                {selectedMsg.content}
-              </p>
-              <button 
-                onClick={() => setSelectedMsg(null)}
-                className="w-full mt-10 py-5 blue-gradient text-white rounded-[24px] font-black text-sm uppercase tracking-widest shadow-xl active:scale-95 transition-all"
-              >
-                Entendido
+              <button onClick={() => setSelectedMsg(null)} className="w-12 h-12 glass-panel rounded-2xl flex items-center justify-center text-slate-600 dark:text-slate-400 active:scale-90 transition-all">
+                <Icons.Plus className="w-6 h-6 rotate-45" />
               </button>
-           </div>
+            </div>
+            <h3 className="text-3xl font-black text-slate-950 dark:text-white mb-6 uppercase tracking-tight italic">{selectedMsg.title}</h3>
+            <p className="text-base text-slate-600 dark:text-slate-600 dark:text-slate-400 font-bold leading-relaxed whitespace-pre-wrap tracking-wide">
+              {selectedMsg.content}
+            </p>
+            <button
+              onClick={() => setSelectedMsg(null)}
+              className="w-full h-16 mt-12 mesh-gradient text-white rounded-[24px] font-black text-xs uppercase tracking-[0.4em] shadow-2xl shadow-blue-900/40 active:scale-[0.97] transition-all"
+            >
+              Protocolo Entendido
+            </button>
+          </div>
         </div>
       )}
     </div>

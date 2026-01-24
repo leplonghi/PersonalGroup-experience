@@ -11,13 +11,66 @@ export const COLORS = {
   danger: '#EF4444'
 };
 
+export const BRAND = {
+  name: 'Personal Group',
+  tagline: 'Mais que uma academia, uma experiência a cada treino',
+  founded: 2010,
+  location: {
+    address: 'Av. Jackson Képler Lago s/n',
+    neighborhood: "Península - Ponta D'areia",
+    city: 'São Luís',
+    state: 'Maranhão'
+  },
+  contact: {
+    whatsapp: '98991332316',
+    email: 'recepcao@personalgroup.com.br'
+  },
+  hours: {
+    weekdays: '6h às 22h',
+    saturday: '7h às 13h',
+    sunday: '8h às 13h'
+  },
+  area: '900m²',
+  methodology: 'Sistema Flex'
+};
+
+export const WELLNESS_SERVICES_DATA = [
+  {
+    id: 'massagem',
+    name: 'Massagem Relaxante',
+    description: 'Relaxamento muscular pós-treino',
+    duration: '50min',
+    icon: 'Leaf'
+  },
+  {
+    id: 'fisioterapia',
+    name: 'Fisioterapia',
+    description: 'Recuperação e prevenção de lesões',
+    duration: '45min',
+    icon: 'Shield'
+  },
+  {
+    id: 'nutricao',
+    name: 'Consultoria Nutricional',
+    description: 'Planejamento alimentar personalizado',
+    duration: '60min',
+    icon: 'Droplet'
+  },
+  {
+    id: 'avaliacao',
+    name: 'Avaliação Física',
+    description: 'Análise corporal completa',
+    duration: '45min',
+    icon: 'ClipboardCheck'
+  }
+];
+
 export const Icons = {
   Logo: ({ className }: { className?: string }) => (
-    <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-      <path d="M50 5C25 5 5 25 5 50C5 75 25 95 50 95C75 95 95 75 95 50" stroke="currentColor" strokeWidth="8" strokeLinecap="round" />
-      <path d="M50 30C38.9543 30 30 38.9543 30 50C30 61.0457 38.9543 70 50 70C61.0457 70 70 61.0457 70 50H50V40H80C80 56.5685 66.5685 70 50 70" fill="currentColor" opacity="0.2" />
-      <path d="M80 35L90 25M90 25L80 15M90 25L50 25" stroke="currentColor" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
+    <img src="/logo.png" alt="PersonalGroup Logo" className={className} />
+  ),
+  LogoSymbol: ({ className }: { className?: string }) => (
+    <img src="/favicon.png" alt="PersonalGroup Symbol" className={className} />
   ),
   Google: ({ className }: { className?: string }) => (
     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" className={className}>
@@ -156,8 +209,55 @@ export const Icons = {
   ),
   QRCode: ({ className }: { className?: string }) => (
     <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m0 11v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h4v4H3zM17 3h4v4h-4zM3 17h4v4H3zM7 7h1M16 7h1M7 16h1M16 16h1" />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h4v4H3V3zM17 3h4v4h-4V3zM3 17h4v4H3v-4zM14 14h2v2h-2v-2zM18 18h2v2h-2v-2zM14 18h2v2h-2v-2zM18 14h2v2h-2v-2z" />
+    </svg>
+  ),
+  MapPin: ({ className }: { className?: string }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+    </svg>
+  ),
+  X: ({ className }: { className?: string }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+    </svg>
+  ),
+  FileText: ({ className }: { className?: string }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+    </svg>
+  ),
+  Activity: ({ className }: { className?: string }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+    </svg>
+  ),
+  Wifi: ({ className }: { className?: string }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0" />
+    </svg>
+  ),
+  Coffee: ({ className }: { className?: string }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z" />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 1v3M10 1v3M14 1v3" />
+    </svg>
+  ),
+  Car: ({ className }: { className?: string }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" /> {/* Placeholder, let's use a real car icon path or generic transport */}
+      <path d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
+    </svg>
+  ),
+  Droplet: ({ className }: { className?: string }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+    </svg>
+  ),
+  Star: ({ className }: { className?: string }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
     </svg>
   )
 };

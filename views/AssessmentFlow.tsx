@@ -15,7 +15,7 @@ const AssessmentFlow: React.FC<AssessmentFlowProps> = ({ student, chefe, onBack,
   const [step, setStep] = useState(1);
   const [type, setType] = useState<AssessmentType>('PERIODICA');
   const [decision, setDecision] = useState<HealthStatus>('NORMAL');
-  
+
   const [data, setData] = useState<AssessmentData>({
     weight: 78.5,
     fatPercentage: 16.4,
@@ -25,7 +25,6 @@ const AssessmentFlow: React.FC<AssessmentFlowProps> = ({ student, chefe, onBack,
     observations: ''
   });
 
-  // Cálculo automático de Massa Magra
   const calculatedLeanMass = useMemo(() => {
     const fatMass = (data.weight * data.fatPercentage) / 100;
     return parseFloat((data.weight - fatMass).toFixed(1));
@@ -54,26 +53,25 @@ const AssessmentFlow: React.FC<AssessmentFlowProps> = ({ student, chefe, onBack,
     switch (step) {
       case 1:
         return (
-          <div className="space-y-6 animate-in slide-in-from-right duration-300">
-            <header className="mb-8">
-              <p className="text-[10px] font-black text-blue-900/40 uppercase tracking-[0.2em] mb-1">Passo 01/03</p>
-              <h3 className="text-xl font-black text-blue-900">Tipo de Intervenção</h3>
+          <div className="space-y-10 animate-in slide-in-from-right-4 duration-500">
+            <header className="border-l-4 border-blue-600 pl-6">
+              <p className="text-[10px] font-black text-blue-500 uppercase tracking-[0.4em] mb-2">Etapa 1 de 3</p>
+              <h3 className="text-3xl font-black text-slate-900 dark:text-white uppercase italic tracking-tighter leading-none">Tipo de Avaliação</h3>
             </header>
-            
+
             <div className="grid grid-cols-1 gap-4">
               {[
-                { id: 'INICIAL', label: 'Avaliação Inicial', desc: 'Primeiro contato e setup biométrico base.' },
-                { id: 'PERIODICA', label: 'Check-point Periódico', desc: 'Validar evolução e destravar novo ciclo.' },
-                { id: 'EXTRAORDINARIA', label: 'Intervenção Extra', desc: 'Análise por exceção ou alteração clínica.' }
+                { id: 'INICIAL', label: 'Avaliação Inicial', desc: 'Protocolo de admissão e calibração biométrica base.' },
+                { id: 'PERIODICA', label: 'Avaliação de Rotina', desc: 'Validação de performance e progressão de ciclo.' },
+                { id: 'EXTRAORDINARIA', label: 'Avaliação Extra', desc: 'Análise de exceção ou readequação clínica imediata.' }
               ].map(t => (
-                <button 
+                <button
                   key={t.id}
                   onClick={() => setType(t.id as AssessmentType)}
-                  className={`p-6 rounded-[32px] border-2 text-left transition-all relative overflow-hidden ${type === t.id ? 'border-blue-900 bg-blue-50/30' : 'border-gray-100 bg-white'}`}
+                  className={`p-8 border transition-all text-left relative overflow-hidden ${type === t.id ? 'bg-blue-600 border-blue-600 shadow-[0_0_20px_rgba(37,99,235,0.3)]' : 'bg-white border-slate-200 dark:bg-white/5 dark:border-white/5 hover:border-blue-500/30'}`}
                 >
-                  <p className={`text-sm font-black uppercase tracking-widest ${type === t.id ? 'text-blue-900' : 'text-gray-400'}`}>{t.label}</p>
-                  <p className="text-[10px] text-gray-400 mt-2 font-medium leading-relaxed">{t.desc}</p>
-                  {type === t.id && <div className="absolute top-4 right-4 w-2 h-2 bg-blue-900 rounded-full"></div>}
+                  <p className={`text-base font-black uppercase tracking-widest italic ${type === t.id ? 'text-white' : 'text-slate-600 dark:text-slate-500'}`}>{t.label}</p>
+                  <p className={`text-[10px] mt-3 font-black uppercase tracking-widest leading-relaxed opacity-60 ${type === t.id ? 'text-white' : 'text-slate-500 dark:text-slate-600'}`}>{t.desc}</p>
                 </button>
               ))}
             </div>
@@ -81,77 +79,77 @@ const AssessmentFlow: React.FC<AssessmentFlowProps> = ({ student, chefe, onBack,
         );
       case 2:
         return (
-          <div className="space-y-10 animate-in slide-in-from-right duration-300">
-            <header>
-              <p className="text-[10px] font-black text-blue-900/40 uppercase tracking-[0.2em] mb-1">Passo 02/03</p>
-              <h3 className="text-xl font-black text-blue-900">Métricas Biométricas</h3>
+          <div className="space-y-12 animate-in slide-in-from-right-4 duration-500">
+            <header className="border-l-4 border-blue-600 pl-6">
+              <p className="text-[10px] font-black text-blue-500 uppercase tracking-[0.4em] mb-2">Etapa 2 de 3</p>
+              <h3 className="text-3xl font-black text-slate-900 dark:text-white uppercase italic tracking-tighter leading-none">Medidas</h3>
             </header>
-            
-            <div className="space-y-8">
+
+            <div className="space-y-12">
               {/* Peso */}
-              <div className="space-y-3">
-                <div className="flex justify-between items-end">
-                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Peso Corporal</label>
-                  <div className="text-right">
-                    <span className="text-3xl font-black text-blue-900">{data.weight}</span>
-                    <span className="text-xs font-black text-gray-300 ml-1">kg</span>
+              <div className="space-y-6">
+                <div className="flex justify-between items-end px-2">
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] italic leading-none">Peso Corporal</label>
+                  <div className="flex items-baseline space-x-2">
+                    <span className="text-5xl font-black text-slate-900 dark:text-white italic tracking-tighter tabular-nums leading-none">{data.weight}</span>
+                    <span className="text-xs font-black text-blue-600 uppercase italic">kg</span>
                   </div>
                 </div>
-                <input 
-                  type="range" min="40" max="180" step="0.1" 
-                  value={data.weight} 
-                  onChange={e => setData({...data, weight: parseFloat(e.target.value)})}
-                  className="w-full h-2 bg-gray-100 rounded-lg appearance-none accent-blue-900"
+                <input
+                  type="range" min="40" max="180" step="0.1"
+                  value={data.weight}
+                  onChange={e => setData({ ...data, weight: parseFloat(e.target.value) })}
+                  className="w-full h-1.5 bg-slate-200 dark:bg-white/5 appearance-none accent-blue-600 cursor-pointer"
                 />
               </div>
 
               {/* Gordura */}
-              <div className="space-y-3">
-                <div className="flex justify-between items-end">
-                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">% de Gordura</label>
-                  <div className="text-right">
-                    <span className="text-3xl font-black text-amber-500">{data.fatPercentage}</span>
-                    <span className="text-xs font-black text-gray-300 ml-1">%</span>
+              <div className="space-y-6">
+                <div className="flex justify-between items-end px-2">
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] italic leading-none">% de Gordura</label>
+                  <div className="flex items-baseline space-x-2">
+                    <span className="text-5xl font-black text-blue-600 italic tracking-tighter tabular-nums leading-none">{data.fatPercentage}</span>
+                    <span className="text-xs font-black text-slate-400 dark:text-white opacity-40 uppercase italic">%</span>
                   </div>
                 </div>
-                <input 
-                  type="range" min="3" max="50" step="0.1" 
-                  value={data.fatPercentage} 
-                  onChange={e => setData({...data, fatPercentage: parseFloat(e.target.value)})}
-                  className="w-full h-2 bg-gray-100 rounded-lg appearance-none accent-amber-500"
+                <input
+                  type="range" min="3" max="50" step="0.1"
+                  value={data.fatPercentage}
+                  onChange={e => setData({ ...data, fatPercentage: parseFloat(e.target.value) })}
+                  className="w-full h-1.5 bg-slate-200 dark:bg-white/5 appearance-none accent-blue-600 cursor-pointer"
                 />
               </div>
 
               {/* Resultado Automático */}
-              <div className="bg-blue-900 rounded-[28px] p-6 text-white flex justify-between items-center shadow-xl shadow-blue-900/20">
-                 <div>
-                    <p className="text-[9px] font-black uppercase tracking-[0.2em] opacity-60 mb-1">Massa Magra Estimada</p>
-                    <h4 className="text-2xl font-black">{calculatedLeanMass} kg</h4>
-                 </div>
-                 <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center">
-                    <Icons.TrendingUp className="w-6 h-6" />
-                 </div>
+              <div className="bg-white dark:bg-ocean p-10 flex justify-between items-center shadow-2xl border border-slate-200 dark:border-white/10">
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400 mb-2 italic leading-none">Massa Magra</p>
+                  <h4 className="text-4xl font-black text-slate-900 dark:text-white italic tracking-tighter leading-none">{calculatedLeanMass} <span className="text-sm">kg</span></h4>
+                </div>
+                <div className="w-16 h-16 bg-slate-900 dark:bg-midnight flex items-center justify-center text-white">
+                  <Icons.TrendingUp className="w-8 h-8" />
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">PA (Repouso)</label>
-                  <input 
-                    type="text" 
+                <div className="space-y-4">
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] italic ml-1 leading-none">PA (Repouso)</label>
+                  <input
+                    type="text"
                     value={data.bloodPressure}
                     placeholder="12/8"
-                    onChange={e => setData({...data, bloodPressure: e.target.value})}
-                    className="w-full bg-gray-50 rounded-2xl px-5 py-4 text-sm font-black text-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-900/5"
+                    onChange={e => setData({ ...data, bloodPressure: e.target.value })}
+                    className="w-full bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 px-6 py-5 text-base font-black text-slate-900 dark:text-white italic tracking-tighter focus:outline-none focus:border-blue-600"
                   />
                 </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">VO2 Máx</label>
-                  <input 
-                    type="number" 
+                <div className="space-y-4">
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] italic ml-1 leading-none">VO2 Máx</label>
+                  <input
+                    type="number"
                     value={data.vo2Max}
                     placeholder="40"
-                    onChange={e => setData({...data, vo2Max: parseInt(e.target.value)})}
-                    className="w-full bg-gray-50 rounded-2xl px-5 py-4 text-sm font-black text-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-900/5"
+                    onChange={e => setData({ ...data, vo2Max: parseInt(e.target.value) })}
+                    className="w-full bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 px-6 py-5 text-base font-black text-slate-900 dark:text-white italic tracking-tighter focus:outline-none focus:border-blue-600"
                   />
                 </div>
               </div>
@@ -160,39 +158,39 @@ const AssessmentFlow: React.FC<AssessmentFlowProps> = ({ student, chefe, onBack,
         );
       case 3:
         return (
-          <div className="space-y-8 animate-in slide-in-from-right duration-300">
-            <header>
-              <p className="text-[10px] font-black text-blue-900/40 uppercase tracking-[0.2em] mb-1">Passo 03/03</p>
-              <h3 className="text-xl font-black text-blue-900">Governança & Decisão</h3>
+          <div className="space-y-12 animate-in slide-in-from-right-4 duration-500">
+            <header className="border-l-4 border-blue-600 pl-6">
+              <p className="text-[10px] font-black text-blue-500 uppercase tracking-[0.4em] mb-2">Etapa 3 de 3</p>
+              <h3 className="text-3xl font-black text-slate-900 dark:text-white uppercase italic tracking-tighter leading-none">Conclusão</h3>
             </header>
 
-            <div className="space-y-4">
-              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Parecer Técnico (Obrigatório)</label>
-              <textarea 
-                rows={5}
+            <div className="space-y-6">
+              <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] italic ml-1 leading-none">Observações</label>
+              <textarea
+                rows={6}
                 value={data.observations}
-                onChange={e => setData({...data, observations: e.target.value})}
+                onChange={e => setData({ ...data, observations: e.target.value })}
                 placeholder="Descreva as condições funcionais e recomendações de carga/volume..."
-                className="w-full bg-gray-50 rounded-[32px] p-6 text-sm font-medium border-none focus:ring-4 focus:ring-blue-900/5 leading-relaxed placeholder:text-gray-300 transition-all"
+                className="w-full bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 p-8 text-sm font-black uppercase tracking-widest text-slate-900 dark:text-white italic leading-relaxed focus:outline-none focus:border-blue-600 placeholder:text-slate-400 dark:placeholder:text-slate-600"
               />
             </div>
 
-            <div className="space-y-4">
-              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Decisão de Pista</label>
-              <div className="grid grid-cols-2 gap-3">
-                <button 
+            <div className="space-y-6">
+              <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] italic ml-1 leading-none">Resultado Final</label>
+              <div className="grid grid-cols-2 gap-4">
+                <button
                   onClick={() => setDecision('NORMAL')}
-                  className={`py-6 rounded-[28px] border-2 flex flex-col items-center justify-center transition-all ${decision === 'NORMAL' ? 'border-green-500 bg-green-50/30' : 'border-gray-50 bg-white'}`}
+                  className={`py-8 border flex flex-col items-center justify-center transition-all ${decision === 'NORMAL' ? 'bg-blue-600 border-blue-600 shadow-[0_0_20px_#2563EB]' : 'bg-white border-slate-200 dark:bg-white/5 dark:border-white/5'}`}
                 >
-                  <Icons.Shield className={`w-6 h-6 mb-2 ${decision === 'NORMAL' ? 'text-green-600' : 'text-gray-300'}`} />
-                  <span className={`text-[10px] font-black uppercase tracking-widest ${decision === 'NORMAL' ? 'text-green-600' : 'text-gray-400'}`}>Liberar Ciclo</span>
+                  <Icons.Shield className={`w-8 h-8 mb-4 ${decision === 'NORMAL' ? 'text-white' : 'text-slate-400'}`} />
+                  <span className={`text-[10px] font-black uppercase tracking-[0.2em] italic ${decision === 'NORMAL' ? 'text-white' : 'text-slate-600 dark:text-slate-400'}`}>Aprovado</span>
                 </button>
-                <button 
+                <button
                   onClick={() => setDecision('WARNING')}
-                  className={`py-6 rounded-[28px] border-2 flex flex-col items-center justify-center transition-all ${decision === 'WARNING' ? 'border-amber-500 bg-amber-50/30' : 'border-gray-50 bg-white'}`}
+                  className={`py-8 border flex flex-col items-center justify-center transition-all ${decision === 'WARNING' ? 'bg-amber-600 border-amber-600 shadow-[0_0_20px_#D97706]' : 'bg-white border-slate-200 dark:bg-white/5 dark:border-white/5'}`}
                 >
-                  <Icons.Clock className={`w-6 h-6 mb-2 ${decision === 'WARNING' ? 'text-amber-600' : 'text-gray-300'}`} />
-                  <span className={`text-[10px] font-black uppercase tracking-widest ${decision === 'WARNING' ? 'text-amber-600' : 'text-gray-400'}`}>Ajuste Clínico</span>
+                  <Icons.Clock className={`w-8 h-8 mb-4 ${decision === 'WARNING' ? 'text-white' : 'text-slate-400'}`} />
+                  <span className={`text-[10px] font-black uppercase tracking-[0.2em] italic ${decision === 'WARNING' ? 'text-white' : 'text-slate-400'}`}>Revisar</span>
                 </button>
               </div>
             </div>
@@ -203,46 +201,42 @@ const AssessmentFlow: React.FC<AssessmentFlowProps> = ({ student, chefe, onBack,
   };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
-      <header className="px-6 pt-10 pb-6 border-b border-gray-50 flex items-center justify-between sticky top-0 bg-white z-[60]">
-        <button onClick={step === 1 ? onBack : handlePrev} className="w-12 h-12 bg-gray-50 text-gray-400 rounded-2xl flex items-center justify-center transition-transform active:scale-90">
-          <Icons.ChevronRight className="w-5 h-5 rotate-180" />
-        </button>
-        <div className="text-center">
-          <h2 className="text-sm font-black text-blue-900 uppercase tracking-[0.2em]">Avaliação Técnica</h2>
-          <p className="text-[9px] text-blue-900/30 font-bold uppercase tracking-widest">{student.name}</p>
-        </div>
-        <div className="w-12 h-12 bg-blue-50 text-blue-900 rounded-2xl flex items-center justify-center font-black text-xs">
-          {step}/3
-        </div>
-      </header>
+    <div className="min-h-screen bg-app flex flex-col transition-colors duration-500 grain-overlay relative p-8">
+      <div className="precision-bg absolute inset-0 z-0 opacity-40"></div>
 
-      <div className="flex-1 px-8 py-10 pb-32">
+      <div className="flex-1 pb-48 pt-6 relative z-10 no-scrollbar overflow-y-auto">
+
         {renderStep()}
       </div>
 
-      <footer className="fixed bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-white via-white to-transparent z-[70] pointer-events-none">
-        <div className="max-w-md mx-auto pointer-events-auto">
+      {/* FOOTER */}
+      <footer className="fixed bottom-0 left-0 right-0 p-8 glass-panel border-t border-white/5 z-[120] shadow-2xl">
+        <div className="max-w-md mx-auto">
           {step < 3 ? (
-            <button 
+            <button
               onClick={handleNext}
-              className="w-full py-5 blue-gradient text-white rounded-[26px] font-black text-sm uppercase tracking-widest shadow-2xl shadow-blue-900/40 active:scale-95 transition-all flex items-center justify-center space-x-3"
+              className="w-full h-22 bg-blue-600 text-white font-black text-[12px] uppercase tracking-[0.8em] transition-all relative overflow-hidden group/finish shadow-[0_0_30px_rgba(37,99,235,0.4)]"
             >
-              <span>Continuar</span>
-              <Icons.ChevronRight className="w-4 h-4" />
+              <div className="absolute inset-0 bg-white translate-x-[-101%] group-hover/finish:translate-x-0 transition-transform duration-700 mix-blend-difference"></div>
+              <div className="flex items-center justify-center space-x-6 relative z-10">
+                <span className="italic">Prossiguir</span>
+                <Icons.ChevronRight className="w-5 h-5 animate-pulse" />
+              </div>
             </button>
           ) : (
-            <button 
+            <button
               onClick={handleFinalize}
               disabled={!data.observations.trim()}
-              className={`w-full py-5 rounded-[26px] font-black text-sm uppercase tracking-widest shadow-2xl transition-all flex items-center justify-center space-x-3 ${
-                data.observations.trim() 
-                  ? 'bg-blue-900 text-white shadow-blue-900/40 active:scale-95' 
-                  : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-              }`}
+              className={`w-full h-22 font-black text-[12px] uppercase tracking-[0.8em] transition-all relative overflow-hidden group/finish shadow-2xl ${data.observations.trim()
+                ? 'bg-blue-600 text-white shadow-[0_0_30px_rgba(37,99,235,0.4)]'
+                : 'bg-slate-100 dark:bg-white/5 text-slate-400 dark:text-slate-800 cursor-not-allowed border border-slate-200 dark:border-white/5'
+                }`}
             >
-              <Icons.Shield className="w-5 h-5" />
-              <span>Validar Governança</span>
+              <div className="absolute inset-0 bg-white translate-x-[-101%] group-hover/finish:translate-x-0 transition-transform duration-700 mix-blend-difference"></div>
+              <div className="flex items-center justify-center space-x-6 relative z-10">
+                <Icons.Shield className="w-6 h-6 italic" />
+                <span className="italic">Finalizar Avaliação</span>
+              </div>
             </button>
           )}
         </div>
