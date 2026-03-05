@@ -31,8 +31,10 @@ const Profile: React.FC<ProfileProps> = ({ user, onLogout, onUpdateUser, onGoTim
 
   const menuItems = [
     { id: 'data', icon: <Icons.User className="w-5 h-5" />, label: 'Dados Pessoais', desc: 'Edite seu perfil e identificação', action: () => setIsEditing(true) },
+    { id: 'plan', icon: <Icons.Shield className="w-5 h-5" />, label: 'Meu Plano', desc: 'Renovação e status financeiro', action: () => setShowPlan(true) },
+    { id: 'guest', icon: <Icons.Users className="w-5 h-5" />, label: 'VIP Guest Pass', desc: 'Convide amigos para treinar', action: () => setShowGuestPass(true) },
     { id: 'health', icon: <Icons.Chart className="w-5 h-5" />, label: 'Deep Health', desc: 'Biometria e Evolução Corporal', action: () => setShowHealth(true) },
-    { id: 'timeline', icon: <Icons.Clock className="w-5 h-5" />, label: 'Minha Jornada', desc: 'Histórico de performance técnica', action: onGoTimeline },
+    { id: 'timeline', icon: <Icons.FileText className="w-5 h-5" />, label: 'Histórico & PDF', desc: 'Ver jornada e exportar relatório', action: onGoTimeline },
     { id: 'settings', icon: <Icons.Settings className="w-5 h-5" />, label: 'Configurações', desc: 'Protocolos e privacidade', action: () => setShowSettings(true) },
   ];
 
@@ -42,6 +44,9 @@ const Profile: React.FC<ProfileProps> = ({ user, onLogout, onUpdateUser, onGoTim
     { q: "Tenho que pagar taxa de adesão?", a: "Consulte nossas condições vigentes com um consultor comercial da unidade." },
     { q: "A Personal Group possui algum convênio?", a: "Mantemos parcerias estratégicas em São Luís. Verifique a lista atualizada de integrações." }
   ];
+
+  const [showGuestPass, setShowGuestPass] = useState(false);
+  const [showPlan, setShowPlan] = useState(false);
 
   // Mock Data for Health/Bioimpedance
   const bioData = {
@@ -54,6 +59,11 @@ const Profile: React.FC<ProfileProps> = ({ user, onLogout, onUpdateUser, onGoTim
       { date: '25/04', weight: 78.4, fat: 14.2 },
     ]
   };
+
+  // Safe defaults for new fields
+  const userPlan = user.plan || { type: 'PLATINUM', name: 'Platinum Flex', renewalDate: '15/05/2026', status: 'ACTIVE', price: 'R$ 489,00' };
+  const userGamification = user.gamification || { level: 12, points: 2450, club: 'IRON' };
+  const guestPasses = { available: user.guestPassesAvailable ?? 1, used: user.guestPassesUsed || [] };
 
   return (
     <div className="min-h-screen bg-app flex flex-col transition-colors duration-500 grain-overlay relative p-8 pb-48">
@@ -80,6 +90,8 @@ const Profile: React.FC<ProfileProps> = ({ user, onLogout, onUpdateUser, onGoTim
         <div className="flex items-center space-x-3 mt-5">
           <div className="w-2 h-2 bg-blue-600 shadow-[0_0_10px_#2563EB]"></div>
           <p className="text-[10px] text-blue-500 font-bold uppercase tracking-[0.3em] leading-none">Membro Exclusive Center</p>
+          <div className="w-1 h-1 bg-slate-700"></div>
+          <p className="text-[10px] text-yellow-500 font-bold uppercase tracking-[0.3em] leading-none">LVL {userGamification.level}</p>
         </div>
       </header>
 
@@ -95,11 +107,11 @@ const Profile: React.FC<ProfileProps> = ({ user, onLogout, onUpdateUser, onGoTim
                 {item.icon}
               </div>
               <div>
-                <p className="text-lg font-bold text-slate-900 dark:text-white tracking-tight uppercase leading-none">{item.label}</p>
-                <p className="text-[9px] text-slate-500 font-bold uppercase tracking-widest mt-2 leading-none">{item.desc}</p>
+                <p className="text-lg font-bold text-blue-950 dark:text-white tracking-tight uppercase leading-none">{item.label}</p>
+                <p className="text-[9px] text-slate-600 dark:text-slate-400 font-bold uppercase tracking-widest mt-2 leading-none">{item.desc}</p>
               </div>
             </div>
-            <Icons.ChevronRight className="w-5 h-5 text-slate-700 group-hover:text-blue-500 transition-colors" />
+            <Icons.ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-blue-500 transition-colors" />
           </div>
         ))}
       </div>
@@ -107,7 +119,7 @@ const Profile: React.FC<ProfileProps> = ({ user, onLogout, onUpdateUser, onGoTim
       <section className="relative z-10 space-y-8 mb-20 px-2 text-left">
         <div className="flex items-center space-x-4">
           <div className="w-8 h-[1px] bg-blue-600"></div>
-          <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.3em] leading-none">Suporte & Deep Intel</h4>
+          <h4 className="text-[10px] font-bold text-blue-900 dark:text-slate-400 uppercase tracking-[0.3em] leading-none">Suporte & Deep Intel</h4>
         </div>
         <div className="space-y-4">
           {faqs.map((faq, i) => (
@@ -117,13 +129,13 @@ const Profile: React.FC<ProfileProps> = ({ user, onLogout, onUpdateUser, onGoTim
                 className={`w-full p-6 text-left flex items-center justify-between transition-all duration-500 ${activeFaq === i ? 'bg-blue-600/10' : ''}`}
               >
                 <div className="flex items-center space-x-5">
-                  <span className={`w-2 h-2 transition-all duration-500 ${activeFaq === i ? 'bg-blue-600 shadow-[0_0_10px_#2563EB]' : 'bg-slate-800'}`}></span>
-                  <span className={`text-xs font-bold tracking-tight leading-tight uppercase ${activeFaq === i ? 'text-slate-900 dark:text-white' : 'text-slate-600 dark:text-slate-400'}`}>{faq.q}</span>
+                  <span className={`w-2 h-2 transition-all duration-500 ${activeFaq === i ? 'bg-blue-600 shadow-[0_0_10px_#2563EB]' : 'bg-slate-400 dark:bg-slate-800'}`}></span>
+                  <span className={`text-xs font-bold tracking-tight leading-tight uppercase ${activeFaq === i ? 'text-blue-950 dark:text-white' : 'text-slate-700 dark:text-slate-400'}`}>{faq.q}</span>
                 </div>
-                <Icons.Plus className={`w-4 h-4 shrink-0 transition-transform duration-700 text-slate-600 ${activeFaq === i ? 'rotate-45 text-blue-500' : ''}`} />
+                <Icons.Plus className={`w-4 h-4 shrink-0 transition-transform duration-700 text-slate-500 ${activeFaq === i ? 'rotate-45 text-blue-500' : ''}`} />
               </button>
               {activeFaq === i && (
-                <div className="p-8 border-t border-white/5 text-[9px] font-bold text-slate-500 leading-relaxed uppercase tracking-widest animate-in slide-in-from-top-4 duration-500">
+                <div className="p-8 border-t border-white/5 text-[9px] font-bold text-slate-500 dark:text-slate-400 leading-relaxed uppercase tracking-widest animate-in slide-in-from-top-4 duration-500">
                   {faq.a}
                 </div>
               )}
@@ -176,7 +188,7 @@ const Profile: React.FC<ProfileProps> = ({ user, onLogout, onUpdateUser, onGoTim
 
             <div className="space-y-6">
               <div>
-                <label className="block text-[10px] uppercase font-bold text-slate-500 tracking-widest mb-2">Nome de Exibição</label>
+                <label className="block text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400 tracking-widest mb-2">Nome de Exibição</label>
                 <input
                   type="text"
                   value={editName}
@@ -187,7 +199,7 @@ const Profile: React.FC<ProfileProps> = ({ user, onLogout, onUpdateUser, onGoTim
               </div>
 
               <div>
-                <label className="block text-[10px] uppercase font-bold text-slate-500 tracking-widest mb-2">URL do Avatar</label>
+                <label className="block text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400 tracking-widest mb-2">URL do Avatar</label>
                 <input
                   type="text"
                   value={editAvatar}
@@ -392,6 +404,82 @@ const Profile: React.FC<ProfileProps> = ({ user, onLogout, onUpdateUser, onGoTim
               <Icons.ClipboardCheck className="w-5 h-5 group-hover:scale-110 transition-transform" />
               Agendar Nova Bioimpedância
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* PLAN DETAILS MODAL */}
+      {showPlan && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-slate-900/80 dark:bg-midnight/80 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="w-full max-w-sm bg-white dark:bg-ocean border border-slate-200 dark:border-white/10 p-8 shadow-2xl relative">
+            <button onClick={() => setShowPlan(false)} className="absolute top-4 right-4 text-slate-500 hover:text-white">
+              <Icons.X className="w-6 h-6" />
+            </button>
+            <div className="text-center mb-8">
+              <p className="text-[10px] font-bold text-blue-500 uppercase tracking-[0.3em] mb-2">Status Financeiro</p>
+              <h3 className="text-2xl font-bold text-slate-900 dark:text-white uppercase tracking-tight">Meu Plano</h3>
+            </div>
+
+            <div className="p-6 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-center mb-8">
+              <h4 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-wider mb-1">{userPlan.name}</h4>
+              <p className={`text-xs font-bold uppercase tracking-widest inline-flex items-center gap-2 ${userPlan.status === 'ACTIVE' ? 'text-green-500' : 'text-red-500'}`}>
+                <span className={`w-2 h-2 rounded-full ${userPlan.status === 'ACTIVE' ? 'bg-green-500' : 'bg-red-500'}`}></span>
+                {userPlan.status === 'ACTIVE' ? 'Ativo' : 'Pendente'}
+              </p>
+            </div>
+
+            <div className="space-y-4 mb-8">
+              <div className="flex justify-between text-xs font-bold text-slate-600 dark:text-slate-400 border-b border-white/5 pb-2">
+                <span>Renovação</span>
+                <span className="text-slate-900 dark:text-white">{userPlan.renewalDate}</span>
+              </div>
+              <div className="flex justify-between text-xs font-bold text-slate-600 dark:text-slate-400 border-b border-white/5 pb-2">
+                <span>Valor Mensal</span>
+                <span className="text-slate-900 dark:text-white">{userPlan.price}</span>
+              </div>
+            </div>
+
+            <button className="w-full py-4 bg-green-600 text-white font-bold text-xs uppercase tracking-widest shadow-lg hover:bg-green-500 active:scale-95 transition-all flex items-center justify-center gap-2">
+              <Icons.Message className="w-4 h-4" />
+              Falar com Gerente
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* GUEST PASS MODAL */}
+      {showGuestPass && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-slate-900/80 dark:bg-midnight/80 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="w-full max-w-sm bg-white dark:bg-ocean border border-slate-200 dark:border-white/10 p-8 shadow-2xl relative text-center">
+            <button onClick={() => setShowGuestPass(false)} className="absolute top-4 right-4 text-slate-500 hover:text-white">
+              <Icons.X className="w-6 h-6" />
+            </button>
+
+            <div className="w-20 h-20 bg-yellow-500/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-yellow-500/30">
+              <Icons.Star className="w-10 h-10 text-yellow-500" />
+            </div>
+
+            <h3 className="text-2xl font-bold text-slate-900 dark:text-white uppercase tracking-tight mb-2">Guest Pass VIP</h3>
+            <p className="text-xs text-slate-500 mb-8 max-w-[200px] mx-auto">Convide um amigo para viver a experiência Personal Group por um dia.</p>
+
+            <div className="p-6 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 mb-8">
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Convites Disponíveis</p>
+              <h4 className="text-5xl font-black text-slate-900 dark:text-white tracking-tighter">{guestPasses.available}</h4>
+              <p className="text-[10px] text-slate-400 mt-2">Renova em 01/02</p>
+            </div>
+
+            {guestPasses.available > 0 ? (
+              <button className="w-full py-4 bg-yellow-600 text-white font-bold text-xs uppercase tracking-widest shadow-lg hover:bg-yellow-500 active:scale-95 transition-all flex items-center justify-center gap-2">
+                <Icons.QRCode className="w-4 h-4" />
+                Gerar Convite
+              </button>
+            ) : (
+              <button disabled className="w-full py-4 bg-slate-700 text-slate-500 font-bold text-xs uppercase tracking-widest cursor-not-allowed">
+                Sem convites este mês
+              </button>
+            )}
+
+            <p className="text-[9px] text-slate-500 mt-6">* Necessário validação e cadastro na recepção com documento com foto.</p>
           </div>
         </div>
       )}

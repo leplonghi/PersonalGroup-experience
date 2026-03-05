@@ -2,20 +2,22 @@
 
 @theme {
     /* Blue-Centric Color System */
-    --color-pg-deep-blue: #080838;
-    --color-pg-midnight: #0A0F2C;
-    --color-pg-ocean: #0F1B3F;
+    --color-pg-deep-blue: #0c0a47;
+    --color-pg-midnight: #0c0a47;
+    --color-pg-ocean: #110e63;
     --color-pg-cobalt: #2563EB;
     --color-pg-sky: #3B82F6;
-    --color-pg-laser: #00F2FF;
-    --color-pg-ice: #E0F2FE;
-    --color-pg-frost: #F0F9FF;
+    --color-pg-laser: #60A5FA;
+    --color-pg-ice: #DBEAFE;
+    --color-pg-frost: #EFF6FF;
     --color-pg-success: #10B981;
     --color-pg-warning: #F59E0B;
+    --color-pg-ice-highlight: #E0F2FE;
     --color-pg-surface: #FFFFFF;
 
     --font-sans: Inter, sans-serif;
     --font-display: Outfit, sans-serif;
+    --font-sport: "Barlow Condensed", sans-serif;
 
     --radius-pg-sharp: 4px;
     --radius-pg-premium: 12px;
@@ -24,14 +26,14 @@
 
 :root {
     /* Blue Gradient Palette */
-    --pg-deep-blue: #080838;
-    --pg-midnight: #0A0F2C;
-    --pg-ocean: #0F1B3F;
+    --pg-deep-blue: #0c0a47;
+    --pg-midnight: #0c0a47;
+    --pg-ocean: #110e63;
     --pg-cobalt: #2563EB;
     --pg-sky: #3B82F6;
-    --pg-laser: #00F2FF;
-    --pg-ice: #E0F2FE;
-    --pg-frost: #F0F9FF;
+    --pg-laser: #60A5FA;
+    --pg-ice: #DBEAFE;
+    --pg-frost: #EFF6FF;
 
     /* Functional Colors */
     --pg-success: #10B981;
@@ -41,7 +43,7 @@
 
     /* Glass & Borders - Blue Tinted */
     --pg-glass-light: rgba(37, 99, 235, 0.05);
-    --pg-glass-dark: rgba(8, 8, 56, 0.85);
+    --pg-glass-dark: rgba(12, 10, 71, 0.85);
     --pg-border-light: rgba(37, 99, 235, 0.15);
     --pg-border-dark: rgba(59, 130, 246, 0.2);
 
@@ -50,14 +52,14 @@
     --pg-radius-premium: 12px;
     --pg-radius-pill: 9999px;
 
-    /* Rich Blue Gradients */
-    --pg-bg-light: linear-gradient(180deg, #F0F9FF 0%, #FFFFFF 50%, #EFF6FF 100%);
-    --pg-bg-dark: radial-gradient(ellipse at top, #0F1B3F 0%, #080838 40%, #020617 100%);
-    --pg-primary-gradient: linear-gradient(135deg, #080838 0%, #2563EB 100%);
-    --pg-accent-gradient: linear-gradient(135deg, #2563EB 0%, #00F2FF 100%);
-    --pg-hero-gradient: linear-gradient(135deg, #0A0F2C 0%, #1E40AF 50%, #2563EB 100%);
+    /* Rich Blue Gradients - Pure Blue Tones */
+    --pg-bg-light: linear-gradient(180deg, #dbeafe 0%, #eff6ff 50%, #ffffff 100%);
+    --pg-bg-dark: radial-gradient(circle at 50% 0%, #1e1b4b 0%, #0f172a 100%);
+    --pg-primary-gradient: linear-gradient(135deg, #0c0a47 0%, #2563EB 100%);
+    --pg-accent-gradient: linear-gradient(135deg, #2563EB 0%, #60A5FA 100%);
+    --pg-hero-gradient: linear-gradient(135deg, #0c0a47 0%, #1E40AF 50%, #2563EB 100%);
     --pg-glass-bg-light: rgba(240, 249, 255, 0.6);
-    --pg-glass-bg-dark: rgba(8, 8, 56, 0.8);
+    --pg-glass-bg-dark: rgba(12, 10, 71, 0.9);
 }
 
 * {
@@ -95,11 +97,11 @@ h6,
 
 /* Theme-aware background utilities */
 .bg-app {
-    background: var(--pg-frost);
+    background: var(--pg-bg-light);
 }
 
 .dark .bg-app {
-    background: var(--pg-midnight);
+    background: var(--pg-bg-dark);
 }
 
 .text-app {
@@ -126,15 +128,21 @@ h6,
     border-color: var(--pg-border-dark);
 }
 
+/* Removed aggressive GLOBAL LIGHT MODE TEXT FIX.
+   Use specific Tailwind classes (e.g., text-slate-900 dark:text-white) directly in components instead. */
+
 /* Card and surface backgrounds */
 .bg-card {
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(10px);
+    background: #FFFFFF;
+    background-image: linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%);
+    border: 1px solid #E2E8F0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
 }
 
 .dark .bg-card {
-    background: rgba(15, 27, 63, 0.6);
-    backdrop-filter: blur(20px);
+    background: #110e63;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
 }
 
 .bg-surface {
@@ -174,7 +182,7 @@ h6,
     width: 300%;
     height: 300%;
     background-image: url("/assets/noise.svg");
-    opacity: 0.04;
+    opacity: 0.02;
     pointer-events: none;
     z-index: 9999;
     animation: noise-move 1s steps(2) infinite;
@@ -352,11 +360,11 @@ h6,
 }
 
 .glass-panel {
-    background: #FFFFFF;
-    backdrop-filter: blur(20px) saturate(150%);
-    -webkit-backdrop-filter: blur(20px) saturate(150%);
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     border: 1px solid rgba(226, 232, 240, 0.8);
-    box-shadow: 0 4px 20px rgba(148, 163, 184, 0.15);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.04);
 }
 
 .dark .glass-panel {

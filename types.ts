@@ -32,6 +32,9 @@ export interface WellnessService {
   description: string;
   duration: string;
   icon: string;
+  type: 'WELLNESS' | 'CLASS';
+  capacity?: number;
+  instructor?: string;
 }
 
 export interface WellnessBooking {
@@ -59,12 +62,133 @@ export interface User {
   isCheckedIn?: boolean;
   checkInTime?: string;
   activeWellnessBookings?: WellnessBooking[];
+
+  // Extended Profile — Aluno
+  sex?: 'M' | 'F' | 'NB';
+  age?: number;
+  whatsapp?: string;
+  trainingPreferences?: string[];   // ['musculação', 'funcional', 'cardio']
+  painLimitations?: string;         // texto livre
+  objectives?: string[];            // ['hipertrofia', 'emagrecimento', 'saúde']
+  injuryHistory?: string;           // texto livre
+  photoUrl?: string;                // Firebase Storage URL
+
+  // Extended Profile — Personal
+  specialty?: string[];
+  availableHours?: string[];        // ['07:00-09:00', '17:00-20:00']
+  bio?: string;
+  certificates?: string[];
+
+  // Plano e Frequência
+  planStart?: string;               // ISO date string
+  planEnd?: string;                 // ISO date string
+  weeklyFrequency?: number;         // 3-7 treinos por semana
+  missedThisWeek?: number;
+  noShowCount?: number;
+
+  // Other existing fields
+  guestPassesAvailable?: number;
+  guestPassesUsed?: string[];
+
+  plan?: {
+    type: 'GOLD' | 'PLATINUM' | 'BLACK';
+    name: string;
+    renewalDate: string;
+    status: 'ACTIVE' | 'PENDING' | 'OVERDUE';
+    price: string;
+  };
+
+  gamification?: {
+    level: number;
+    points: number;
+    badges: string[];
+    club?: 'IRON' | 'ELITE' | 'LEGEND';
+  };
+
   healthException?: {
     type: 'STRESS' | 'SLEEP' | 'HEART_RATE' | 'BP';
     message: string;
     impact: string;
     isBlocking: boolean;
   } | null;
+}
+
+// --- New Interfaces (Etapas 2-5) ---
+
+export interface GymHours {
+  open: string;   // 'HH:MM'
+  close: string;  // 'HH:MM'
+}
+
+export interface GymConfig {
+  hours: {
+    weekdays: GymHours;   // Mon-Fri
+    saturday: GymHours;
+    sunday: GymHours;
+    holidays: GymHours;
+  };
+  maxWellnessPerMonth: number;
+  timezone: string;       // 'America/Sao_Paulo'
+  gymName: string;
+  gymUnit: string;
+}
+
+export type AdminRequestType = 'MUDANCA_TREINO' | 'TRANCAMENTO' | 'ATESTADO' | 'REPOSICAO' | 'OUTRO';
+export type AdminRequestStatus = 'pending' | 'approved' | 'rejected';
+
+export interface AdminRequest {
+  id: string;
+  userId: string;
+  userName: string;
+  type: AdminRequestType;
+  status: AdminRequestStatus;
+  reason: string;
+  documentUrl?: string;
+  createdAt: string;
+  resolvedAt?: string;
+  resolvedBy?: string;
+  resolution?: string;
+}
+
+export interface EvolutionEntry {
+  id: string;
+  userId: string;
+  date: string;
+  photoUrl?: string;
+  weight?: number;
+  fatPercentage?: number;
+  leanMass?: number;
+  measures?: Record<string, number>; // { cintura: 80, braco: 35 }
+  notes?: string;
+}
+
+export interface FrequencyReport {
+  userId: string;
+  period: 'week' | 'month' | 'year';
+  totalSessions: number;
+  plannedSessions: number;
+  attendanceRate: number;    // 0-100
+  noShows: number;
+  checkIns: CheckInRecord[];
+}
+
+export interface CheckInRecord {
+  id: string;
+  userId: string;
+  timestamp: string;
+  method: 'QR' | 'MANUAL' | 'AUTO';
+  gymId: string;
+}
+
+export interface WellnessSlot {
+  id: string;
+  serviceId: string;
+  date: string;
+  time: string;
+  available: boolean;
+  bookedBy?: string;
+  capacity: number;
+  enrolled: number;
 }
 
 export type View = 'HOME' | 'AGENDA' | 'PROFILE' | 'MANAGEMENT' | 'SESSION' | 'WELLNESS' | 'PROTOCOL_EDIT' | 'ASSESSMENT' | 'CYCLE_BUILDER' | 'MESSAGES' | 'TIMELINE' | 'CHECKIN';
@@ -142,6 +266,7 @@ export interface Exercise {
   reps: string;
   weight: number;
   image: string;
+  videoUrl?: string; // YouTube ID or Full URL
   observations?: string;
   variations?: string;
   lastPerformance?: {

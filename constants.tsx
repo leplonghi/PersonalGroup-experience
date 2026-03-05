@@ -40,28 +40,65 @@ export const WELLNESS_SERVICES_DATA = [
     name: 'Massagem Relaxante',
     description: 'Relaxamento muscular pós-treino',
     duration: '50min',
-    icon: 'Leaf'
+    icon: 'Leaf',
+    type: 'WELLNESS'
   },
   {
     id: 'fisioterapia',
     name: 'Fisioterapia',
     description: 'Recuperação e prevenção de lesões',
     duration: '45min',
-    icon: 'Shield'
+    icon: 'Shield',
+    type: 'WELLNESS'
   },
   {
     id: 'nutricao',
     name: 'Consultoria Nutricional',
     description: 'Planejamento alimentar personalizado',
     duration: '60min',
-    icon: 'Droplet'
+    icon: 'Droplet',
+    type: 'WELLNESS'
   },
   {
     id: 'avaliacao',
     name: 'Avaliação Física',
     description: 'Análise corporal completa',
     duration: '45min',
-    icon: 'ClipboardCheck'
+    icon: 'ClipboardCheck',
+    type: 'WELLNESS'
+  }
+];
+
+export const CLASS_SERVICES_DATA = [
+  {
+    id: 'yoga',
+    name: 'Yoga Sunrise',
+    description: 'Mobilidade e consciência corporal',
+    duration: '60min',
+    icon: 'Yoga',
+    type: 'CLASS',
+    instructor: 'Sofia M.',
+    capacity: 12
+  },
+  {
+    id: 'cross',
+    name: 'PG Cross',
+    description: 'Treino funcional de alta intensidade',
+    duration: '50min',
+    icon: 'Dumbbell',
+    type: 'CLASS',
+    instructor: 'Carlos R.',
+    capacity: 15
+  },
+  {
+    id: 'cycle',
+    name: 'Cycle Indoor',
+    description: 'Cardio intenso em bike',
+    duration: '45min',
+    icon: 'Activity',
+    type: 'CLASS',
+    instructor: 'João P.',
+    capacity: 20
   }
 ];
 
@@ -108,6 +145,11 @@ export const Icons = {
   ChevronRight: ({ className }: { className?: string }) => (
     <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+    </svg>
+  ),
+  ChevronLeft: ({ className }: { className?: string }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
     </svg>
   ),
   Settings: ({ className }: { className?: string }) => (
@@ -258,6 +300,22 @@ export const Icons = {
   Star: ({ className }: { className?: string }) => (
     <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+    </svg>
+  ),
+  Play: ({ className }: { className?: string }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+  ),
+  Check: ({ className }: { className?: string }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+    </svg>
+  ),
+  Upload: ({ className }: { className?: string }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
     </svg>
   )
 };

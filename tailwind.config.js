@@ -12,9 +12,9 @@ export default {
     theme: {
         extend: {
             colors: {
-                'deep-blue': '#080838',
-                'midnight': '#0A0F2C',
-                'ocean': '#0F1B3F',
+                'deep-blue': '#0c0a47',
+                'midnight': '#0c0a47',
+                'ocean': '#110e63',
                 'cobalt': '#2563EB',
                 'sky': '#3B82F6',
                 'laser': '#00F2FF',
@@ -22,10 +22,12 @@ export default {
                 'frost': '#F0F9FF',
                 'pg-success': '#10B981',
                 'pg-warning': '#F59E0B',
+                'ice-highlight': '#E0F2FE', // Blue-centric premium accent
             },
             fontFamily: {
                 sans: ['Inter', 'sans-serif'],
                 display: ['Outfit', 'sans-serif'],
+                sport: ['"Barlow Condensed"', 'sans-serif'],
             },
             borderRadius: {
                 'pg-sharp': '4px',

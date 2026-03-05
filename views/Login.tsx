@@ -1,243 +1,273 @@
 
 import React, { useState } from 'react';
-import { UserRole, User } from '../types';
+import { UserRole } from '../types';
 import { Icons } from '../constants';
+import { TEST_ACCOUNTS, seedTestUsers, loginAsTestUser, createTestUser, type TestAccount } from '../seedTestUsers';
 
 interface LoginProps {
-  onLogin: (user: User) => void;
+  /** Called with email+password for real Firebase Auth */
+  onLogin: (email: string, password: string) => Promise<void>;
+  /** Optional: Google sign-in handler */
+  onGoogleLogin?: () => Promise<void>;
+  /** Optional: navigate to new-user registration flow */
+  onRegister?: () => void;
   isDarkMode?: boolean;
   onToggleTheme?: () => void;
 }
 
-const Login: React.FC<LoginProps> = ({ onLogin, isDarkMode = false, onToggleTheme }) => {
-  const [mode, setMode] = useState<'login' | 'signup'>('login');
+const Login: React.FC<LoginProps> = ({ onLogin, onGoogleLogin, onRegister, isDarkMode = false, onToggleTheme }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
-  const [accessKey, setAccessKey] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'error' | 'success'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
+  const [showDevPanel, setShowDevPanel] = useState(false);
+  const [seedStatus, setSeedStatus] = useState<string[]>([]);
+  const [seedLoading, setSeedLoading] = useState(false);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage('');
-
-    if (mode === 'signup') {
-      if (!name || !email || !password || !accessKey) {
-        setErrorMessage('Campos obrigatórios ausentes.');
-        return;
-      }
-      const validKeys = ['PG2025', 'EXCLUSIVE', 'PG-2025'];
-      if (!validKeys.includes(accessKey.toUpperCase().replace(/\s/g, ''))) {
-        setErrorMessage('Chave de Hardware inválida.');
-        return;
-      }
-    } else {
-      if (!email || !password) {
-        setErrorMessage('Credenciais do sistema exigidas.');
-        return;
-      }
+    if (!email || !password) {
+      setErrorMessage('Credenciais do sistema exigidas.');
+      return;
     }
-
     setStatus('loading');
-    setTimeout(() => {
-      if (mode === 'login' && password === 'erro') {
-        setStatus('error');
-        setErrorMessage('Acesso não autorizado.');
-        return;
-      }
-
-      const userName = mode === 'signup' ? name : 'Augusto Silva';
-      let role = UserRole.ALUNO;
-      if (email.includes('personal')) role = UserRole.PERSONAL;
-      else if (email.includes('chefe')) role = UserRole.CHEFE;
-      else if (email.includes('admin')) role = UserRole.ADMIN;
-
-      const user: User = {
-        id: 'usr_' + Math.random().toString(36).substr(2, 9),
-        name: userName,
-        email: email,
-        role: role,
-        avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${userName}`,
-        unit: 'Unidade Península',
-        healthStatus: 'NORMAL',
-        healthException: null,
-        wellnessSessionsUsed: 0
-      };
-
+    try {
+      await onLogin(email, password);
       setStatus('success');
-      setTimeout(() => onLogin(user), 600);
-    }, 1500);
+    } catch (err: any) {
+      const code = err?.code || '';
+      const msg = code === 'auth/invalid-credential' || code === 'auth/wrong-password'
+        ? 'E-mail ou senha incorretos.'
+        : code === 'auth/user-not-found'
+          ? 'Conta não encontrada.'
+          : code === 'auth/too-many-requests'
+            ? 'Muitas tentativas. Aguarde um momento.'
+            : err?.message || 'Acesso não autorizado.';
+      setErrorMessage(msg);
+      setStatus('error');
+    }
   };
 
-  const injectUser = (config: Partial<User>) => {
-    const baseUser: User = {
-      id: 'dev_' + Math.random().toString(36).substr(2, 5),
-      name: 'Perfil de Teste',
-      email: 'exclusive@personalgroup.com',
-      role: UserRole.ALUNO,
-      avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${config.name}`,
-      unit: 'PG Lab São Luís',
-      healthStatus: 'NORMAL',
-      healthException: null,
-      wellnessSessionsUsed: 0,
-      ...config
-    };
-    onLogin(baseUser);
+  const handleGoogle = async () => {
+    if (!onGoogleLogin) return;
+    setStatus('loading');
+    setErrorMessage('');
+    try {
+      await onGoogleLogin();
+      setStatus('success');
+    } catch (err: any) {
+      setErrorMessage(err?.message || 'Erro ao entrar com Google.');
+      setStatus('error');
+    }
   };
 
   return (
-    <div className="min-h-screen w-full flex flex-col items-center justify-center relative overflow-hidden p-6 bg-app grain-overlay">
-      <div className="precision-bg absolute inset-0 z-0 opacity-40"></div>
+    <div className="min-h-screen w-full flex flex-col items-center justify-center relative overflow-hidden p-6">
+      {/* Background Image & Overlays */}
+      <div className="absolute inset-0 z-0 select-none pointer-events-none">
+        <img
+          src="/gym-interior.png"
+          alt="Gym Background"
+          className="w-full h-full object-cover scale-105 animate-pulse-slow"
+          style={{ animationDuration: '20s' }}
+        />
+        {/* Layer 1: Blue Tint */}
+        <div className="absolute inset-0 bg-blue-900/60 mix-blend-multiply"></div>
+        {/* Layer 2: Deep Darkness Gradient */}
+        <div className="absolute inset-0 bg-gradient-to-b from-blue-950/80 via-[#0c0a47]/70 to-black/90"></div>
+        {/* Layer 3: Radial Focus */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,#000000_100%)] opacity-80"></div>
+      </div>
 
       {/* Theme Toggle Button */}
       {onToggleTheme && (
         <button
           onClick={onToggleTheme}
-          className="absolute top-6 right-6 z-50 w-12 h-12 border border-white/20 bg-white/10 flex items-center justify-center text-white active:scale-95 transition-all hover:bg-white/20 rounded-lg backdrop-blur-md shadow-lg"
+          className="absolute top-6 right-6 z-50 w-12 h-12 border border-white/10 bg-black/20 flex items-center justify-center text-white active:scale-95 transition-all hover:bg-white/10 rounded-full backdrop-blur-md shadow-lg"
           aria-label="Alternar tema"
         >
-          {isDarkMode ? <Icons.Sun className="w-5 h-5 text-amber-400" /> : <Icons.Moon className="w-5 h-5 text-slate-200" />}
+          {isDarkMode ? <Icons.Sun className="w-5 h-5 text-amber-400" /> : <Icons.Moon className="w-5 h-5 text-blue-200" />}
         </button>
       )}
 
-      <div className="w-full max-w-sm z-10 space-y-10 animate-in fade-in slide-in-from-bottom-12 duration-1000">
+      <div className="w-full max-w-sm z-10 space-y-8 animate-in fade-in slide-in-from-bottom-12 duration-1000">
         {/* Logo Section */}
-        <div className="text-center space-y-8 animate-in fade-in zoom-in duration-1000">
+        <div className="text-center space-y-6 animate-in fade-in zoom-in duration-1000">
           <div className="flex justify-center p-2 relative group">
-            <img src="/personalgroup-logo.png" className="h-24 w-auto object-contain filter drop-shadow-[0_0_25px_rgba(37,99,235,0.4)] relative z-10 transition-transform duration-500 group-hover:scale-105" alt="PersonalGroup logo" />
+            <div className="absolute inset-0 bg-blue-500/20 blur-[50px] rounded-full"></div>
+            <img src="/personalgroup-logo.png" className="h-28 w-auto object-contain filter drop-shadow-[0_0_15px_rgba(37,99,235,0.5)] relative z-10 transition-transform duration-500 group-hover:scale-105" alt="PersonalGroup logo" />
           </div>
-          <div className="space-y-3">
-
-            <p className="text-[11px] font-medium text-blue-400 uppercase tracking-[0.4em] opacity-80">Experiência Exclusive</p>
+          <div className="space-y-2">
+            <p className="text-[10px] font-bold text-blue-200 uppercase tracking-[0.5em] opacity-90 drop-shadow-md">
+              Experiência Exclusive
+            </p>
           </div>
         </div>
 
-        {/* Auth Interface */}
-        <div className="glass-panel p-8 shadow-2xl relative group overflow-hidden border-white/5">
+        {/* Auth Card */}
+        <div className="backdrop-blur-2xl bg-black/40 p-8 rounded-3xl shadow-2xl relative group overflow-hidden border border-white/10 ring-1 ring-white/5">
+          {/* Shine Effects */}
+          <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+          <div className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-blue-500/20 to-transparent"></div>
 
+          <p className="text-[9px] font-extrabold uppercase tracking-[0.4em] text-blue-200/70 mb-6 text-center">Acesso ao Sistema</p>
 
-          <div className="flex border-b border-white/5 mb-8">
-            <button
-              onClick={() => { setMode('login'); setErrorMessage(''); }}
-              className={`flex-1 py-4 text-[10px] font-bold uppercase tracking-[0.2em] transition-all relative ${mode === 'login' ? 'text-blue-500' : 'text-slate-600'}`}
-            >
-              Entrar
-              {mode === 'login' && <div className="absolute bottom-0 left-0 right-0 h-1 bg-blue-600 shadow-[0_0_10px_#2563EB]"></div>}
-            </button>
-            <button
-              onClick={() => { setMode('signup'); setErrorMessage(''); }}
-              className={`flex-1 py-4 text-[10px] font-bold uppercase tracking-[0.2em] transition-all relative ${mode === 'signup' ? 'text-blue-500' : 'text-slate-600'}`}
-            >
-              Criar Conta
-              {mode === 'signup' && <div className="absolute bottom-0 left-0 right-0 h-1 bg-blue-600 shadow-[0_0_10px_#2563EB]"></div>}
-            </button>
-          </div>
-
-          <form onSubmit={handleAuth} className="space-y-6">
-            {mode === 'signup' && (
-              <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
-                <label className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Nome Completo</label>
+          <form onSubmit={handleAuth} className="space-y-5">
+            <div className="space-y-1.5">
+              <label className="text-[9px] font-bold text-blue-200/80 uppercase tracking-widest ml-1">E-mail</label>
+              <div className="relative group/input">
+                <div className="absolute inset-0 bg-blue-500/5 rounded-xl blur-sm transition-all group-focus-within/input:bg-blue-500/10"></div>
                 <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="w-full h-12 bg-white/5 border border-white/10 px-4 text-sm font-semibold text-white focus:border-blue-500/50 outline-none transition-all"
-                  placeholder="EX // JOÃO SILVA"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full h-12 bg-black/20 border border-white/10 rounded-xl px-4 text-sm font-medium text-white focus:border-blue-400/50 focus:bg-black/40 focus:ring-1 focus:ring-blue-500/20 outline-none transition-all placeholder:text-white/20 relative z-10"
+                  placeholder="seu@email.com"
+                  autoComplete="email"
                 />
               </div>
-            )}
-
-            <div className="space-y-2">
-              <label className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">E-mail</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full h-14 bg-white/5 border border-white/10 px-4 text-sm font-semibold text-white focus:border-blue-500/50 outline-none transition-all placeholder:text-slate-800"
-                placeholder="seu@email.com"
-              />
             </div>
 
-            <div className="space-y-2">
-              <label className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Senha</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full h-14 bg-white/5 border border-white/10 px-4 text-sm font-semibold text-white focus:border-blue-500/50 outline-none transition-all"
-                placeholder="••••••••"
-              />
+            <div className="space-y-1.5">
+              <label className="text-[9px] font-bold text-blue-200/80 uppercase tracking-widest ml-1">Senha</label>
+              <div className="relative group/input">
+                <div className="absolute inset-0 bg-blue-500/5 rounded-xl blur-sm transition-all group-focus-within/input:bg-blue-500/10"></div>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full h-12 bg-black/20 border border-white/10 rounded-xl px-4 text-sm font-medium text-white focus:border-blue-400/50 focus:bg-black/40 focus:ring-1 focus:ring-blue-500/20 outline-none transition-all placeholder:text-white/20 relative z-10"
+                  placeholder="••••••••"
+                  autoComplete="current-password"
+                />
+              </div>
             </div>
 
             {errorMessage && (
-              <div className="bg-red-950/20 border border-red-500/30 p-4 text-[9px] font-bold text-red-500 text-center uppercase tracking-widest">
-                Ops! {errorMessage}
+              <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3 text-[10px] font-bold text-red-400 text-center uppercase tracking-widest animate-in fade-in slide-in-from-top-1">
+                {errorMessage}
               </div>
             )}
 
             <button
               type="submit"
               disabled={status === 'loading'}
-              className="w-full h-16 bg-blue-600 hover:bg-blue-500 text-white font-bold text-[11px] uppercase tracking-[0.4em] transition-all relative overflow-hidden group/btn shadow-[0_0_20px_rgba(37,99,235,0.3)]"
+              className="w-full h-14 mt-2 bg-gradient-to-r from-blue-700 to-blue-600 hover:from-blue-600 hover:to-blue-500 text-white font-bold text-[11px] uppercase tracking-[0.25em] transition-all relative overflow-hidden group/btn shadow-lg shadow-blue-900/40 rounded-xl border border-blue-400/20 disabled:opacity-60"
             >
-              <div className="absolute inset-0 bg-white translate-x-[-101%] group-hover/btn:translate-x-0 transition-transform duration-700 mix-blend-difference"></div>
+              <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover/btn:translate-x-[100%] transition-transform duration-700 ease-in-out"></div>
               {status === 'loading' ? (
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-              ) : mode === 'login' ? 'Acessar' : 'Confirmar Cadastro'}
+                <div className="flex items-center justify-center space-x-2">
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  <span className="opacity-80">Autenticando...</span>
+                </div>
+              ) : 'Acessar'}
             </button>
           </form>
-        </div>
 
-        {/* Debug / Dev Profiles */}
-        <div className="space-y-6 pt-4">
-          <div className="flex items-center space-x-4 opacity-30">
-            <div className="flex-1 h-[1px] bg-white/10"></div>
-            <span className="text-[8px] font-bold uppercase tracking-[0.4em]">Acesso Rápido</span>
-            <div className="flex-1 h-[1px] bg-white/10"></div>
-          </div>
+          {/* Google Sign-In */}
+          {onGoogleLogin && (
+            <button
+              onClick={handleGoogle}
+              disabled={status === 'loading'}
+              className="w-full h-12 mt-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl flex items-center justify-center space-x-3 transition-all disabled:opacity-60"
+            >
+              <Icons.Google className="w-5 h-5" />
+              <span className="text-[10px] font-bold text-white/80 uppercase tracking-widest">Entrar com Google</span>
+            </button>
+          )}
 
-          <div className="grid grid-cols-2 gap-3">
-            {[
-              { label: 'Aluno', role: UserRole.ALUNO, icon: Icons.User },
-              { label: 'Professor', role: UserRole.PERSONAL, icon: Icons.Dumbbell },
-              { label: 'Gestor', role: UserRole.CHEFE, icon: Icons.Chart },
-              { label: 'Admin', role: UserRole.ADMIN, icon: Icons.Shield }
-            ].map((p, i) => (
-              <button
-                key={i}
-                onClick={() => injectUser({ name: p.label, role: p.role })}
-                className="flex items-center space-x-4 p-4 border border-white/5 bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/10 transition-all group text-left"
-              >
-                <div className="w-8 h-8 flex items-center justify-center border border-white/10 group-hover:border-blue-500 transition-colors">
-                  <p.icon className="w-4 h-4 text-slate-500 group-hover:text-blue-500 transition-colors" />
-                </div>
-                <span className="text-[9px] font-bold text-slate-400 group-hover:text-white uppercase tracking-widest">{p.label}</span>
+          {/* Register link */}
+          {onRegister && (
+            <div className="mt-6 text-center">
+              <button onClick={onRegister} className="text-[9px] font-bold text-blue-300/60 uppercase tracking-[0.3em] hover:text-blue-300 transition-colors">
+                Novo membro? Criar conta
               </button>
-            ))}
+            </div>
+          )}
+
+          {/* DEV TEST PANEL */}
+          <div className="mt-8 border-t border-white/5 pt-6">
+            <button
+              onClick={() => setShowDevPanel(!showDevPanel)}
+              className="text-[8px] font-bold text-slate-600 uppercase tracking-[0.3em] hover:text-blue-400 transition-colors w-full text-center"
+            >
+              🧪 Acessos de Teste {showDevPanel ? '▲' : '▼'}
+            </button>
+
+            {showDevPanel && (
+              <div className="mt-4 space-y-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                {/* Seed Button */}
+                <button
+                  onClick={async () => {
+                    setSeedLoading(true);
+                    setSeedStatus([]);
+                    try {
+                      const results = await seedTestUsers();
+                      setSeedStatus(results);
+                    } catch (err: any) {
+                      setSeedStatus([`❌ Erro: ${err.message}`]);
+                    }
+                    setSeedLoading(false);
+                  }}
+                  disabled={seedLoading}
+                  className="w-full py-2.5 bg-amber-600/20 border border-amber-500/30 rounded-lg text-[9px] font-black text-amber-300 uppercase tracking-[0.2em] hover:bg-amber-500/30 transition-all disabled:opacity-50"
+                >
+                  {seedLoading ? 'Criando usuários...' : '⚡ Criar Todos os Usuários de Teste'}
+                </button>
+
+                {/* Seed Results */}
+                {seedStatus.length > 0 && (
+                  <div className="bg-black/30 rounded-lg p-3 space-y-1">
+                    {seedStatus.map((s, i) => (
+                      <p key={i} className="text-[8px] text-slate-300 font-mono">{s}</p>
+                    ))}
+                  </div>
+                )}
+
+                {/* Quick Login Buttons */}
+                <div className="grid grid-cols-2 gap-2">
+                  {TEST_ACCOUNTS.map((acc) => (
+                    <button
+                      key={acc.email}
+                      onClick={async () => {
+                        setStatus('loading');
+                        setErrorMessage('');
+                        try {
+                          // Ensure user exists first
+                          await createTestUser(acc);
+                          // Then login
+                          await onLogin(acc.email, acc.password);
+                          setStatus('success');
+                        } catch (err: any) {
+                          setErrorMessage(err.message);
+                          setStatus('error');
+                        }
+                      }}
+                      disabled={status === 'loading'}
+                      className="py-3 rounded-lg border transition-all hover:scale-[1.02] disabled:opacity-50"
+                      style={{
+                        borderColor: acc.color + '40',
+                        background: acc.color + '15',
+                      }}
+                    >
+                      <p className="text-[10px] font-black uppercase tracking-[0.15em]" style={{ color: acc.color }}>
+                        {acc.label}
+                      </p>
+                      <p className="text-[7px] text-slate-500 font-bold mt-0.5">{acc.email}</p>
+                    </button>
+                  ))}
+                </div>
+
+                <p className="text-[7px] text-slate-600 text-center font-bold uppercase tracking-widest">
+                  Senha padrão: Test@123
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </div>
     </div>
-  );
-};
-
-const TestProfileButton: React.FC<{
-  label: string;
-  icon: any;
-  color: string;
-  onClick: () => void;
-}> = ({ label, icon: Icon, color, onClick }) => {
-  return (
-    <button
-      onClick={onClick}
-      className={`flex items-center space-x-3 p-3 rounded-2xl bg-white/50 dark:bg-white/5 border border-slate-100/30 dark:border-white/5 shadow-sm hover:shadow-md transition-all active:scale-[0.97] group text-left`}
-    >
-      <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${color} flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform`}>
-        <Icon className="w-4 h-4" />
-      </div>
-      <span className="text-[10px] font-bold text-slate-900 dark:text-slate-950 dark:text-white uppercase tracking-tight leading-none">{label}</span>
-    </button>
   );
 };
 

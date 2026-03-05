@@ -1,12 +1,13 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { Icons } from '../constants';
-import { RPEValue, SessionLog } from '../types';
+import { RPEValue, SessionLog, User, Protocol } from '../types';
 import { INITIAL_EXERCISES } from '../data/exercises';
+import { getProtocolById } from '../firebase';
 
 interface ActiveSessionProps {
-  user: any; // Using any temporarily to avoid type issues, ideally should remain User
-  executor: any;
+  user: User;
+  executor: User;
   onFinish: () => void;
 }
 
@@ -38,11 +39,31 @@ const ActiveSession: React.FC<ActiveSessionProps> = ({ user, executor, onFinish 
     return saved ? JSON.parse(saved) : [];
   });
 
-  const exercises = INITIAL_EXERCISES;
-  const currentExercise = exercises[currentExerciseIdx] || exercises[0];
+  const [exercises, setExercises] = useState<any[]>(INITIAL_EXERCISES);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadProtocol = async () => {
+      if (user.currentCycle?.protocolId) {
+        try {
+          const proto = await getProtocolById(user.currentCycle.protocolId);
+          if (proto && proto.exercises.length > 0) {
+            setExercises(proto.exercises);
+          }
+        } catch (e) {
+          console.error("Error loading protocol for session:", e);
+        }
+      }
+      setIsLoading(false);
+    };
+    loadProtocol();
+  }, [user.currentCycle?.protocolId]);
+
+  const currentExercise = exercises[currentExerciseIdx] || exercises[0] || INITIAL_EXERCISES[0];
 
   const [isFinishing, setIsFinishing] = useState(false);
   const [isResting, setIsResting] = useState(false);
+  const [showingVideo, setShowingVideo] = useState(false);
   const [restTime, setRestTime] = useState(60);
   const [trackingMode, setTrackingMode] = useState<'REPS' | 'TIME'>('REPS');
 
@@ -120,7 +141,7 @@ const ActiveSession: React.FC<ActiveSessionProps> = ({ user, executor, onFinish 
 
   const getRPEColor = (val: number) => {
     if (val < 6) return 'text-blue-400';
-    if (val < 9) return 'text-amber-500';
+    if (val < 9) return 'text-cyan-500';
     return 'text-red-500 animate-pulse';
   };
 
@@ -130,176 +151,213 @@ const ActiveSession: React.FC<ActiveSessionProps> = ({ user, executor, onFinish 
 
       {/* 2. MAIN SCROLLABLE CONTENT */}
       <main className="flex-1 px-6 pt-4 pb-56 overflow-y-auto no-scrollbar relative z-10 w-full max-w-lg mx-auto">
-        <div className="space-y-12">
-
-          {/* SESSIONS PROGRESS STRIP */}
-          <div className="flex space-x-1.5 h-2">
-            {Array.from({ length: currentExercise.sets }).map((_, i) => (
-              <div
-                key={i}
-                className={`flex-1 rounded-full transition-all duration-700 ${i + 1 < currentSet ? 'bg-pg-cobalt shadow-[0_0_10px_var(--pg-cobalt)]' :
-                  i + 1 === currentSet ? 'bg-slate-900 dark:bg-white shadow-xl' : 'bg-slate-200 dark:bg-white/10'
-                  }`}
-              />
-            ))}
+        {isLoading ? (
+          <div className="h-full flex flex-col items-center justify-center space-y-4 pt-20">
+            <div className="w-12 h-12 border-4 border-pg-cobalt border-t-transparent rounded-full animate-spin"></div>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em]">Carregando seu plano...</p>
           </div>
+        ) : (
+          <div className="space-y-12">
 
-          {/* VISUAL IMAGE CARD - PRECISION CUT */}
-          <div className="relative w-full aspect-[4/5] border border-white/10 overflow-hidden group shadow-2xl rounded-pg-premium bg-pg-titanium">
-            <div className="absolute inset-0 z-10 pointer-events-none border-[1px] border-white/10 rounded-pg-premium"></div>
-            <img src={currentExercise.image} className="w-full h-full object-cover grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-105 transition-all duration-[10s]" alt={currentExercise.name} />
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/40 dark:from-midnight dark:via-midnight/40 to-transparent z-20"></div>
+            {/* SESSIONS PROGRESS STRIP */}
+            <div className="flex space-x-1.5 h-2">
+              {Array.from({ length: currentExercise.sets }).map((_, i) => (
+                <div
+                  key={i}
+                  className={`flex-1 rounded-full transition-all duration-700 ${i + 1 < currentSet ? 'bg-pg-cobalt shadow-[0_0_10px_var(--pg-cobalt)]' :
+                    i + 1 === currentSet ? 'bg-slate-900 dark:bg-white shadow-xl' : 'bg-slate-200 dark:bg-white/10'
+                    }`}
+                />
+              ))}
+            </div>
 
-            <div className="absolute inset-0 p-8 z-30 flex flex-col justify-end">
-              <div className="flex justify-between items-end">
-                <div className="flex flex-col">
-                  <h2 className="text-3xl font-bold text-white mb-2 leading-tight font-display shadow-black drop-shadow-lg">{currentExercise.name}</h2>
-                  <div className="flex space-x-2">
-                    <div className="px-3 py-1.5 border border-white/20 bg-ocean/60 backdrop-blur-md text-white font-bold text-xs uppercase tracking-wider inline-block rounded-md">
-                      {currentExercise.reps} Repetições
+            {/* VISUAL IMAGE CARD - PRECISION CUT */}
+            <div className="relative w-full aspect-[4/5] border border-white/10 overflow-hidden group shadow-2xl rounded-pg-premium bg-pg-titanium">
+              <div className="absolute inset-0 z-10 pointer-events-none border-[1px] border-white/10 rounded-pg-premium"></div>
+
+              {/* VIDEO OVERLAY */}
+              {!showingVideo ? (
+                <>
+                  <img src={currentExercise.image} className="w-full h-full object-cover grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-105 transition-all duration-[10s]" alt={currentExercise.name} />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/40 dark:from-midnight dark:via-midnight/40 to-transparent z-20"></div>
+
+                  <div className="absolute inset-0 p-8 z-30 flex flex-col justify-end">
+                    <div className="flex justify-between items-end">
+                      <div className="flex flex-col">
+                        <h2 className="text-3xl font-bold text-white mb-2 leading-tight font-display shadow-black drop-shadow-lg">{currentExercise.name}</h2>
+                        <div className="flex space-x-2">
+                          <div className="px-3 py-1.5 border border-white/20 bg-ocean/60 backdrop-blur-md text-white font-bold text-xs uppercase tracking-wider inline-block rounded-md">
+                            {currentExercise.reps} Repetições
+                          </div>
+                          {currentExercise.videoUrl && (
+                            <button
+                              onClick={() => setShowingVideo(true)}
+                              className="px-3 py-1.5 border border-blue-500/50 bg-blue-600/80 backdrop-blur-md text-white font-bold text-xs uppercase tracking-wider inline-flex items-center rounded-md hover:bg-blue-600 animate-pulse"
+                            >
+                              <Icons.Play className="w-3 h-3 mr-1" /> Ver Execução
+                            </button>
+                          )}
+                          <button onClick={handleReportIssue} className="px-3 py-1.5 border border-red-500/30 bg-red-500/10 backdrop-blur-md text-red-500 font-bold text-xs uppercase tracking-wider inline-flex items-center rounded-md hover:bg-red-500/20">
+                            <Icons.ExclamationCircle className="w-3 h-3 mr-1" /> Reportar
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="w-20 h-20 border border-pg-cobalt bg-midnight/80 flex flex-col items-center justify-center shadow-[0_0_40px_rgba(37,99,235,0.3)] rounded-lg backdrop-blur-sm">
+                        <span className="text-[10px] font-bold uppercase text-pg-cobalt mb-0.5 tracking-wider">Série</span>
+                        <span className="text-4xl font-bold tracking-tight text-white leading-none font-display">{currentSet}</span>
+                      </div>
                     </div>
-                    <button onClick={handleReportIssue} className="px-3 py-1.5 border border-red-500/30 bg-red-500/10 backdrop-blur-md text-red-500 font-bold text-xs uppercase tracking-wider inline-flex items-center rounded-md hover:bg-red-500/20">
-                      <Icons.ExclamationCircle className="w-3 h-3 mr-1" /> Relatar Problema
+                  </div>
+                </>
+              ) : (
+                <div className="absolute inset-0 bg-black z-40 flex flex-col">
+                  <iframe
+                    src={currentExercise.videoUrl}
+                    title={currentExercise.name}
+                    className="w-full h-full"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  ></iframe>
+                  <button
+                    onClick={() => setShowingVideo(false)}
+                    className="absolute top-4 right-4 w-10 h-10 bg-black/50 text-white flex items-center justify-center rounded-full backdrop-blur-md border border-white/20 hover:bg-red-600/80 transition-colors"
+                  >
+                    <Icons.X className="w-5 h-5" />
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* PERFORMANCE CONTROLS - OBSIDIAN HUD */}
+            <div className="glass-panel p-8 space-y-16 border-slate-200 dark:border-white/5 rounded-pg-premium">
+
+              {/* TRACKING MODE TOGGLE */}
+              <div className="flex border border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-ocean/40 rounded-lg overflow-hidden p-1">
+                <button
+                  onClick={() => { triggerHaptic(5); setTrackingMode('REPS'); }}
+                  className={`flex-1 py-4 text-xs font-bold uppercase tracking-widest transition-all relative rounded-md ${trackingMode === 'REPS' ? 'text-white bg-slate-900 dark:bg-white/10' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'}`}
+                >
+                  Peso e Repetições
+                  {trackingMode === 'REPS' && <div className="absolute bottom-1 w-1 h-1 bg-pg-cobalt rounded-full left-1/2 -translate-x-1/2 shadow-[0_0_10px_#2563EB]"></div>}
+                </button>
+                <button
+                  onClick={() => { triggerHaptic(5); setTrackingMode('TIME'); }}
+                  className={`flex-1 py-4 text-xs font-bold uppercase tracking-widest transition-all relative rounded-md ${trackingMode === 'TIME' ? 'text-white bg-slate-900 dark:bg-white/10' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'}`}
+                >
+                  Peso e Tempo
+                  {trackingMode === 'TIME' && <div className="absolute bottom-1 w-1 h-1 bg-pg-cobalt rounded-full left-1/2 -translate-x-1/2 shadow-[0_0_10px_#2563EB]"></div>}
+                </button>
+              </div>
+
+              <div className="space-y-16">
+                {/* CARGA (KG) */}
+                <div className="space-y-8">
+                  <div className="flex justify-between items-end px-2">
+                    <div className="flex flex-col">
+                      <span className="text-xs font-bold text-slate-400 uppercase tracking-widest leading-none mb-2">Peso</span>
+                      <span className="text-[10px] font-bold text-pg-cobalt uppercase tracking-wider leading-none">
+                        Última: {Math.max(10, weight - 5)}kg (12 Abr)
+                      </span>
+                    </div>
+                    <div className="flex items-baseline space-x-2">
+                      <h4 className="text-7xl font-bold text-slate-900 dark:text-white tracking-tighter tabular-nums leading-none font-display">{weight}</h4>
+                      <span className="text-lg font-bold text-pg-cobalt uppercase">KG</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-4">
+                    <button
+                      aria-label="Diminuir peso"
+                      onClick={() => { triggerHaptic(5); setWeight(w => Math.max(0, w - 5)); }}
+                      className="w-16 h-16 border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 hover:bg-slate-50 dark:hover:bg-white/10 rounded-xl flex items-center justify-center text-slate-900 dark:text-white font-medium text-3xl active:scale-95 transition-all">
+                      −
+                    </button>
+                    <div className="flex-1 px-2">
+                      <input
+                        type="range" min="0" max="400" step="1"
+                        value={weight}
+                        onChange={e => { triggerHaptic(5); setWeight(parseInt(e.target.value)); }}
+                        className="w-full h-2 bg-slate-200 dark:bg-white/10 rounded-full appearance-none accent-pg-cobalt cursor-pointer"
+                      />
+                    </div>
+                    <button
+                      aria-label="Aumentar peso"
+                      onClick={() => { triggerHaptic(5); setWeight(w => w + 5); }}
+                      className="w-16 h-16 border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 hover:bg-slate-50 dark:hover:bg-white/10 rounded-xl flex items-center justify-center text-slate-900 dark:text-white font-medium text-3xl active:scale-95 transition-all">
+                      +
                     </button>
                   </div>
                 </div>
 
-                <div className="w-20 h-20 border border-pg-cobalt bg-midnight/80 flex flex-col items-center justify-center shadow-[0_0_40px_rgba(37,99,235,0.3)] rounded-lg backdrop-blur-sm">
-                  <span className="text-[10px] font-bold uppercase text-pg-cobalt mb-0.5 tracking-wider">Série</span>
-                  <span className="text-4xl font-bold tracking-tight text-white leading-none font-display">{currentSet}</span>
+                {/* VOLUME */}
+                <div className="space-y-8">
+                  <div className="flex justify-between items-end px-2">
+                    <div className="flex flex-col">
+                      <span className="text-xs font-bold text-slate-400 uppercase tracking-widest leading-none mb-2">
+                        {trackingMode === 'REPS' ? 'Repetições' : 'Duração (seg)'}
+                      </span>
+                      <span className="text-[10px] font-bold text-pg-cobalt uppercase tracking-wider leading-none">Total</span>
+                    </div>
+                    <div className="flex items-baseline space-x-2">
+                      <h4 className="text-7xl font-bold text-slate-900 dark:text-white tracking-tighter tabular-nums leading-none font-display">{volumeValue}</h4>
+                      <span className="text-lg font-bold text-pg-cobalt uppercase">{trackingMode === 'REPS' ? 'Reps' : 'Segs'}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-4">
+                    <button
+                      aria-label="Diminuir volume"
+                      onClick={() => { triggerHaptic(5); setVolumeValue(v => Math.max(1, v - 1)); }}
+                      className="w-16 h-16 border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 hover:bg-slate-50 dark:hover:bg-white/10 rounded-xl flex items-center justify-center text-slate-900 dark:text-white font-medium text-3xl active:scale-95 transition-all">
+                      −
+                    </button>
+                    <div className="flex-1 px-2">
+                      <input
+                        type="range" min="1" max={trackingMode === 'REPS' ? 100 : 300} step="1"
+                        value={volumeValue}
+                        onChange={e => { triggerHaptic(5); setVolumeValue(parseInt(e.target.value)); }}
+                        className="w-full h-2 bg-slate-200 dark:bg-white/10 rounded-full appearance-none accent-pg-cobalt cursor-pointer"
+                      />
+                    </div>
+                    <button
+                      aria-label="Aumentar volume"
+                      onClick={() => { triggerHaptic(5); setVolumeValue(v => v + 1); }}
+                      className="w-16 h-16 border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 hover:bg-slate-50 dark:hover:bg-white/10 rounded-xl flex items-center justify-center text-slate-900 dark:text-white font-medium text-3xl active:scale-95 transition-all">
+                      +
+                    </button>
+                  </div>
+                </div>
+
+                {/* RPE SLIDER */}
+                <div className="pt-12 border-t border-slate-200 dark:border-white/5">
+                  <div className="flex justify-between items-center mb-10">
+                    <div className="flex flex-col">
+                      <span className="text-xs font-bold text-slate-400 uppercase tracking-widest leading-none mb-2">Esforço</span>
+                      <span className="text-[10px] font-bold text-pg-cobalt uppercase tracking-wider leading-none">Nível (1-10)</span>
+                    </div>
+                    <span className={`text-6xl font-bold tracking-tight tabular-nums font-display ${getRPEColor(rpe)}`}>{rpe}</span>
+                  </div>
+                  <input
+                    type="range" min="1" max="10"
+                    value={rpe}
+                    onChange={e => { triggerHaptic(5); setRpe(parseInt(e.target.value) as RPEValue); }}
+                    className="w-full h-3 bg-slate-200 dark:bg-white/10 rounded-full appearance-none accent-pg-cobalt cursor-pointer mb-6"
+                  />
+                  <div className="flex justify-between px-1">
+                    {[...Array(10)].map((_, i) => (
+                      <div
+                        key={i}
+                        className={`w-1.5 h-6 rounded-full transition-all duration-500 ${i + 1 <= rpe
+                          ? (i + 1 > 8 ? 'bg-red-600 shadow-[0_0_10px_#DC2626]' : i + 1 > 5 ? 'bg-cyan-500 shadow-[0_0_10px_#06b6d4]' : 'bg-pg-cobalt shadow-[0_0_10px_#2563EB]')
+                          : 'bg-slate-200 dark:bg-white/5'
+                          }`}
+                      />
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-
-          {/* PERFORMANCE CONTROLS - OBSIDIAN HUD */}
-          <div className="glass-panel p-8 space-y-16 border-slate-200 dark:border-white/5 rounded-pg-premium">
-
-            {/* TRACKING MODE TOGGLE */}
-            <div className="flex border border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-ocean/40 rounded-lg overflow-hidden p-1">
-              <button
-                onClick={() => { triggerHaptic(5); setTrackingMode('REPS'); }}
-                className={`flex-1 py-4 text-xs font-bold uppercase tracking-widest transition-all relative rounded-md ${trackingMode === 'REPS' ? 'text-white bg-slate-900 dark:bg-white/10' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'}`}
-              >
-                Carga e Repetições
-                {trackingMode === 'REPS' && <div className="absolute bottom-1 w-1 h-1 bg-pg-cobalt rounded-full left-1/2 -translate-x-1/2 shadow-[0_0_10px_#2563EB]"></div>}
-              </button>
-              <button
-                onClick={() => { triggerHaptic(5); setTrackingMode('TIME'); }}
-                className={`flex-1 py-4 text-xs font-bold uppercase tracking-widest transition-all relative rounded-md ${trackingMode === 'TIME' ? 'text-white bg-slate-900 dark:bg-white/10' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'}`}
-              >
-                Carga e Tempo
-                {trackingMode === 'TIME' && <div className="absolute bottom-1 w-1 h-1 bg-pg-cobalt rounded-full left-1/2 -translate-x-1/2 shadow-[0_0_10px_#2563EB]"></div>}
-              </button>
-            </div>
-
-            <div className="space-y-16">
-              {/* CARGA (KG) */}
-              <div className="space-y-8">
-                <div className="flex justify-between items-end px-2">
-                  <div className="flex flex-col">
-                    <span className="text-xs font-bold text-slate-400 uppercase tracking-widest leading-none mb-2">Peso</span>
-                    <span className="text-[10px] font-bold text-pg-cobalt uppercase tracking-wider leading-none">
-                      Última: {Math.max(10, weight - 5)}kg (12 Abr)
-                    </span>
-                  </div>
-                  <div className="flex items-baseline space-x-2">
-                    <h4 className="text-7xl font-bold text-slate-900 dark:text-white tracking-tighter tabular-nums leading-none font-display">{weight}</h4>
-                    <span className="text-lg font-bold text-pg-cobalt uppercase">KG</span>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-4">
-                  <button
-                    aria-label="Diminuir peso"
-                    onClick={() => { triggerHaptic(5); setWeight(w => Math.max(0, w - 5)); }}
-                    className="w-16 h-16 border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 hover:bg-slate-50 dark:hover:bg-white/10 rounded-xl flex items-center justify-center text-slate-900 dark:text-white font-medium text-3xl active:scale-95 transition-all">
-                    −
-                  </button>
-                  <div className="flex-1 px-2">
-                    <input
-                      type="range" min="0" max="400" step="1"
-                      value={weight}
-                      onChange={e => { triggerHaptic(5); setWeight(parseInt(e.target.value)); }}
-                      className="w-full h-2 bg-slate-200 dark:bg-white/10 rounded-full appearance-none accent-pg-cobalt cursor-pointer"
-                    />
-                  </div>
-                  <button
-                    aria-label="Aumentar peso"
-                    onClick={() => { triggerHaptic(5); setWeight(w => w + 5); }}
-                    className="w-16 h-16 border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 hover:bg-slate-50 dark:hover:bg-white/10 rounded-xl flex items-center justify-center text-slate-900 dark:text-white font-medium text-3xl active:scale-95 transition-all">
-                    +
-                  </button>
-                </div>
-              </div>
-
-              {/* VOLUME */}
-              <div className="space-y-8">
-                <div className="flex justify-between items-end px-2">
-                  <div className="flex flex-col">
-                    <span className="text-xs font-bold text-slate-400 uppercase tracking-widest leading-none mb-2">
-                      {trackingMode === 'REPS' ? 'Repetições' : 'Tempo de Execução'}
-                    </span>
-                    <span className="text-[10px] font-bold text-pg-cobalt uppercase tracking-wider leading-none">Total</span>
-                  </div>
-                  <div className="flex items-baseline space-x-2">
-                    <h4 className="text-7xl font-bold text-slate-900 dark:text-white tracking-tighter tabular-nums leading-none font-display">{volumeValue}</h4>
-                    <span className="text-lg font-bold text-pg-cobalt uppercase">{trackingMode === 'REPS' ? 'Reps' : 'Segs'}</span>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-4">
-                  <button
-                    aria-label="Diminuir volume"
-                    onClick={() => { triggerHaptic(5); setVolumeValue(v => Math.max(1, v - 1)); }}
-                    className="w-16 h-16 border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 hover:bg-slate-50 dark:hover:bg-white/10 rounded-xl flex items-center justify-center text-slate-900 dark:text-white font-medium text-3xl active:scale-95 transition-all">
-                    −
-                  </button>
-                  <div className="flex-1 px-2">
-                    <input
-                      type="range" min="1" max={trackingMode === 'REPS' ? 100 : 300} step="1"
-                      value={volumeValue}
-                      onChange={e => { triggerHaptic(5); setVolumeValue(parseInt(e.target.value)); }}
-                      className="w-full h-2 bg-slate-200 dark:bg-white/10 rounded-full appearance-none accent-pg-cobalt cursor-pointer"
-                    />
-                  </div>
-                  <button
-                    aria-label="Aumentar volume"
-                    onClick={() => { triggerHaptic(5); setVolumeValue(v => v + 1); }}
-                    className="w-16 h-16 border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 hover:bg-slate-50 dark:hover:bg-white/10 rounded-xl flex items-center justify-center text-slate-900 dark:text-white font-medium text-3xl active:scale-95 transition-all">
-                    +
-                  </button>
-                </div>
-              </div>
-
-              {/* RPE SLIDER */}
-              <div className="pt-12 border-t border-slate-200 dark:border-white/5">
-                <div className="flex justify-between items-center mb-10">
-                  <div className="flex flex-col">
-                    <span className="text-xs font-bold text-slate-400 uppercase tracking-widest leading-none mb-2">Esforço</span>
-                    <span className="text-[10px] font-bold text-pg-cobalt uppercase tracking-wider leading-none">Nível (1-10)</span>
-                  </div>
-                  <span className={`text-6xl font-bold tracking-tight tabular-nums font-display ${getRPEColor(rpe)}`}>{rpe}</span>
-                </div>
-                <input
-                  type="range" min="1" max="10"
-                  value={rpe}
-                  onChange={e => { triggerHaptic(5); setRpe(parseInt(e.target.value) as RPEValue); }}
-                  className="w-full h-3 bg-slate-200 dark:bg-white/10 rounded-full appearance-none accent-pg-cobalt cursor-pointer mb-6"
-                />
-                <div className="flex justify-between px-1">
-                  {[...Array(10)].map((_, i) => (
-                    <div
-                      key={i}
-                      className={`w-1.5 h-6 rounded-full transition-all duration-500 ${i + 1 <= rpe
-                        ? (i + 1 > 8 ? 'bg-red-600 shadow-[0_0_10px_#DC2626]' : i + 1 > 5 ? 'bg-amber-500 shadow-[0_0_10px_#F59E0B]' : 'bg-pg-cobalt shadow-[0_0_10px_#2563EB]')
-                        : 'bg-slate-200 dark:bg-white/5'
-                        }`}
-                    />
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        )}
       </main>
 
       {/* 3. STICKY FOOTER */}
@@ -311,7 +369,7 @@ const ActiveSession: React.FC<ActiveSessionProps> = ({ user, executor, onFinish 
           >
             <div className="absolute inset-0 bg-white translate-x-[-101%] group-hover/finish:translate-x-0 transition-transform duration-700 mix-blend-difference"></div>
             <div className="flex items-center justify-center space-x-4 relative z-10">
-              <span>Concluir Série</span>
+              <span>Finalizar Série</span>
               <Icons.ChevronRight className="w-5 h-5 animate-pulse" />
             </div>
           </button>
@@ -336,7 +394,7 @@ const ActiveSession: React.FC<ActiveSessionProps> = ({ user, executor, onFinish 
             </svg>
             <div className="flex flex-col items-center">
               <span className="text-9xl font-bold tabular-nums text-white leading-none tracking-tighter">{restTime}</span>
-              <span className="text-xs font-bold text-pg-cobalt uppercase tracking-[0.5em] mt-2 bg-midnight/50 px-4 py-1 rounded-full border border-pg-cobalt/30">Descanso</span>
+              <span className="text-xs font-bold text-pg-cobalt uppercase tracking-[0.5em] mt-2 bg-midnight/50 px-4 py-1 rounded-full border border-pg-cobalt/30">Intervalo</span>
             </div>
           </div>
 
@@ -344,7 +402,7 @@ const ActiveSession: React.FC<ActiveSessionProps> = ({ user, executor, onFinish 
             onClick={() => { triggerHaptic(10); setIsResting(false); }}
             className="relative z-10 w-full max-w-xs py-5 border border-white/20 bg-white/5 text-xs font-bold uppercase tracking-[0.3em] text-white hover:bg-white/10 transition-all shadow-xl rounded-pg-sharp active:scale-95"
           >
-            Pular Descanso
+            Pular Intervalo
           </button>
         </div>
       )}
@@ -359,18 +417,18 @@ const ActiveSession: React.FC<ActiveSessionProps> = ({ user, executor, onFinish 
           </div>
 
           <h3 className="relative z-10 text-5xl md:text-6xl font-bold text-white mb-8 tracking-tighter text-center leading-none uppercase font-display">
-            Treino<br /><span className="text-transparent bg-clip-text bg-gradient-to-r from-pg-cobalt to-pg-laser">Concluído</span>
+            Treino<br /><span className="text-transparent bg-clip-text bg-gradient-to-r from-pg-cobalt to-pg-laser">Finalizado</span>
           </h3>
 
           <p className="relative z-10 text-slate-400 text-sm text-center mb-24 max-w-xs font-medium uppercase tracking-widest leading-relaxed">
-            Parabéns! Seu treino foi registrado com sucesso.
+            Ótimo trabalho! Treino registrado.
           </p>
 
           <button
             onClick={handleFinishSession}
             className="relative z-10 w-full max-w-sm h-16 bg-pg-cobalt text-white font-bold text-sm uppercase tracking-[0.4em] transition-all hover:bg-blue-600 shadow-2xl rounded-pg-sharp active:scale-[0.98]"
           >
-            Finalizar Treino
+            Salvar e Sair
           </button>
         </div>
       )}

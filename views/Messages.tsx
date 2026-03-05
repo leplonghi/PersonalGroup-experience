@@ -17,7 +17,7 @@ const Messages: React.FC<MessagesProps> = ({ user }) => {
       id: '1',
       userId: user.id,
       type: 'MOTIVATIONAL',
-      title: 'Mentalidade de Pico',
+      title: 'Dica do Dia',
       content: 'Lembre-se: seu ciclo de "Volume Adaptativo" foi desenhado para testar seus limites neurais hoje. Foco total na cadência 4-0-2.',
       date: 'Hoje, 08:30',
       read: false,
@@ -59,9 +59,9 @@ const Messages: React.FC<MessagesProps> = ({ user }) => {
 
   const getTypeName = (type: MessageType) => {
     switch (type) {
-      case 'INSTITUTIONAL': return 'Institucional';
-      case 'SEGMENTED': return 'Progresso';
-      case 'MOTIVATIONAL': return 'Mindset';
+      case 'INSTITUTIONAL': return 'Avisos';
+      case 'SEGMENTED': return 'Evolução';
+      case 'MOTIVATIONAL': return 'Dicas';
     }
   };
 
@@ -77,7 +77,7 @@ const Messages: React.FC<MessagesProps> = ({ user }) => {
             <div className="w-8 h-8 rounded-xl mesh-gradient flex items-center justify-center text-slate-950 dark:text-white shadow-lg">
               <Icons.Logo className="w-4 h-4" />
             </div>
-            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-950 dark:text-white/60">Mindset do Dia</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-950 dark:text-white/60">Foco do Dia</p>
           </div>
           <p className="text-xl font-black text-slate-950 dark:text-white leading-tight italic tracking-tight">"A consistência é o único atalho para a alta performance. Cada RPE validado é um tijolo no seu legado físico."</p>
         </div>
@@ -152,7 +152,7 @@ const Messages: React.FC<MessagesProps> = ({ user }) => {
               onClick={() => setSelectedMsg(null)}
               className="w-full h-16 mt-12 mesh-gradient text-white rounded-[24px] font-black text-xs uppercase tracking-[0.4em] shadow-2xl shadow-blue-900/40 active:scale-[0.97] transition-all"
             >
-              Protocolo Entendido
+              Entendi
             </button>
           </div>
         </div>

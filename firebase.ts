@@ -1,4 +1,3 @@
-
 import { initializeApp } from "firebase/app";
 import {
   getFirestore,
@@ -17,8 +16,20 @@ import {
   limit,
   arrayUnion,
   arrayRemove,
-  deleteField
+  deleteField,
+  onSnapshot,
+  Timestamp
 } from "firebase/firestore";
+import {
+  getAuth,
+  updateProfile
+} from "firebase/auth";
+import {
+  getStorage,
+  ref as storageRef,
+  uploadBytes,
+  getDownloadURL
+} from "firebase/storage";
 import {
   User,
   TrainingCycle,
@@ -30,29 +41,41 @@ import {
   MessageType,
   UserRole,
   HealthStatus,
-  WellnessBooking
+  WellnessBooking,
+  GymConfig,
+  AdminRequest,
+  AdminRequestType,
+  EvolutionEntry,
+  FrequencyReport,
+  CheckInRecord
 } from "./types";
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyAO_wofC2ALURjj7VCRQVnDj5dButWzxPw",
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "personalgroup-exclusive.firebaseapp.com",
   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "personalgroup-exclusive",
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "personalgroup-exclusive.appspot.com",
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "123456789",
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:123456789:web:abcdef"
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "personalgroup-exclusive.firebasestorage.app",
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "1080923445966",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:1080923445966:web:a93d6e159857f8abf8ce9f"
 };
 
 let app;
-let dbInstance;
+let dbInstance: any;
+let authInstance: any;
+let storageInstance: any;
 
 try {
   app = initializeApp(firebaseConfig);
   dbInstance = getFirestore(app);
+  authInstance = getAuth(app);
+  storageInstance = getStorage(app);
 } catch (error) {
   console.error("Firebase Initialization Error:", error);
 }
 
 export const db = dbInstance || {} as any;
+export const auth = authInstance;
+export const storage = storageInstance;
 
 // --- Collection References ---
 export const usersCol = collection(db, "users");
@@ -63,6 +86,8 @@ export const avaliacoesCol = collection(db, "avaliacoes");
 export const wellnessCol = collection(db, "wellness");
 export const mensagensCol = collection(db, "mensagens");
 export const timelineCol = collection(db, "timeline");
+export const checkInsCol = collection(db, "checkins");
+export const evolutionCol = collection(db, "evolution");
 
 // --- Automação: Sistema de Alertas Interno ---
 const triggerSystemAlert = async (userId: string, title: string, content: string, type: MessageType = 'INSTITUTIONAL') => {
@@ -247,6 +272,16 @@ export const saveAssessment = async (assessment: Assessment, newStatus: HealthSt
       details: `Status: ${newStatus === 'NORMAL' ? 'Liberado' : 'Ajuste Requerido'} • Massa Magra: ${assessment.data.leanMass}kg`
     });
 
+    // Mirror to evolution history for charts
+    await addDoc(evolutionCol, {
+      userId: assessment.studentId,
+      date: assessment.date,
+      weight: assessment.data.weight,
+      bodyFat: assessment.data.fatPercentage,
+      leanMass: assessment.data.leanMass,
+      createdAt: serverTimestamp()
+    });
+
     if (newStatus === 'WARNING') {
       await triggerSystemAlert(assessment.studentId, "Atenção Governança", "Sua última avaliação sugere ajustes pontuais na prática. Verifique seu status no próximo treino.", "SEGMENTED");
     }
@@ -326,6 +361,42 @@ export const cancelWellness = async (userId: string, booking: WellnessBooking) =
   }
 };
 
+export const performCheckIn = async (userId: string, gymId: string) => {
+  try {
+    // 1. Create Check-in Record
+    await addDoc(checkInsCol, {
+      userId,
+      gymId,
+      timestamp: serverTimestamp(),
+      verified: true
+    });
+
+    // 2. Update User Status for Admin/Staff visibility
+    const userRef = doc(db, "users", userId);
+    await updateDoc(userRef, {
+      lastCheckIn: serverTimestamp(),
+      isCheckedIn: true,
+      currentGymId: gymId,
+      status: 'ACTIVE_IN_GYM' // This flag helps Admins filter active users
+    });
+
+    // 3. Log to Timeline
+    await addDoc(timelineCol, {
+      userId,
+      type: "CHECK_IN",
+      referenceId: gymId,
+      timestamp: serverTimestamp(),
+      message: "Check-in Confirmado",
+      details: "Unidade Península Jardins"
+    });
+
+    return true;
+  } catch (error) {
+    console.error("Erro performCheckIn:", error);
+    throw error;
+  }
+};
+
 export const saveProtocol = async (protocol: Protocol) => {
   try {
     const protocolRef = doc(db, "protocolos", protocol.id);
@@ -371,6 +442,20 @@ export const getProtocols = async (): Promise<Protocol[]> => {
   }
 };
 
+
+
+export const getProtocolById = async (protocolId: string): Promise<Protocol | null> => {
+  try {
+    const protocolRef = doc(db, "protocolos", protocolId);
+    const snap = await getDoc(protocolRef);
+    if (!snap.exists()) return null;
+    return { id: snap.id, ...snap.data() } as Protocol;
+  } catch (error) {
+    console.error("Erro getProtocolById:", error);
+    return null;
+  }
+};
+
 export const getTimeline = async (userId: string): Promise<TimelineEntry[]> => {
   try {
     const q = query(timelineCol, where("userId", "==", userId), orderBy("timestamp", "desc"), limit(20));
@@ -394,3 +479,267 @@ export const getMessages = async (userId: string): Promise<AppMessage[]> => {
     return [];
   }
 };
+
+// ============================================================
+// NEW FUNCTIONS — Etapas 1-5
+// ============================================================
+
+// --- Additional collection refs ---
+const adminRequestsCol = collection(db, "admin_requests");
+const gymConfigCol = collection(db, "config");
+
+// --- Etapa 1: Profile & Photo ---
+
+export const updateUserProfile = async (userId: string, data: Partial<User>): Promise<void> => {
+  const userRef = doc(db, "users", userId);
+  await updateDoc(userRef, { ...data, updatedAt: serverTimestamp() });
+};
+
+export const updateUserCycle = async (userId: string, cycle: TrainingCycle): Promise<void> => {
+  const userRef = doc(db, "users", userId);
+  await updateDoc(userRef, { currentCycle: cycle, updatedAt: serverTimestamp() });
+};
+
+export const getStudents = async (): Promise<User[]> => {
+  try {
+    const q = query(usersCol, where("role", "==", UserRole.ALUNO));
+    const snap = await getDocs(q);
+    return snap.docs.map(d => ({ id: d.id, ...d.data() } as User));
+  } catch (error) {
+    console.error("Erro getStudents:", error);
+    return [];
+  }
+};
+
+export const uploadProfilePhoto = async (userId: string, file: File): Promise<string> => {
+  if (!storage) throw new Error("Firebase Storage não inicializado.");
+  const photoRef = storageRef(storage, `profile_photos/${userId}/${file.name}`);
+  await uploadBytes(photoRef, file);
+  const url = await getDownloadURL(photoRef);
+  await updateDoc(doc(db, "users", userId), { photoUrl: url, avatar: url });
+  return url;
+};
+
+// --- Etapa 2: Gym Config & Frequency ---
+
+const DEFAULT_GYM_CONFIG: GymConfig = {
+  hours: {
+    weekdays: { open: '05:30', close: '22:00' },
+    saturday: { open: '07:00', close: '13:00' },
+    sunday: { open: '08:00', close: '13:00' },
+    holidays: { open: '08:00', close: '13:00' },
+  },
+  maxWellnessPerMonth: 2,
+  timezone: 'America/Sao_Paulo',
+  gymName: 'PersonalGroup Exclusive',
+  gymUnit: 'Unidade Península Jardins',
+};
+
+export const getGymConfig = async (): Promise<GymConfig> => {
+  try {
+    const snap = await getDoc(doc(db, "config", "gym"));
+    if (snap.exists()) return snap.data() as GymConfig;
+    return DEFAULT_GYM_CONFIG;
+  } catch {
+    return DEFAULT_GYM_CONFIG;
+  }
+};
+
+export const isGymOpen = (config: GymConfig, date: Date = new Date()): { open: boolean; closeAt?: string; reason?: string } => {
+  const day = date.getDay(); // 0=Sun, 1=Mon, ..., 6=Sat
+  const timeStr = date.toTimeString().slice(0, 5); // 'HH:MM'
+
+  let hours = config.hours.weekdays;
+  if (day === 6) hours = config.hours.saturday;
+  else if (day === 0) hours = config.hours.sunday;
+
+  const isOpen = timeStr >= hours.open && timeStr < hours.close;
+  return {
+    open: isOpen,
+    closeAt: hours.close,
+    reason: isOpen ? undefined : `Academia fechada. Horário: ${hours.open}–${hours.close}`
+  };
+};
+
+export const recordNoShow = async (userId: string, reason?: string): Promise<void> => {
+  await updateDoc(doc(db, "users", userId), {
+    noShowCount: increment(1),
+    missedThisWeek: increment(1)
+  });
+  await addDoc(checkInsCol, {
+    userId, type: "NO_SHOW", reason: reason || 'Sem justificativa',
+    timestamp: serverTimestamp()
+  });
+};
+
+// --- Etapa 3: Frequency Reports & CSV ---
+
+export const getFrequencyReport = async (
+  userId: string,
+  period: 'week' | 'month' | 'year'
+): Promise<FrequencyReport> => {
+  const now = new Date();
+  let startDate: Date;
+  if (period === 'week') {
+    startDate = new Date(now);
+    startDate.setDate(now.getDate() - 7);
+  } else if (period === 'month') {
+    startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+  } else {
+    startDate = new Date(now.getFullYear(), 0, 1);
+  }
+
+  const q = query(
+    checkInsCol,
+    where("userId", "==", userId),
+    where("timestamp", ">=", Timestamp.fromDate(startDate)),
+    orderBy("timestamp", "desc")
+  );
+  const snap = await getDocs(q);
+  const checkIns: CheckInRecord[] = snap.docs.map(d => ({
+    id: d.id,
+    userId,
+    timestamp: d.data().timestamp?.toDate?.()?.toISOString() || new Date().toISOString(),
+    method: d.data().method || 'MANUAL',
+    gymId: d.data().gymId || ''
+  }));
+
+  return {
+    userId,
+    period,
+    totalSessions: checkIns.length,
+    plannedSessions: period === 'week' ? 5 : period === 'month' ? 20 : 240,
+    attendanceRate: Math.min(100, Math.round((checkIns.length / (period === 'week' ? 5 : period === 'month' ? 20 : 240)) * 100)),
+    noShows: 0,
+    checkIns
+  };
+};
+
+export const exportToCSV = (data: Record<string, any>[], filename: string): void => {
+  if (!data.length) return;
+  const headers = Object.keys(data[0]).join(',');
+  const rows = data.map(row => Object.values(row).map(v => `"${v}"`).join(',')).join('\n');
+  const csv = `${headers}\n${rows}`;
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${filename}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+};
+
+// --- Etapa 4: Assessment Dates & Wellness Slots ---
+
+export const getDaysUntilEvent = (dateStr?: string): number | null => {
+  if (!dateStr) return null;
+  const past = new Date(dateStr);
+  const now = new Date();
+  const msElapsed = now.getTime() - past.getTime();
+  return Math.floor(msElapsed / (1000 * 60 * 60 * 24));
+};
+
+export const checkPersonalDayDue = (lastAssessmentDate?: string): boolean => {
+  const days = getDaysUntilEvent(lastAssessmentDate);
+  return days !== null && days >= 45 && days < 50; // window: days 45-49
+};
+
+export const checkReassessmentDue = (lastAssessmentDate?: string): boolean => {
+  const days = getDaysUntilEvent(lastAssessmentDate);
+  return days !== null && days >= 90;
+};
+
+export const getDaysUntilReassessment = (lastAssessmentDate?: string): number | null => {
+  const days = getDaysUntilEvent(lastAssessmentDate);
+  if (days === null) return null;
+  return Math.max(0, 90 - days);
+};
+
+// --- Etapa 5: Admin Requests ---
+
+export const createAdminRequest = async (request: Omit<AdminRequest, 'id' | 'status' | 'createdAt'>): Promise<string> => {
+  const ref = await addDoc(adminRequestsCol, {
+    ...request,
+    status: 'pending',
+    createdAt: serverTimestamp()
+  });
+  return ref.id;
+};
+
+export const resolveAdminRequest = async (
+  requestId: string,
+  status: 'approved' | 'rejected',
+  resolvedBy: string,
+  resolution?: string
+): Promise<void> => {
+  await updateDoc(doc(db, "admin_requests", requestId), {
+    status,
+    resolvedBy,
+    resolution: resolution || '',
+    resolvedAt: serverTimestamp()
+  });
+};
+
+export const getAdminRequests = async (userId?: string): Promise<AdminRequest[]> => {
+  try {
+    const q = userId
+      ? query(adminRequestsCol, where("userId", "==", userId), orderBy("createdAt", "desc"))
+      : query(adminRequestsCol, orderBy("createdAt", "desc"), limit(50));
+    const snap = await getDocs(q);
+    return snap.docs.map(d => ({ id: d.id, ...d.data() } as AdminRequest));
+  } catch {
+    return [];
+  }
+};
+
+// --- Etapa 5: Evolution ---
+
+export const addEvolutionEntry = async (entry: Omit<EvolutionEntry, 'id'>): Promise<string> => {
+  const ref = await addDoc(evolutionCol, { ...entry, createdAt: serverTimestamp() });
+  return ref.id;
+};
+
+export const getEvolutionEntries = async (userId: string): Promise<EvolutionEntry[]> => {
+  try {
+    const q = query(evolutionCol, where("userId", "==", userId), orderBy("date", "desc"));
+    const snap = await getDocs(q);
+    return snap.docs.map(d => ({ id: d.id, ...d.data() } as EvolutionEntry));
+  } catch {
+    return [];
+  }
+};
+
+export const uploadEvolutionPhoto = async (userId: string, file: File, date: string): Promise<string> => {
+  if (!storage) throw new Error("Firebase Storage não inicializado.");
+  const photoRef = storageRef(storage, `evolution/${userId}/${date}_${file.name}`);
+  await uploadBytes(photoRef, file);
+  return getDownloadURL(photoRef);
+};
+
+// --- Etapa 5: Segmented Messaging ---
+
+export const sendSegmentedMessage = async (
+  targetRole: string,
+  title: string,
+  content: string,
+  authorId: string
+): Promise<void> => {
+  const q = targetRole === 'ALL'
+    ? await getDocs(usersCol)
+    : await getDocs(query(usersCol, where("role", "==", targetRole)));
+
+  const batch = q.docs.map(d =>
+    addDoc(mensagensCol, {
+      userId: d.id,
+      type: 'SEGMENTED',
+      title,
+      content,
+      date: new Date().toLocaleDateString('pt-BR'),
+      timestamp: serverTimestamp(),
+      read: false,
+      author: authorId
+    })
+  );
+  await Promise.all(batch);
+};
+

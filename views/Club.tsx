@@ -42,15 +42,54 @@ const Club: React.FC<ClubProps> = ({ user, onBack }) => {
                 {/* Header removido para usar o global */}
 
                 {/* Sobre a Academia (Intro) */}
-                <div className="bg-white border border-slate-200 dark:bg-white/5 dark:border-white/10 p-6 relative overflow-hidden group">
+                <Card variant="glass" className="relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/5 blur-[80px] rounded-full pointer-events-none"></div>
+                    <div className="p-8 relative z-10">
+                        <div className="flex justify-between items-start mb-6">
+                            <div>
+                                <span className="text-[10px] font-bold text-blue-400 uppercase tracking-[0.3em] mb-2 block">
+                                    Nosso Método
+                                </span>
+                                <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white uppercase italic">
+                                    Sistema <span className="text-blue-500">Flex</span>
+                                </h2>
+                            </div>
+                            <Icons.Star className="w-6 h-6 text-blue-400 opacity-50" />
+                        </div>
+
+                        Cuidamos de você por completo. Força, mobilidade e bem-estar integrados para o seu resultado.
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="flex items-center space-x-3">
+                                <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+                                <span className="text-[10px] font-bold text-blue-900 dark:text-slate-300 uppercase tracking-wider">Treino Sob Medida</span>
+                            </div>
+                            <div className="flex items-center space-x-3">
+                                <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+                                <span className="text-[10px] font-bold text-blue-900 dark:text-slate-300 uppercase tracking-wider">Evolução Contínua</span>
+                            </div>
+                            <div className="flex items-center space-x-3">
+                                <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+                                <span className="text-[10px] font-bold text-blue-900 dark:text-slate-300 uppercase tracking-wider">Saúde 360º</span>
+                            </div>
+                            <div className="flex items-center space-x-3">
+                                <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+                                <span className="text-[10px] font-bold text-blue-900 dark:text-slate-300 uppercase tracking-wider">Time de Especialistas</span>
+                            </div>
+                        </div>
+                    </div>
+                </Card>
+
+                {/* Sobre a Academia (Intro) */}
+                <div className="bg-white border border-slate-200 dark:bg-white/5 dark:border-white/10 p-6 relative overflow-hidden group rounded-xl">
                     <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl -mr-10 -mt-10"></div>
-                    <h2 className="text-xl font-bold text-slate-900 dark:text-white uppercase tracking-tight mb-2 relative z-10">O Espaço</h2>
-                    <p className="text-sm text-slate-400 leading-relaxed relative z-10">
+                    <h2 className="text-xl font-bold text-blue-950 dark:text-white uppercase tracking-tight mb-2 relative z-10">O Espaço</h2>
+                    <p className="text-sm text-blue-900/80 dark:text-slate-300 leading-relaxed relative z-10">
                         Mais que uma academia, um centro de performance e bem-estar.
                         Design biofílico, equipamentos de ponta e um ambiente pensado
                         para elevar sua experiência de treino.
                     </p>
-                    <div className="mt-4 flex items-center space-x-3 text-xs font-bold text-slate-400">
+                    <div className="mt-4 flex items-center space-x-3 text-xs font-bold text-blue-600 dark:text-slate-500">
                         <Icons.MapPin className="w-4 h-4 text-blue-500" />
                         <span>Av. das Américas, 3500 - Barra da Tijuca</span>
                     </div>
@@ -58,12 +97,12 @@ const Club: React.FC<ClubProps> = ({ user, onBack }) => {
 
                 {/* Comodidades (Amenities) */}
                 <div>
-                    <h3 className="text-[11px] font-bold text-slate-500 uppercase tracking-[0.3em] mb-4 pl-1">Comodidades</h3>
+                    <h3 className="text-[11px] font-bold text-blue-900 dark:text-slate-400 uppercase tracking-[0.3em] mb-4 pl-1">Comodidades</h3>
                     <div className="grid grid-cols-3 gap-3">
                         {amenities.map((item, i) => (
-                            <div key={i} className="flex flex-col items-center justify-center p-4 bg-white border border-slate-200 dark:bg-white/5 dark:border-white/10 hover:border-blue-500/30 transition-all group">
-                                <item.icon className="w-6 h-6 text-slate-400 group-hover:text-blue-500 mb-2 transition-colors" />
-                                <span className="text-[10px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider text-center">{item.name}</span>
+                            <div key={i} className="flex flex-col items-center justify-center p-4 bg-white border border-slate-200 dark:bg-white/5 dark:border-white/10 hover:border-blue-500/30 transition-all group rounded-xl">
+                                <item.icon className="w-6 h-6 text-blue-300 group-hover:text-blue-500 mb-2 transition-colors" />
+                                <span className="text-[10px] font-bold text-blue-900 dark:text-slate-300 uppercase tracking-wider text-center">{item.name}</span>
                             </div>
                         ))}
                     </div>
@@ -71,20 +110,20 @@ const Club: React.FC<ClubProps> = ({ user, onBack }) => {
 
                 {/* Espaços Internos (Spaces) */}
                 <div>
-                    <h3 className="text-[11px] font-bold text-slate-500 uppercase tracking-[0.3em] mb-4 pl-1">Espaços Internos</h3>
+                    <h3 className="text-[11px] font-bold text-blue-900 dark:text-slate-400 uppercase tracking-[0.3em] mb-4 pl-1">Espaços Internos</h3>
                     <div className="space-y-3">
                         {spaces.map((space, i) => (
-                            <div key={i} className="flex items-center justify-between p-4 bg-white border border-slate-200 dark:bg-white/5 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/[0.07] transition-all">
+                            <div key={i} className="flex items-center justify-between p-4 bg-white border border-slate-200 dark:bg-white/5 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/[0.07] transition-all rounded-xl cursor-pointer group">
                                 <div className="flex items-center space-x-4">
-                                    <div className="w-10 h-10 rounded-full bg-blue-50 dark:bg-ocean/40 flex items-center justify-center text-blue-500">
+                                    <div className="w-10 h-10 rounded-full bg-blue-50 dark:bg-ocean/40 flex items-center justify-center text-blue-500 group-hover:bg-blue-600 group-hover:text-white transition-all">
                                         <space.icon className="w-5 h-5" />
                                     </div>
                                     <div>
-                                        <h4 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-tight">{space.name}</h4>
-                                        <p className="text-[10px] text-slate-500 uppercase tracking-wider">{space.description}</p>
+                                        <h4 className="text-sm font-bold text-blue-950 dark:text-white uppercase tracking-tight">{space.name}</h4>
+                                        <p className="text-[10px] text-slate-600 dark:text-slate-400 uppercase tracking-wider">{space.description}</p>
                                     </div>
                                 </div>
-                                <Icons.ChevronRight className="w-4 h-4 text-slate-600" />
+                                <Icons.ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-blue-500" />
                             </div>
                         ))}
                     </div>
@@ -101,8 +140,8 @@ const Club: React.FC<ClubProps> = ({ user, onBack }) => {
                                         <p.icon className="w-5 h-5" />
                                     </div>
                                     <div>
-                                        <h5 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-tight">{p.name}</h5>
-                                        <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">{p.category}</p>
+                                        <h5 className="text-sm font-bold text-blue-950 dark:text-white uppercase tracking-tight">{p.name}</h5>
+                                        <p className="text-[9px] font-bold text-blue-800 dark:text-slate-500 uppercase tracking-widest">{p.category}</p>
                                     </div>
                                 </div>
                                 <div className="px-3 py-1 bg-blue-600/10 border border-blue-600/20 text-blue-400 text-[10px] font-bold uppercase tracking-widest">

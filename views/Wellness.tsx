@@ -2,7 +2,8 @@
 import React, { useState } from 'react';
 import Card from '../components/Card';
 import { User, WellnessService, WellnessBooking } from '../types';
-import { Icons, WELLNESS_SERVICES_DATA } from '../constants';
+import { Icons, WELLNESS_SERVICES_DATA, CLASS_SERVICES_DATA } from '../constants';
+import { bookWellness } from '../firebase';
 
 interface WellnessProps {
   user: User;
@@ -16,8 +17,10 @@ const Wellness: React.FC<WellnessProps> = ({ user, onBack }) => {
   const [step, setStep] = useState<'SERVICES' | 'SCHEDULE' | 'CONFIRM'>('SERVICES');
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // Using real data from constants
-  const services = WELLNESS_SERVICES_DATA;
+  const [activeTab, setActiveTab] = useState<'WELLNESS' | 'CLASSES'>('WELLNESS');
+
+  // Merging both data sources
+  const services = activeTab === 'WELLNESS' ? WELLNESS_SERVICES_DATA : CLASS_SERVICES_DATA;
 
   const dates = [
     { label: 'SEG', day: '15', available: true },
@@ -27,27 +30,59 @@ const Wellness: React.FC<WellnessProps> = ({ user, onBack }) => {
     { label: 'SEX', day: '19', available: true },
   ];
 
-  const timeSlots = ['08:00', '09:00', '10:00', '14:00', '15:00', '16:00', '17:00', '18:30'];
+  const timeSlots = activeTab === 'WELLNESS'
+    ? ['08:00', '09:00', '10:00', '14:00', '15:00', '16:00', '17:00', '18:30']
+    : ['07:00', '12:00', '18:00', '19:00', '20:00']; // Class times
 
-  const handleBooking = () => {
+  const sessionsUsed = user.wellnessSessionsUsed || 0;
+  const sessionsLeft = Math.max(0, 2 - sessionsUsed);
+  const quotaExceeded = sessionsUsed >= 2;
+
+  const handleBooking = async () => {
+    if (!selectedService || !selectedTime || quotaExceeded) return;
     setIsProcessing(true);
-    setTimeout(() => {
-      setIsProcessing(false);
+    try {
+      await bookWellness(user.id, selectedService.id, selectedService.name, `2026-01-${selectedDate}`, selectedTime);
       setStep('CONFIRM');
-    }, 1500);
+    } catch (err: any) {
+      alert(err?.message || 'Erro ao reservar.');
+    }
+    setIsProcessing(false);
   };
 
   const renderServices = () => (
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
+
+      {/* TABS SWITCHER */}
+      <div className="flex p-1 bg-slate-100 dark:bg-white/5 rounded-xl border border-slate-200 dark:border-white/10">
+        <button
+          onClick={() => setActiveTab('WELLNESS')}
+          className={`flex-1 py-3 text-[10px] font-bold uppercase tracking-[0.2em] rounded-lg transition-all ${activeTab === 'WELLNESS' ? 'bg-white dark:bg-white/10 text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'}`}
+        >
+          Recovery & Spa
+        </button>
+        <button
+          onClick={() => setActiveTab('CLASSES')}
+          className={`flex-1 py-3 text-[10px] font-bold uppercase tracking-[0.2em] rounded-lg transition-all ${activeTab === 'CLASSES' ? 'bg-white dark:bg-white/10 text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'}`}
+        >
+          Aulas Coletivas
+        </button>
+      </div>
+
       <div className="px-1 border-l-4 border-blue-600 pl-6">
-        <h3 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight uppercase">Selecionar Serviço</h3>
-        <p className="text-[10px] font-bold text-blue-500 uppercase tracking-[0.3em] mt-2 leading-none">Recuperação e Bem-estar</p>
+        <h3 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight uppercase">
+          {activeTab === 'WELLNESS' ? 'Selecionar Serviço' : 'Escolher Modalidade'}
+        </h3>
+        <p className="text-[10px] font-bold text-blue-500 uppercase tracking-[0.3em] mt-2 leading-none">
+          {activeTab === 'WELLNESS' ? 'Recuperação e Bem-estar' : 'Treinos em Grupo'}
+        </p>
       </div>
 
       <div className="grid grid-cols-1 gap-4">
         {services.map(service => {
           // Dynamic icon rendering
           const IconComponent = Icons[service.icon as keyof typeof Icons] || Icons.Leaf;
+          const isClass = activeTab === 'CLASSES';
 
           return (
             <div
@@ -56,14 +91,22 @@ const Wellness: React.FC<WellnessProps> = ({ user, onBack }) => {
               className="glass-panel p-8 group relative overflow-hidden active:scale-[0.99] transition-all border-white/5 cursor-pointer"
             >
               <div className="flex items-center space-x-6 relative z-10">
-                <div className="w-14 h-14 border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 flex items-center justify-center text-blue-500 shadow-xl group-hover:border-blue-600 transition-all">
+                <div className={`w-14 h-14 border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 flex items-center justify-center shadow-xl group-hover:border-blue-600 transition-all ${isClass ? 'text-orange-500' : 'text-blue-500'}`}>
                   <IconComponent className="w-7 h-7" />
                 </div>
                 <div className="flex-1">
                   <h4 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight uppercase">{service.name}</h4>
                   <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 mb-3">{service.description}</p>
-                  <div className="flex items-center text-[9px] font-bold text-slate-500 uppercase tracking-widest leading-none">
-                    <Icons.Clock className="w-3 h-3 mr-2" /> {service.duration}
+
+                  <div className="flex items-center space-x-4">
+                    <div className="flex items-center text-[9px] font-bold text-slate-500 uppercase tracking-widest leading-none">
+                      <Icons.Clock className="w-3 h-3 mr-2" /> {service.duration}
+                    </div>
+                    {isClass && (service as any).capacity && (
+                      <div className="flex items-center text-[9px] font-bold text-orange-500 uppercase tracking-widest leading-none">
+                        <Icons.Users className="w-3 h-3 mr-2" /> {(service as any).instructor}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -90,42 +133,49 @@ const Wellness: React.FC<WellnessProps> = ({ user, onBack }) => {
       </header>
 
       {/* Date Picker */}
-      <section className="space-y-8">
+      <section className="space-y-6">
         <div className="flex items-baseline justify-between px-1">
           <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.3em]">Escolha do Período</h4>
           <span className="text-[8px] font-bold text-blue-600 uppercase tracking-widest">Janeiro 2026</span>
         </div>
-        <div className="flex space-x-3 overflow-x-auto no-scrollbar pb-2">
+        <div className="flex space-x-3 overflow-x-auto no-scrollbar pb-4 snap-x">
           {dates.map(d => (
             <button
               key={d.day}
               onClick={() => setSelectedDate(d.day)}
-              className={`min-w-[80px] h-24 flex flex-col items-center justify-center border transition-all duration-500 relative ${selectedDate === d.day
-                ? 'bg-blue-600 border-blue-600 text-white shadow-[0_0_20px_rgba(37,99,235,0.4)]'
-                : 'bg-white border-slate-200 text-slate-600 dark:bg-white/5 dark:text-slate-600 dark:border-white/5'
+              className={`snap-center min-w-[72px] h-24 flex flex-col items-center justify-center rounded-2xl border transition-all duration-300 relative group overflow-hidden ${selectedDate === d.day
+                ? 'bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-600/30 scale-105'
+                : 'bg-white border-slate-200 text-slate-500 dark:bg-white/5 dark:text-slate-400 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/10'
                 }`}
             >
-              <span className="text-[9px] font-bold mb-2 uppercase opacity-60 tracking-widest relative z-10">{d.label}</span>
-              <span className="text-2xl font-bold tracking-tight relative z-10">{d.day}</span>
+              {selectedDate === d.day && (
+                <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent opacity-30"></div>
+              )}
+              <span className={`text-[9px] font-bold tracking-widest mb-1 uppercase ${selectedDate === d.day ? 'text-blue-100' : 'opacity-60'}`}>{d.label}</span>
+              <span className="text-2xl font-black tracking-tight relative z-10 leading-none">{d.day}</span>
+              {selectedDate === d.day && (
+                <div className="w-1 h-1 bg-white rounded-full mt-2 absolute bottom-3"></div>
+              )}
             </button>
           ))}
         </div>
       </section>
 
       {/* Time Picker */}
-      <section className="space-y-8">
+      <section className="space-y-6">
         <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.3em] px-1">Horários Disponíveis</h4>
         <div className="grid grid-cols-4 gap-3">
           {timeSlots.map(time => (
             <button
               key={time}
               onClick={() => setSelectedTime(time)}
-              className={`py-5 border text-[10px] font-bold transition-all ${selectedTime === time
-                ? 'bg-white text-black border-white shadow-[0_0_20px_white] scale-[1.02]'
-                : 'bg-white border-slate-200 text-slate-800 dark:bg-white/5 dark:text-slate-400 dark:border-white/10'
+              className={`py-4 rounded-xl border text-[10px] font-bold transition-all relative overflow-hidden ${selectedTime === time
+                ? 'bg-blue-600 border-blue-500 text-white shadow-md shadow-blue-500/30 scale-[1.02]'
+                : 'bg-white border-slate-200 text-slate-600 dark:bg-white/5 dark:text-slate-400 dark:border-white/10 hover:border-blue-400/50'
                 }`}
             >
-              {time}
+              <span className="relative z-10">{time}</span>
+              {selectedTime === time && <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent"></div>}
             </button>
           ))}
         </div>
@@ -196,11 +246,14 @@ const Wellness: React.FC<WellnessProps> = ({ user, onBack }) => {
               <Icons.Leaf className="w-6 h-6 text-blue-600" />
             </div>
             <div className="flex items-baseline space-x-3">
-              <span className="text-6xl font-bold text-slate-900 dark:text-white tracking-tight">01</span>
+              <span className={`text-6xl font-bold tracking-tight ${quotaExceeded ? 'text-red-400' : 'text-slate-900 dark:text-white'}`}>0{sessionsLeft}</span>
               <span className="text-xl font-bold text-slate-700 tracking-tight">/ 02 DISPONÍVEIS</span>
             </div>
+            {quotaExceeded && (
+              <p className="text-[9px] font-bold text-red-400 uppercase tracking-widest mt-4">Cota mensal atingida — Bloqueado até próximo mês</p>
+            )}
             <div className="w-full h-1 bg-white/10 mt-10 relative">
-              <div className="h-full bg-blue-600 w-[50%] shadow-[0_0_10px_#2563EB]"></div>
+              <div className={`h-full ${quotaExceeded ? 'bg-red-500' : 'bg-blue-600'} shadow-[0_0_10px_${quotaExceeded ? '#EF4444' : '#2563EB'}]`} style={{ width: `${(sessionsUsed / 2) * 100}%` }}></div>
             </div>
           </div>
         )}
