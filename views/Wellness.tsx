@@ -123,12 +123,12 @@ const Wellness: React.FC<WellnessProps> = ({ user, onBack }) => {
   const renderSchedule = () => (
     <div className="space-y-12 animate-in fade-in slide-in-from-right-4 duration-700">
       <header className="flex items-center space-x-6">
-        <button onClick={() => setStep('SERVICES')} className="w-12 h-12 border border-white/10 bg-white/5 flex items-center justify-center text-white active:scale-95 transition-all">
+        <button onClick={() => setStep('SERVICES')} className="w-12 h-12 border border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-900 dark:text-white active:scale-95 transition-all">
           <Icons.ChevronRight className="w-5 h-5 rotate-180" />
         </button>
         <div>
           <h3 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight uppercase leading-none">{selectedService?.name}</h3>
-          <p className="text-[9px] font-bold text-blue-500 uppercase tracking-[0.3em] mt-3">Agendar Sessão</p>
+          <p className="text-[9px] font-bold text-blue-600 dark:text-blue-500 uppercase tracking-[0.3em] mt-3 leading-none">Agendar Sessão</p>
         </div>
       </header>
 

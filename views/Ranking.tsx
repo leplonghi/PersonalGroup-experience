@@ -54,12 +54,12 @@ const Ranking: React.FC<RankingProps> = ({ user, onBack }) => {
         <div className="min-h-screen bg-app p-6 pb-32 space-y-6">
             {/* Header */}
             <div className="flex items-center justify-between">
-                <button onClick={onBack} className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-all">
-                    <Icons.ChevronLeft className="w-5 h-5 text-slate-400" />
+                <button onClick={onBack} className="w-10 h-10 rounded-full bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-white/10 transition-all">
+                    <Icons.ChevronLeft className="w-5 h-5 text-slate-500 dark:text-slate-400" />
                 </button>
                 <div className="text-center">
-                    <h1 className="text-lg font-black text-white uppercase tracking-widest">Ranking</h1>
-                    <p className="text-[9px] text-blue-400 font-bold uppercase tracking-[0.4em] mt-0.5">Leaderboard</p>
+                    <h1 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-widest">Ranking</h1>
+                    <p className="text-[9px] text-blue-600 dark:text-blue-400 font-black uppercase tracking-[0.4em] mt-0.5">Leaderboard</p>
                 </div>
                 <div className="w-10" />
             </div>
@@ -68,17 +68,17 @@ const Ranking: React.FC<RankingProps> = ({ user, onBack }) => {
             <div className="bg-gradient-to-r from-blue-600/20 to-blue-900/10 border border-blue-500/20 rounded-xl p-4">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
-                        <div className="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-white font-black text-lg">
+                        <div className="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-white font-black text-lg shadow-lg">
                             {myStats.rank}º
                         </div>
                         <div>
-                            <p className="text-[10px] font-black text-blue-300 uppercase tracking-[0.2em]">Sua Posição</p>
-                            <p className="text-[9px] text-slate-400 mt-0.5">{myStats.sessions} sessões este mês</p>
+                            <p className="text-[10px] font-black text-blue-800 dark:text-blue-300 uppercase tracking-[0.2em]">Sua Posição</p>
+                            <p className="text-[9px] text-slate-500 dark:text-slate-400 mt-0.5">{myStats.sessions} sessões este mês</p>
                         </div>
                     </div>
                     <div className="text-right">
-                        <p className="text-2xl font-black text-white tabular-nums">{myStats.rank}º</p>
-                        <p className="text-[7px] text-slate-500 font-bold uppercase tracking-widest">de {mockRanking.length + 5}</p>
+                        <p className="text-2xl font-black text-slate-900 dark:text-white tabular-nums">{myStats.rank}º</p>
+                        <p className="text-[7px] text-slate-500 font-black uppercase tracking-widest">de {mockRanking.length + 5}</p>
                     </div>
                 </div>
             </div>
@@ -106,13 +106,13 @@ const Ranking: React.FC<RankingProps> = ({ user, onBack }) => {
                     return (
                         <div key={r.id} className="flex flex-col items-center space-y-2">
                             <span className="text-2xl">{medalEmoji[idx]}</span>
-                            <div className={`${isFirst ? 'w-16 h-16' : 'w-14 h-14'} rounded-full bg-gradient-to-br ${medalColors[idx]} flex items-center justify-center text-white font-black text-lg shadow-lg`}>
+                            <div className={`${isFirst ? 'w-16 h-16' : 'w-14 h-14'} rounded-full bg-gradient-to-br ${medalColors[idx]} flex items-center justify-center text-white font-black text-lg shadow-xl`}>
                                 {r.name.charAt(0)}
                             </div>
-                            <p className="text-[9px] font-black text-white uppercase tracking-wider text-center max-w-[70px] truncate">{r.name.split(' ')[0]}</p>
-                            <div className={`${isFirst ? 'h-24 bg-gradient-to-t from-yellow-600/30 to-yellow-400/10' : idx === 1 ? 'h-16 bg-gradient-to-t from-slate-600/20 to-slate-400/5' : 'h-12 bg-gradient-to-t from-amber-700/20 to-amber-500/5'} w-20 rounded-t-xl border border-white/10 flex flex-col items-center justify-center`}>
-                                <p className="text-lg font-black text-white tabular-nums">{r.score}</p>
-                                <p className="text-[6px] text-slate-400 font-bold uppercase tracking-widest">pontos</p>
+                            <p className="text-[9px] font-black text-slate-900 dark:text-white uppercase tracking-wider text-center max-w-[70px] truncate">{r.name.split(' ')[0]}</p>
+                            <div className={`${isFirst ? 'h-24 bg-gradient-to-t from-yellow-600/30 to-yellow-400/10' : idx === 1 ? 'h-16 bg-gradient-to-t from-slate-600/20 to-slate-400/5' : 'h-12 bg-gradient-to-t from-amber-700/20 to-amber-500/5'} w-20 rounded-t-xl border border-slate-200 dark:border-white/10 flex flex-col items-center justify-center`}>
+                                <p className="text-lg font-black text-slate-900 dark:text-white tabular-nums">{r.score}</p>
+                                <p className="text-[6px] text-slate-500 dark:text-slate-400 font-black uppercase tracking-widest">pontos</p>
                             </div>
                         </div>
                     );
@@ -125,12 +125,12 @@ const Ranking: React.FC<RankingProps> = ({ user, onBack }) => {
                     <div key={r.id} className="flex items-center justify-between bg-white/5 border border-white/10 rounded-xl px-4 py-3">
                         <div className="flex items-center space-x-3">
                             <span className="text-[11px] font-black text-slate-500 w-6 text-center tabular-nums">{idx + 4}</span>
-                            <div className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center text-white font-bold text-sm">
+                            <div className="w-9 h-9 rounded-full bg-blue-600/10 dark:bg-white/10 flex items-center justify-center text-blue-600 dark:text-white font-bold text-sm">
                                 {r.name.charAt(0)}
                             </div>
                             <div>
-                                <p className="text-[10px] font-bold text-white">{r.name}</p>
-                                <p className="text-[8px] text-slate-500">{r.sessions} sessões • {r.streak} 🔥</p>
+                                <p className="text-[10px] font-bold text-slate-900 dark:text-white">{r.name}</p>
+                                <p className="text-[8px] text-slate-500 dark:text-slate-400">{r.sessions} sessões • {r.streak} 🔥</p>
                             </div>
                         </div>
                         <p className="text-sm font-black text-slate-400 tabular-nums">{r.score}</p>
@@ -151,8 +151,8 @@ const Ranking: React.FC<RankingProps> = ({ user, onBack }) => {
                         <div key={item.label} className="flex items-center space-x-2">
                             <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
                             <div>
-                                <p className="text-[8px] font-bold text-white">{item.label}</p>
-                                <p className="text-[7px] text-blue-400">{item.pts}</p>
+                                <p className="text-[8px] font-bold text-slate-900 dark:text-white">{item.label}</p>
+                                <p className="text-[7px] text-blue-600 dark:text-blue-400">{item.pts}</p>
                             </div>
                         </div>
                     ))}

@@ -106,11 +106,11 @@ const Agenda: React.FC = () => {
   const monthDays = generateMonthDays();
 
   return (
-    <div className="min-h-screen bg-app flex transition-colors duration-500">
+    <div className="min-h-screen bg-app flex flex-col md:flex-row transition-colors duration-500 overflow-hidden">
       <div className="precision-bg absolute inset-0 z-0 opacity-40"></div>
 
-      {/* Google Calendar Style Sidebar */}
-      <aside className="w-64 flex-shrink-0 bg-white dark:bg-white/5 border-r border-slate-200 dark:border-white/10 relative z-10 p-4 overflow-y-auto">
+      {/* Google Calendar Style Sidebar - Desktop only */}
+      <aside className="hidden md:block w-64 flex-shrink-0 bg-white dark:bg-white/5 border-r border-slate-200 dark:border-white/10 relative z-10 p-4 overflow-y-auto font-display">
         {/* Mini Calendar */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-3">
@@ -191,107 +191,127 @@ const Agenda: React.FC = () => {
         </div>
       </aside>
 
-      {/* Main Calendar View */}
-      <div className="flex-1 flex flex-col relative z-10">
-        {/* Top Bar */}
-        <header className="px-6 py-4 border-b border-slate-200 dark:border-white/10 bg-white/50 dark:bg-white/5 backdrop-blur-sm">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <h2 className="text-2xl font-black text-blue-950 dark:text-white">
-                {new Date(2026, currentMonth, selectedDay).toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })}
-              </h2>
-              {/* Gym Status Indicator */}
-              <div className={`flex items-center space-x-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${gymStatus.open ? 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400' : 'bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400'}`}>
-                <div className={`w-1.5 h-1.5 rounded-full ${gymStatus.open ? 'bg-green-500 shadow-[0_0_6px_#22C55E]' : 'bg-red-500 shadow-[0_0_6px_#EF4444]'}`} />
-                <span>{gymStatus.open ? `Aberto até ${gymStatus.closeAt || '22:00'}` : 'Fechado'}</span>
-              </div>
+      {/* Top Bar / Header */}
+      <header className="px-6 py-4 border-b border-slate-200 dark:border-white/10 bg-white/50 dark:bg-white/5 backdrop-blur-sm z-20">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-4">
+            <h2 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight">
+              {monthNames[currentMonth]}
+            </h2>
+            {/* Gym Status Indicator */}
+            <div className={`flex items-center space-x-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${gymStatus.open ? 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400' : 'bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400'}`}>
+              <div className={`w-1.5 h-1.5 rounded-full ${gymStatus.open ? 'bg-green-500 shadow-[0_0_6px_#22C55E]' : 'bg-red-500 shadow-[0_0_6px_#EF4444]'}`} />
+              <span>{gymStatus.open ? `Aberto` : 'Fechado'}</span>
             </div>
-            <button className="px-4 py-2 bg-white dark:bg-white/5 border border-blue-100 dark:border-white/10 rounded-lg text-xs font-bold text-blue-900 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-white/10 transition-all">
-              Hoje
-            </button>
           </div>
-        </header>
+        </div>
 
-        {/* Timeline View */}
-        <div className="flex-1 overflow-y-auto">
-          <div className="relative">
-            {timeSlots.map((time, idx) => {
-              const session = getSessionForTime(time);
-              const Icon = session ? getIconForType(session.type) : Icons.Clock;
-              const slotOpen = isTimeSlotOpen(time);
+        {/* Mobile Week Strip - Visible only on small screens */}
+        <div className="md:hidden flex overflow-x-auto no-scrollbar gap-2 pb-2">
+          {monthDays.filter(d => d.isCurrentMonth).slice(selectedDay - 3, selectedDay + 4).map((dayInfo, idx) => (
+            <button
+              key={idx}
+              onClick={() => dayInfo.day && setSelectedDay(dayInfo.day)}
+              className={`flex-shrink-0 w-14 h-16 rounded-2xl flex flex-col items-center justify-center transition-all ${dayInfo.isSelected
+                ? 'bg-blue-600 text-white shadow-lg scale-105'
+                : 'bg-white/5 border border-white/5 text-slate-500'
+                }`}
+            >
+              <span className="text-[10px] font-black uppercase tracking-widest mb-1">{weekDayHeaders[(idx + 3) % 7]}</span>
+              <span className="text-lg font-black">{dayInfo.day}</span>
+            </button>
+          ))}
+        </div>
 
-              return (
-                <div
-                  key={idx}
-                  className={`grid grid-cols-[5rem_1fr] border-t border-slate-200/50 dark:border-white/5 transition-opacity ${slotOpen ? '' : 'opacity-30'}`}
-                  style={{ minHeight: '4rem' }}
-                >
-                  {/* Time Label */}
-                  <div className="pt-2 pr-4 text-right">
-                    <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
-                      {time}
-                    </span>
-                  </div>
+        <div className="hidden md:flex justify-between items-center">
+          <h3 className="text-sm font-bold text-slate-500 uppercase tracking-widest">
+            {new Date(2026, currentMonth, selectedDay).toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })}
+          </h3>
+          <button className="px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-black uppercase tracking-widest hover:bg-blue-500 transition-all shadow-lg">
+            Agendar Treino
+          </button>
+        </div>
+      </header>
 
-                  {/* Event Area */}
-                  <div className="py-2 pr-6 relative">
-                    {session ? (
-                      <div className={`
+      {/* Timeline View */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="relative">
+          {timeSlots.map((time, idx) => {
+            const session = getSessionForTime(time);
+            const Icon = session ? getIconForType(session.type) : Icons.Clock;
+            const slotOpen = isTimeSlotOpen(time);
+
+            return (
+              <div
+                key={idx}
+                className={`grid grid-cols-[5rem_1fr] border-t border-slate-200/50 dark:border-white/5 transition-opacity ${slotOpen ? '' : 'opacity-30'}`}
+                style={{ minHeight: '4rem' }}
+              >
+                {/* Time Label */}
+                <div className="pt-2 pr-4 text-right">
+                  <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                    {time}
+                  </span>
+                </div>
+
+                {/* Event Area */}
+                <div className="py-2 pr-6 relative">
+                  {session ? (
+                    <div className={`
                         rounded-lg p-3 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md
                         ${getStyleForType(session.type)}
                       `}>
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1">
-                              <div className={`p-1 rounded ${session.type === 'LIVRE'
-                                ? 'bg-blue-100 dark:bg-white/10 text-blue-600'
-                                : 'bg-white/20 text-slate-900 dark:text-white'
-                                }`}>
-                                <Icon className="w-3 h-3" />
-                              </div>
-                              <h4 className={`text-sm font-bold truncate ${session.type === 'LIVRE'
-                                ? 'text-blue-950 dark:text-slate-300'
-                                : 'text-slate-900 dark:text-white'
-                                }`}>
-                                {session.label}
-                              </h4>
-                            </div>
-                            {session.instructor && (
-                              <p className={`text-[10px] font-semibold truncate ${session.type === 'LIVRE'
-                                ? 'text-blue-700 dark:text-blue-400'
-                                : 'text-slate-800 dark:text-white/80'
-                                }`}>
-                                {session.time} • {session.instructor} • {session.location}
-                              </p>
-                            )}
-                          </div>
-                          {session.type !== 'LIVRE' && (
-                            <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase whitespace-nowrap ${session.status === 'Concluído'
-                              ? 'bg-emerald-500/30 text-slate-900 dark:text-white' :
-                              session.status === 'Confirmado'
-                                ? 'bg-white/20 text-slate-900 dark:text-white' :
-                                'bg-amber-500/30 text-amber-900 dark:text-amber-50'
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <div className={`p-1 rounded ${session.type === 'LIVRE'
+                              ? 'bg-blue-100 dark:bg-white/10 text-blue-600'
+                              : 'bg-white/20 text-slate-900 dark:text-white'
                               }`}>
-                              {session.status}
-                            </span>
+                              <Icon className="w-3 h-3" />
+                            </div>
+                            <h4 className={`text-sm font-bold truncate ${session.type === 'LIVRE'
+                              ? 'text-blue-950 dark:text-slate-300'
+                              : 'text-slate-900 dark:text-white'
+                              }`}>
+                              {session.label}
+                            </h4>
+                          </div>
+                          {session.instructor && (
+                            <p className={`text-[10px] font-semibold truncate ${session.type === 'LIVRE'
+                              ? 'text-blue-700 dark:text-blue-400'
+                              : 'text-slate-800 dark:text-white/80'
+                              }`}>
+                              {session.time} • {session.instructor} • {session.location}
+                            </p>
                           )}
                         </div>
+                        {session.type !== 'LIVRE' && (
+                          <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase whitespace-nowrap ${session.status === 'Concluído'
+                            ? 'bg-emerald-500/30 text-slate-900 dark:text-white' :
+                            session.status === 'Confirmado'
+                              ? 'bg-white/20 text-slate-900 dark:text-white' :
+                              'bg-amber-500/30 text-amber-900 dark:text-amber-50'
+                            }`}>
+                            {session.status}
+                          </span>
+                        )}
                       </div>
-                    ) : (
-                      <div className="h-full"></div>
-                    )}
-                  </div>
+                    </div>
+                  ) : (
+                    <div className="h-full"></div>
+                  )}
                 </div>
-              );
-            })}
-          </div>
+              </div>
+            );
+          })}
+        </div>
 
-          {/* Current time indicator */}
-          <div className="absolute left-20 right-6 pointer-events-none" style={{ top: '35%' }}>
-            <div className="flex items-center">
-              <div className="w-3 h-3 rounded-full bg-red-500 border-2 border-white dark:border-midnight shadow-lg z-10"></div>
-              <div className="flex-1 h-0.5 bg-red-500"></div>
-            </div>
+        {/* Current time indicator */}
+        <div className="absolute left-20 right-6 pointer-events-none" style={{ top: '35%' }}>
+          <div className="flex items-center">
+            <div className="w-3 h-3 rounded-full bg-red-500 border-2 border-white dark:border-midnight shadow-lg z-10"></div>
+            <div className="flex-1 h-0.5 bg-red-500"></div>
           </div>
         </div>
       </div>

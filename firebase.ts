@@ -531,6 +531,18 @@ export const getStaff = async (): Promise<User[]> => {
   }
 };
 
+export const subscribeToActiveStaff = (callback: (staff: User[]) => void) => {
+  const q = query(
+    usersCol,
+    where("role", "in", [UserRole.PERSONAL, UserRole.CHEFE]),
+    where("status", "==", "ACTIVE_IN_GYM")
+  );
+  return onSnapshot(q, (snap) => {
+    const staff = snap.docs.map(d => ({ id: d.id, ...d.data() } as User));
+    callback(staff);
+  });
+};
+
 export const toggleUserRole = async (userId: string, currentRole: UserRole): Promise<UserRole> => {
   const newRole = currentRole === UserRole.PERSONAL ? UserRole.CHEFE : UserRole.PERSONAL;
   const userRef = doc(db, "users", userId);

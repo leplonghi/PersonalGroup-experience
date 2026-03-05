@@ -11,6 +11,17 @@ interface ActiveSessionProps {
   onFinish: () => void;
 }
 
+const MOTIVATIONAL_PHRASES = [
+  "Mantenha o foco, cada repetição te aproxima do objetivo!",
+  "A consistência é a chave para o resultado extraordinário.",
+  "Sinta a contração, controle cada fase do movimento.",
+  "Você é seu único limite. Supere-se hoje!",
+  "Respiração controlada, mente presente, corpo em evolução.",
+  "O treino de hoje constrói o corpo de amanhã.",
+  "Não pare quando estiver cansado, pare quando terminar.",
+  "Qualidade acima de quantidade. Execute com perfeição."
+];
+
 const ActiveSession: React.FC<ActiveSessionProps> = ({ user, executor, onFinish }) => {
   const [currentExerciseIdx, setCurrentExerciseIdx] = useState(() => {
     const saved = localStorage.getItem('pg-session-ex-idx');
@@ -157,7 +168,16 @@ const ActiveSession: React.FC<ActiveSessionProps> = ({ user, executor, onFinish 
             <p className="text-xs font-black text-slate-800 dark:text-slate-400 uppercase tracking-[0.4em]">Carregando seu plano...</p>
           </div>
         ) : (
-          <div className="space-y-12">
+          <div className="space-y-8">
+            {/* MOTIVATIONAL BANNER */}
+            <div className="bg-blue-600/10 border border-blue-500/20 rounded-2xl p-4 flex items-center space-x-4 animate-pulse-slow">
+              <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0">
+                <Icons.TrendingUp className="w-5 h-5 text-white" />
+              </div>
+              <p className="text-[11px] font-black text-blue-900 dark:text-blue-300 uppercase tracking-widest leading-tight italic">
+                "{MOTIVATIONAL_PHRASES[(currentExerciseIdx + currentSet) % MOTIVATIONAL_PHRASES.length]}"
+              </p>
+            </div>
 
             {/* SESSIONS PROGRESS STRIP */}
             <div className="flex space-x-1.5 h-2">
@@ -178,34 +198,33 @@ const ActiveSession: React.FC<ActiveSessionProps> = ({ user, executor, onFinish 
               {/* VIDEO OVERLAY */}
               {!showingVideo ? (
                 <>
-                  <img src={currentExercise.image} className="w-full h-full object-cover grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-105 transition-all duration-[10s]" alt={currentExercise.name} />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/40 dark:from-midnight dark:via-midnight/40 to-transparent z-20"></div>
+                  <img src={currentExercise.image} className="w-full h-full object-cover grayscale-[20%] opacity-90 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-105 transition-all duration-[10s]" alt={currentExercise.name} />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-20"></div>
 
                   <div className="absolute inset-0 p-8 z-30 flex flex-col justify-end">
                     <div className="flex justify-between items-end">
-                      <div className="flex flex-col">
-                        <h2 className="text-3xl font-bold text-white mb-2 leading-tight font-display shadow-black drop-shadow-lg">{currentExercise.name}</h2>
-                        <div className="flex space-x-2">
-                          <div className="px-3 py-1.5 border border-white/20 bg-ocean/60 backdrop-blur-md text-white font-bold text-xs uppercase tracking-wider inline-block rounded-md">
-                            {currentExercise.reps} Repetições
+                      <div className="flex-1 min-w-0 pr-4">
+                        <span className="text-[9px] font-black text-blue-400 uppercase tracking-[0.3em] mb-1 block">Exercício {currentExerciseIdx + 1} de {exercises.length}</span>
+                        <h2 className="text-3xl font-black text-white mb-3 leading-none font-display uppercase italic tracking-tight drop-shadow-lg">{currentExercise.name}</h2>
+                        <div className="flex flex-wrap gap-2">
+                          <div className="px-3 py-1.5 border border-white/20 bg-white/10 backdrop-blur-md text-white font-black text-[10px] uppercase tracking-widest inline-flex items-center rounded-lg">
+                            <Icons.Repeat className="w-3 h-3 mr-1.5 text-blue-400" />
+                            {currentExercise.reps} Reps
                           </div>
                           {currentExercise.videoUrl && (
                             <button
                               onClick={() => setShowingVideo(true)}
-                              className="px-3 py-1.5 border border-blue-500/50 bg-blue-600/80 backdrop-blur-md text-white font-bold text-xs uppercase tracking-wider inline-flex items-center rounded-md hover:bg-blue-600 animate-pulse"
+                              className="px-3 py-1.5 border border-blue-500 bg-blue-600 backdrop-blur-md text-white font-black text-[10px] uppercase tracking-widest inline-flex items-center rounded-lg hover:bg-blue-500 transition-all active:scale-95"
                             >
-                              <Icons.Play className="w-3 h-3 mr-1" /> Ver Execução
+                              <Icons.Play className="w-3 h-3 mr-1.5" /> Técnica
                             </button>
                           )}
-                          <button onClick={handleReportIssue} className="px-3 py-1.5 border border-red-500/30 bg-red-500/10 backdrop-blur-md text-red-500 font-bold text-xs uppercase tracking-wider inline-flex items-center rounded-md hover:bg-red-500/20">
-                            <Icons.ExclamationCircle className="w-3 h-3 mr-1" /> Reportar
-                          </button>
                         </div>
                       </div>
 
-                      <div className="w-20 h-20 border border-cobalt bg-midnight/80 flex flex-col items-center justify-center shadow-[0_0_40px_rgba(37,99,235,0.3)] rounded-lg backdrop-blur-sm">
-                        <span className="text-xs font-bold uppercase text-cobalt mb-0.5 tracking-wider">Série</span>
-                        <span className="text-4xl font-bold tracking-tight text-white leading-none font-display">{currentSet}</span>
+                      <div className="w-16 h-16 border-2 border-blue-500 bg-black/80 flex flex-col items-center justify-center shadow-[0_0_30px_rgba(59,130,246,0.5)] rounded-2xl backdrop-blur-sm transform rotate-3">
+                        <span className="text-[8px] font-black uppercase text-blue-400 mb-0.5 tracking-tighter">Série</span>
+                        <span className="text-3xl font-black tracking-tight text-white leading-none font-display italic">{currentSet}</span>
                       </div>
                     </div>
                   </div>
@@ -361,17 +380,23 @@ const ActiveSession: React.FC<ActiveSessionProps> = ({ user, executor, onFinish 
       </main>
 
       {/* 3. STICKY FOOTER */}
-      <footer className="fixed bottom-24 left-0 right-0 p-6 glass-panel border-t border-slate-200 dark:border-white/5 z-[100] shadow-2xl safe-pb">
-        <div className="max-w-lg mx-auto">
+      <footer className="fixed bottom-24 left-0 right-0 p-6 glass-panel border-t border-slate-200 dark:border-white/5 z-[100] shadow-2xl safe-pb backdrop-blur-xl">
+        <div className="max-w-lg mx-auto flex gap-3">
           <button
             onClick={handleLogSet}
-            className="w-full h-16 bg-cobalt text-white font-bold text-sm uppercase tracking-[0.3em] transition-all relative overflow-hidden group/finish shadow-[0_0_30px_rgba(37,99,235,0.4)] rounded-none active:scale-[0.98]"
+            className="flex-[3] h-16 bg-blue-600 text-white font-black text-sm uppercase tracking-[0.2em] transition-all relative overflow-hidden group/finish shadow-[0_10px_30px_rgba(37,99,235,0.4)] rounded-2xl active:scale-[0.98]"
           >
-            <div className="absolute inset-0 bg-white translate-x-[-101%] group-hover/finish:translate-x-0 transition-transform duration-700 mix-blend-difference"></div>
-            <div className="flex items-center justify-center space-x-4 relative z-10">
-              <span>Finalizar Série</span>
-              <Icons.ChevronRight className="w-5 h-5 animate-pulse" />
+            <div className="flex items-center justify-center space-x-4 relative z-10 italic">
+              <span>{currentSet === currentExercise.sets ? 'Próximo Exercício' : 'Finalizar Série'}</span>
+              <Icons.ChevronRight className="w-5 h-5 group-hover/finish:translate-x-1 transition-transform" />
             </div>
+          </button>
+          <button
+            onClick={handleReportIssue}
+            className="flex-1 h-16 bg-white/5 border border-white/10 text-red-500 font-black text-[10px] uppercase tracking-widest flex flex-col items-center justify-center rounded-2xl hover:bg-red-500/10 transition-all active:scale-95"
+          >
+            <Icons.ExclamationCircle className="w-5 h-5 mb-1" />
+            <span>Pular</span>
           </button>
         </div>
       </footer>

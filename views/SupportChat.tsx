@@ -74,29 +74,29 @@ const SupportChat: React.FC<SupportChatProps> = ({ user, onBack }) => {
         <div className="min-h-screen bg-app p-6 pb-32 space-y-6">
             {/* Header */}
             <div className="flex items-center justify-between">
-                <button onClick={onBack} className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-all">
-                    <Icons.ChevronLeft className="w-5 h-5 text-slate-400" />
+                <button onClick={onBack} className="w-10 h-10 rounded-full bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-white/10 transition-all">
+                    <Icons.ChevronLeft className="w-5 h-5 text-slate-500 dark:text-slate-400" />
                 </button>
                 <div className="text-center">
-                    <h1 className="text-lg font-black text-white uppercase tracking-widest">Suporte</h1>
-                    <p className="text-[9px] text-blue-400 font-bold uppercase tracking-[0.4em] mt-0.5">Central de Ajuda</p>
+                    <h1 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-widest">Suporte</h1>
+                    <p className="text-[9px] text-blue-600 dark:text-blue-400 font-black uppercase tracking-[0.4em] mt-0.5">Central de Ajuda</p>
                 </div>
                 <div className="w-10" />
             </div>
 
             {/* Tab Switcher */}
-            <div className="flex p-1 bg-white/5 rounded-xl border border-white/10">
+            <div className="flex p-1 bg-slate-100 dark:bg-white/5 rounded-xl border border-slate-200 dark:border-white/10">
                 <button
                     onClick={() => setView('faq')}
-                    className={`flex-1 py-3 text-[10px] font-black uppercase tracking-[0.2em] rounded-lg transition-all ${view === 'faq' ? 'bg-white/10 text-blue-400 shadow-sm' : 'text-slate-500 hover:text-slate-300'}`}
+                    className={`flex-1 py-3 text-[10px] font-black uppercase tracking-[0.2em] rounded-lg transition-all ${view === 'faq' ? 'bg-white dark:bg-white/10 text-blue-600 dark:text-blue-400 shadow-sm' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'}`}
                 >
-                    Perguntas Frequentes
+                    Filtro FAQ
                 </button>
                 <button
                     onClick={() => setView('contact')}
-                    className={`flex-1 py-3 text-[10px] font-black uppercase tracking-[0.2em] rounded-lg transition-all ${view === 'contact' ? 'bg-white/10 text-blue-400 shadow-sm' : 'text-slate-500 hover:text-slate-300'}`}
+                    className={`flex-1 py-3 text-[10px] font-black uppercase tracking-[0.2em] rounded-lg transition-all ${view === 'contact' ? 'bg-white dark:bg-white/10 text-blue-600 dark:text-blue-400 shadow-sm' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'}`}
                 >
-                    Falar com Suporte
+                    Solicitações
                 </button>
             </div>
 
@@ -109,10 +109,10 @@ const SupportChat: React.FC<SupportChatProps> = ({ user, onBack }) => {
                             value={searchTerm}
                             onChange={e => setSearchTerm(e.target.value)}
                             placeholder="Buscar nas perguntas..."
-                            className="w-full bg-black/20 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder:text-white/20 focus:border-blue-500/50 outline-none"
+                            className="w-full bg-slate-100 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl pl-10 pr-4 py-3 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-white/20 focus:border-blue-600/50 outline-none transition-all"
                         />
                         <div className="absolute left-3 top-1/2 -translate-y-1/2">
-                            <span className="text-sm text-slate-500">🔍</span>
+                            <span className="text-sm">🔍</span>
                         </div>
                     </div>
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { User, EvolutionEntry } from '../types';
+import { User, EvolutionEntry, UserRole } from '../types';
 import { Icons } from '../constants';
-import { getEvolutionEntries, addEvolutionEntry, uploadEvolutionPhoto } from '../firebase';
+import { getEvolutionEntries, addEvolutionEntry, uploadEvolutionPhoto, exportToCSV } from '../firebase';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 
 interface EvolutionProps {
@@ -108,23 +108,40 @@ const Evolution: React.FC<EvolutionProps> = ({ user, onBack }) => {
     const latest = entries[0];
     const prev = entries[1];
 
+    const isStudent = user.role === UserRole.ALUNO;
+
+    const handleExport = () => {
+        const exportData = entries.map(e => ({
+            Data: new Date(e.date).toLocaleDateString('pt-BR'),
+            Peso: e.weight || '--',
+            'Gordura (%)': e.fatPercentage || '--',
+            'Massa Magra (kg)': e.leanMass || '--',
+            ...Object.fromEntries(
+                Object.entries(e.measures || {}).map(([k, v]) => [measureLabels[k] || k, v])
+            )
+        }));
+        exportToCSV(exportData, `Evolucao_${user.name.replace(/\s/g, '_')}`);
+    };
+
     return (
         <div className="min-h-screen bg-app space-y-6 pb-32">
             {/* Pill Segmented Control - Fixed below Global Header (h-20) */}
-            <div className="sticky top-[80px] z-50 bg-app/90 backdrop-blur-md pt-4 pb-2 px-6 shadow-sm border-b border-white/5">
+            <div className="sticky top-[80px] z-50 bg-app/90 backdrop-blur-md pt-4 pb-2 px-6 shadow-sm border-b border-white/5 font-display">
                 <div className="bg-black/20 border border-white/10 rounded-full p-1 flex items-center shadow-inner">
                     <button
                         onClick={() => setView('list')}
-                        className={`flex-1 text-[10px] font-bold uppercase tracking-widest py-2 rounded-full transition-all whitespace-nowrap px-2 ${view === 'list' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-500 hover:text-slate-300'}`}
+                        className={`flex-1 text-[10px] font-black uppercase tracking-widest py-2.5 rounded-full transition-all whitespace-nowrap px-4 ${view === 'list' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
                     >
-                        Progresso
+                        Relatório de Progresso
                     </button>
-                    <button
-                        onClick={() => setView('add')}
-                        className={`flex-1 text-[10px] font-bold uppercase tracking-widest py-2 rounded-full transition-all whitespace-nowrap px-2 ${view === 'add' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-500 hover:text-slate-300'}`}
-                    >
-                        Registrar
-                    </button>
+                    {!isStudent && (
+                        <button
+                            onClick={() => setView('add')}
+                            className={`flex-1 text-[10px] font-black uppercase tracking-widest py-2.5 rounded-full transition-all whitespace-nowrap px-4 ${view === 'add' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
+                        >
+                            Nova Medição
+                        </button>
+                    )}
                 </div>
             </div>
 
@@ -339,6 +356,13 @@ const Evolution: React.FC<EvolutionProps> = ({ user, onBack }) => {
                                 <div className="pt-6">
                                     <div className="flex justify-between items-center mb-6">
                                         <h3 className="text-[11px] font-black text-slate-300 uppercase tracking-[0.2em]">Histórico de Medidas</h3>
+                                        <button
+                                            onClick={handleExport}
+                                            className="flex items-center space-x-2 px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 transition-all group"
+                                        >
+                                            <Icons.Download className="w-3 h-3 text-blue-400 group-hover:scale-110 transition-transform" />
+                                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Planilha CSV</span>
+                                        </button>
                                     </div>
                                     <div className="space-y-4">
                                         {entries.map((entry, idx) => (

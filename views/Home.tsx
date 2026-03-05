@@ -6,7 +6,7 @@ import PlanStatusBanner from '../components/PlanStatusBanner';
 import FrequencyTracker from '../components/FrequencyTracker';
 import AssessmentReminder from '../components/AssessmentReminder';
 import { Icons } from '../constants';
-import { getProtocolById } from '../firebase';
+import { getProtocolById, subscribeToActiveStaff } from '../firebase';
 
 interface HomeProps {
   user: User;
@@ -41,6 +41,14 @@ const Home: React.FC<HomeProps> = ({
 }) => {
   const [protocol, setProtocol] = useState<Protocol | null>(null);
   const [loadingProtocol, setLoadingProtocol] = useState(false);
+  const [activeStaff, setActiveStaff] = useState<User[]>([]);
+
+  useEffect(() => {
+    const unsubscribe = subscribeToActiveStaff((staff) => {
+      setActiveStaff(staff);
+    });
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     if (user.currentCycle?.protocolId) {
@@ -68,14 +76,6 @@ const Home: React.FC<HomeProps> = ({
               <span className="w-1.5 h-1.5 bg-green-500 rounded-full mr-2 shadow-[0_0_8px_#22C55E] group-hover/status:animate-ping"></span>
               Unidade: Península
             </button>
-          </div>
-          <div className="relative group">
-            <div className="w-20 h-20 rounded-full p-0.5 bg-white dark:bg-white/5 border border-blue-100 dark:border-white/10 group-hover:border-blue-500/50 transition-all duration-700 shadow-2xl overflow-hidden">
-              <img src={user.avatar} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" alt="Identity" />
-            </div>
-            <div className="absolute top-0 right-0 w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-[10px] font-bold shadow-lg text-white border border-white/20">
-              9
-            </div>
           </div>
         </div>
       </div>
@@ -226,65 +226,55 @@ const Home: React.FC<HomeProps> = ({
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          {[
-            {
-              name: 'Lucas Mendes',
-              schedule: '14h - 18h',
-              accentColor: 'orange',
-              accentGradient: 'from-orange-400 to-orange-500',
-              accentBg: 'bg-orange-500',
-              accentText: 'text-orange-600 dark:text-orange-400'
-            },
-            {
-              name: 'Camila Roza',
-              schedule: '14h - 18h',
-              accentColor: 'emerald',
-              accentGradient: 'from-emerald-400 to-emerald-500',
-              accentBg: 'bg-emerald-500',
-              accentText: 'text-emerald-600 dark:text-emerald-400'
-            },
-          ].map((personal, idx) => (
-            <Card
-              key={idx}
-              variant="flat"
-              className="p-4 relative overflow-hidden border border-blue-200/50 dark:border-blue-500/20 bg-gradient-to-br from-blue-100 via-blue-50 to-white dark:from-blue-900/30 dark:via-blue-950/20 dark:to-blue-950/10 hover:shadow-lg transition-all duration-300 group"
-            >
-              {/* Accent Color Bar */}
-              <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${personal.accentGradient}`}></div>
+          {activeStaff.length > 0 ? (
+            activeStaff.map((personal, idx) => (
+              <Card
+                key={personal.id || idx}
+                variant="flat"
+                className="p-4 relative overflow-hidden border border-blue-200/50 dark:border-blue-500/20 bg-gradient-to-br from-blue-100 via-blue-50 to-white dark:from-blue-900/30 dark:via-blue-950/20 dark:to-blue-950/10 hover:shadow-lg transition-all duration-300 group"
+              >
+                {/* Accent Color Bar */}
+                <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${idx % 2 === 0 ? 'from-orange-400 to-orange-500' : 'from-emerald-400 to-emerald-500'}`}></div>
 
-              <div className="space-y-3">
-                {/* Avatar */}
-                <div className="flex justify-center">
-                  <div className="relative">
-                    <div className={`w-16 h-16 rounded-2xl p-[2px] bg-gradient-to-br ${personal.accentGradient} group-hover:scale-105 transition-transform duration-300`}>
-                      <img
-                        src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${personal.name}&backgroundColor=dbeafe`}
-                        className="w-full h-full rounded-2xl object-cover bg-white"
-                        alt={personal.name}
-                      />
-                    </div>
-                    {/* Status Dot */}
-                    <div className={`absolute -bottom-0.5 -right-0.5 w-4 h-4 ${personal.accentBg} rounded-full flex items-center justify-center border-2 border-white dark:border-blue-950`}>
-                      <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></div>
+                <div className="space-y-3">
+                  {/* Avatar */}
+                  <div className="flex justify-center">
+                    <div className="relative">
+                      <div className={`w-16 h-16 rounded-2xl p-[2px] bg-gradient-to-br ${idx % 2 === 0 ? 'from-orange-400 to-orange-500' : 'from-emerald-400 to-emerald-500'} group-hover:scale-105 transition-transform duration-300`}>
+                        <img
+                          src={personal.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${personal.name}&backgroundColor=dbeafe`}
+                          className="w-full h-full rounded-2xl object-cover bg-white"
+                          alt={personal.name}
+                        />
+                      </div>
+                      {/* Status Dot */}
+                      <div className={`absolute -bottom-0.5 -right-0.5 w-4 h-4 ${idx % 2 === 0 ? 'bg-orange-500' : 'bg-emerald-500'} rounded-full flex items-center justify-center border-2 border-white dark:border-blue-950`}>
+                        <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></div>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Name */}
-                <h5 className={`text-xs font-black uppercase tracking-tight text-center ${personal.accentText} leading-tight`}>
-                  {personal.name}
-                </h5>
+                  {/* Name */}
+                  <h5 className={`text-xs font-black uppercase tracking-tight text-center ${idx % 2 === 0 ? 'text-orange-600 dark:text-orange-400' : 'text-emerald-600 dark:text-emerald-400'} leading-tight`}>
+                    {personal.name.split(' ')[0]} {personal.name.split(' ').slice(-1)}
+                  </h5>
 
-                {/* Schedule */}
-                <div className="flex items-center justify-center space-x-1.5 px-2 py-1.5 rounded-lg bg-blue-100 dark:bg-blue-900/40 border border-blue-200 dark:border-blue-700/50">
-                  <Icons.Clock className="w-3 h-3 text-blue-600 dark:text-blue-400" />
-                  <span className="text-[11px] font-bold text-blue-900 dark:text-blue-300 tracking-wide">
-                    {personal.schedule}
-                  </span>
+                  {/* Specialty tag if available */}
+                  <div className="flex items-center justify-center space-x-1.5 px-2 py-1.5 rounded-lg bg-blue-100 dark:bg-blue-900/40 border border-blue-200 dark:border-blue-700/50">
+                    <Icons.Shield className="w-3 h-3 text-blue-600 dark:text-blue-400" />
+                    <span className="text-[10px] font-black text-blue-900 dark:text-blue-300 tracking-wide uppercase">
+                      Flex Pro
+                    </span>
+                  </div>
                 </div>
-              </div>
-            </Card>
-          ))}
+              </Card>
+            ))
+          ) : (
+            <div className="col-span-2 py-8 bg-white/5 border border-dashed border-white/10 rounded-2xl flex flex-col items-center justify-center space-y-2">
+              <Icons.Clock className="w-6 h-6 text-slate-500" />
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Nenhum professor no momento</p>
+            </div>
+          )}
         </div>
       </section>
 
