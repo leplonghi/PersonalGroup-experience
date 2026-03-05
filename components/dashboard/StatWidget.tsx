@@ -28,7 +28,7 @@ const StatWidget: React.FC<StatWidgetProps> = ({ label, value, subtext, icon = '
             className={`glass-panel p-5 relative overflow-hidden group transition-all duration-300 ${onClick ? 'cursor-pointer active:scale-95 hover:border-blue-500/30' : ''}`}
         >
             <div className="flex justify-between items-start mb-2">
-                <p className="text-[9px] font-bold text-slate-500 uppercase tracking-[0.2em]">{label}</p>
+                <p className="text-xs font-black text-slate-800 dark:text-slate-400 uppercase tracking-[0.2em]">{label}</p>
                 <div className={`p-1.5 rounded-md bg-white/5 border border-white/10 ${colorMap[color].split(' ')[0]}`}>
                     <IconComponent className="w-4 h-4" />
                 </div>
@@ -37,14 +37,14 @@ const StatWidget: React.FC<StatWidgetProps> = ({ label, value, subtext, icon = '
             <div className="flex items-baseline space-x-1 mt-2">
                 <h3 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tighter leading-none">{value}</h3>
                 {trend && (
-                    <span className={`text-[9px] font-bold uppercase ml-2 ${trend === 'up' ? 'text-green-500' : trend === 'down' ? 'text-red-500' : 'text-slate-500'}`}>
+                    <span className={`text-[11px] font-black uppercase ml-2 ${trend === 'up' ? 'text-green-500' : trend === 'down' ? 'text-red-500' : 'text-slate-500'}`}>
                         {trend === 'up' ? '▲' : '▼'}
                     </span>
                 )}
             </div>
 
             {subtext && (
-                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mt-1">{subtext}</p>
+                <p className="text-xs font-bold text-slate-600 dark:text-slate-500 uppercase tracking-widest mt-1.5">{subtext}</p>
             )}
 
             {/* Background decoration */}

@@ -26,10 +26,10 @@ const PlanStatusBanner: React.FC<PlanStatusBannerProps> = ({ user }) => {
     if (!isExpired && !isUrgent && !isWarning) return null;
 
     const config = isExpired
-        ? { bg: 'from-red-600/20 to-red-900/10', border: 'border-red-500/30', text: 'text-red-400', icon: 'text-red-400', label: 'Plano Expirado', detail: 'Renove para continuar treinando.' }
+        ? { bg: 'from-red-600/20 to-red-900/10', border: 'border-red-500/30', text: 'text-red-800 dark:text-red-400', icon: 'text-red-400', label: 'Plano Expirado', detail: 'Renove para continuar treinando.' }
         : isUrgent
-            ? { bg: 'from-amber-600/20 to-amber-900/10', border: 'border-amber-500/30', text: 'text-amber-300', icon: 'text-amber-400', label: `${daysLeft} dia${daysLeft > 1 ? 's' : ''} restante${daysLeft > 1 ? 's' : ''}`, detail: 'Fale na recepção para renovar.' }
-            : { bg: 'from-blue-600/10 to-blue-900/5', border: 'border-blue-500/20', text: 'text-blue-300', icon: 'text-blue-400', label: `${daysLeft} dias restantes`, detail: 'Plano vence em breve.' };
+            ? { bg: 'from-amber-600/20 to-amber-900/10', border: 'border-amber-500/30', text: 'text-amber-800 dark:text-amber-300', icon: 'text-amber-400', label: `${daysLeft} dia${daysLeft > 1 ? 's' : ''} restante${daysLeft > 1 ? 's' : ''}`, detail: 'Fale na recepção para renovar.' }
+            : { bg: 'from-blue-600/10 to-blue-900/5', border: 'border-blue-500/20', text: 'text-blue-800 dark:text-blue-300', icon: 'text-blue-400', label: `${daysLeft} dias restantes`, detail: 'Plano vence em breve.' };
 
     return (
         <div className={`relative overflow-hidden rounded-xl border ${config.border} bg-gradient-to-r ${config.bg} p-4`}>
@@ -38,10 +38,10 @@ const PlanStatusBanner: React.FC<PlanStatusBannerProps> = ({ user }) => {
                     <Icons.Clock className={`w-5 h-5 ${config.icon}`} />
                 </div>
                 <div className="flex-1 min-w-0">
-                    <p className={`text-[10px] font-black uppercase tracking-[0.3em] ${config.text}`}>
+                    <p className={`text-[11px] font-black uppercase tracking-[0.2em] ${config.text}`}>
                         {config.label}
                     </p>
-                    <p className="text-[9px] text-slate-400 mt-0.5 tracking-wide">
+                    <p className="text-[10px] text-slate-700 dark:text-slate-400 mt-1 tracking-wide font-medium">
                         {config.detail}
                     </p>
                 </div>

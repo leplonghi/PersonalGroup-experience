@@ -1,80 +1,83 @@
-import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import React, { useState, useCallback, useMemo, useEffect, lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { User, UserRole, Protocol, Assessment, TrainingCycle, HealthStatus } from './types';
 import { useAuth } from './hooks/useAuth';
-import Login from './views/Login';
-import RegisterFlow from './views/RegisterFlow';
-import EditProfile from './views/EditProfile';
-import Home from './views/Home';
-import Agenda from './views/Agenda';
-import Profile from './views/Profile';
-import StudentHub from './views/StudentHub';
-import ActiveSession from './views/ActiveSession';
-import Wellness from './views/Wellness';
-import Management from './views/Management';
-import ProtocolEditor from './views/ProtocolEditor';
-import AssessmentFlow from './views/AssessmentFlow';
-import CycleBuilder from './views/CycleBuilder';
-import Messages from './views/Messages';
-import Timeline from './views/Timeline';
-import CheckIn from './views/CheckIn';
-import Club from './views/Club';
-import FrequencyDashboard from './views/FrequencyDashboard';
-import PersonalDay from './views/PersonalDay';
-import AdminRequests from './views/AdminRequests';
-import Evolution from './views/Evolution';
-import SupportChat from './views/SupportChat';
-import Ranking from './views/Ranking';
-import Wearables from './views/Wearables';
+
+// Lazy loading views for performance
+const Login = lazy(() => import('./views/Login'));
+const RegisterFlow = lazy(() => import('./views/RegisterFlow'));
+const EditProfile = lazy(() => import('./views/EditProfile'));
+const Home = lazy(() => import('./views/Home'));
+const Agenda = lazy(() => import('./views/Agenda'));
+const Profile = lazy(() => import('./views/Profile'));
+const StudentHub = lazy(() => import('./views/StudentHub'));
+const ActiveSession = lazy(() => import('./views/ActiveSession'));
+const Wellness = lazy(() => import('./views/Wellness'));
+const Management = lazy(() => import('./views/Management'));
+const ProtocolEditor = lazy(() => import('./views/ProtocolEditor'));
+const AssessmentFlow = lazy(() => import('./views/AssessmentFlow'));
+const CycleBuilder = lazy(() => import('./views/CycleBuilder'));
+const Messages = lazy(() => import('./views/Messages'));
+const Timeline = lazy(() => import('./views/Timeline'));
+const CheckIn = lazy(() => import('./views/CheckIn'));
+const Club = lazy(() => import('./views/Club'));
+const FrequencyDashboard = lazy(() => import('./views/FrequencyDashboard'));
+const PersonalDay = lazy(() => import('./views/PersonalDay'));
+const AdminRequests = lazy(() => import('./views/AdminRequests'));
+const Evolution = lazy(() => import('./views/Evolution'));
+const SupportChat = lazy(() => import('./views/SupportChat'));
+const Ranking = lazy(() => import('./views/Ranking'));
+const Wearables = lazy(() => import('./views/Wearables'));
+
+// Shared Loader
+export const PageLoader = () => (
+  <div className="flex-1 min-h-[50vh] flex flex-col items-center justify-center p-8 space-y-4">
+    <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Carregando...</p>
+  </div>
+);
 import Navigation from './components/Navigation';
 import Header from './components/Header';
-import { saveProtocol, saveAssessment, startNewCycle } from './firebase';
-import { Icons } from './constants';
+import { saveProtocol, saveAssessment, startNewCycle, createUserDoc, toggleUserRole } from './firebase';
+import { Icons } from './constants.tsx';
 
 // Layout wraper to handle Header and Navigation visibility
 const AppLayout: React.FC<{
   user: User | null;
   onLogout: () => void;
   onUpdateUser: (user: User) => void;
+  onRegisterStaff: (data: Partial<User>) => Promise<void>;
+  onToggleRole: (userId: string, currentRole: UserRole) => Promise<UserRole>;
   isDarkMode: boolean;
   toggleTheme: () => void;
-}> = ({ user, onLogout, onUpdateUser, isDarkMode, toggleTheme }) => {
+}> = ({ user, onLogout, onUpdateUser, isDarkMode, toggleTheme, onRegisterStaff, onToggleRole }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const [selectedStudent, setSelectedStudent] = useState<User | null>(null);
 
-  // Logic to determine if Navigation should be shown
-  const showNav = useMemo(() => {
-    const hiddenPaths = [
-      '/session',
-      '/protocol-edit',
-      '/assessment',
-      '/cycle-builder',
-      '/checkin',
-      '/login'
-    ];
-    return user && !hiddenPaths.some(path => location.pathname.startsWith(path));
-  }, [user, location.pathname]);
+  const showNav = useMemo(() => !!user && location.pathname !== '/login', [user, location.pathname]);
 
   // Logic to determine if Header should be shown
-  const showHeader = useMemo(() => {
-    const hiddenHeaders = ['/login', '/support', '/ranking', '/wearables', '/admin-requests', '/personal-day'];
-    return user && !hiddenHeaders.includes(location.pathname);
-  }, [user, location.pathname]);
+  const showHeader = useMemo(() => !!user && location.pathname !== '/login', [user, location.pathname]);
 
   // Theme toggle is now handled directly in Header component
 
   // Header Props Logic based on Route
   const headerProps = useMemo(() => {
     const backBtn = (path: string) => (
-      <button onClick={() => navigate(path)} className="w-12 h-12 border border-white/10 bg-white/5 flex items-center justify-center text-white active:scale-95 transition-all outline-none rounded-xl">
+      <button
+        onClick={() => navigate(path)}
+        className={`w-12 h-12 border flex items-center justify-center active:scale-95 transition-all outline-none rounded-xl ${isDarkMode ? 'border-white/10 bg-white/5 text-white' : 'border-slate-200 bg-slate-50 text-slate-700'
+          }`}
+      >
         <Icons.ChevronRight className="w-5 h-5 rotate-180" />
       </button>
     );
 
     const bellBtn = (
-      <button className="w-12 h-12 border border-white/10 bg-white/5 flex items-center justify-center relative active:scale-95 transition-all outline-none rounded-xl">
-        <Icons.Bell className="w-5 h-5 text-white" />
+      <button className={`w-12 h-12 border flex items-center justify-center relative active:scale-95 transition-all outline-none rounded-xl ${isDarkMode ? 'border-white/10 bg-white/5 text-white' : 'border-slate-200 bg-slate-50 text-slate-700'
+        }`}>
+        <Icons.Bell className="w-5 h-5" />
         <div className="absolute top-3.5 right-3.5 w-1.5 h-1.5 bg-red-600 shadow-[0_0_10px_#DC2626]"></div>
       </button>
     );
@@ -105,18 +108,21 @@ const AppLayout: React.FC<{
   }, [location.pathname, navigate]);
 
   return (
-    <div className="min-h-screen flex flex-col relative transition-colors duration-500 font-sans" style={{ background: isDarkMode ? 'var(--pg-bg-dark)' : 'var(--pg-bg-light)' }}>
-      {showHeader && <Header {...headerProps} isDarkMode={isDarkMode} onToggleTheme={toggleTheme} />}
+    <div className="min-h-screen flex flex-col relative transition-colors duration-500 font-sans bg-app">
+      {showHeader && (
+        <Header
+          {...headerProps}
+          user={user || undefined}
+          isDarkMode={isDarkMode}
+          onToggleTheme={toggleTheme}
+          onGoProfile={() => navigate('/profile')}
+        />
+      )}
 
-      <main className={`flex-1 overflow-y-auto no-scrollbar transition-all duration-300 ${showNav ? 'pb-24' : ''}`}>
+      <main className={`flex-1 overflow-y-auto no-scrollbar transition-all duration-300 ${showHeader ? 'pt-20' : ''} ${showNav ? 'pb-24' : ''}`}>
         <div className="max-w-[480px] md:max-w-2xl lg:max-w-4xl mx-auto px-0 pt-0">
-          {/* pt-0 because StudentHub handles its own padding/header, others might need standard padding if they relied on pt-28. 
-               We need to check if removing pt-28 breaks other views. 
-               Other views used standard header which is fixed. 
-               If I remove pt-28 globally, other views might go under the header.
-           */}
-          <div className={showHeader ? 'pt-28' : ''}>
-            <div key={location.pathname} className="animate-slide-up">
+          <div key={location.pathname} className="animate-slide-up">
+            <Suspense fallback={<PageLoader />}>
               <Routes>
                 <Route path="/login" element={user ? <Navigate to="/home" /> : <Login onLogin={async () => { }} isDarkMode={isDarkMode} onToggleTheme={toggleTheme} />} />
 
@@ -134,7 +140,7 @@ const AppLayout: React.FC<{
 
                     {/* Active Session & Management */}
                     <Route path="/session" element={<ActiveSession user={user} executor={user} onFinish={() => navigate('/home')} />} />
-                    <Route path="/management" element={<Management user={user} onEditProtocol={() => navigate('/protocol-edit')} onStartAssessment={(s) => { setSelectedStudent(s); navigate('/assessment'); }} onStartCycle={(s) => { setSelectedStudent(s); navigate('/cycle-builder'); }} />} />
+                    <Route path="/management" element={<Management user={user} onEditProtocol={() => navigate('/protocol-edit')} onStartAssessment={(s) => { setSelectedStudent(s); navigate('/assessment'); }} onStartCycle={(s) => { setSelectedStudent(s); navigate('/cycle-builder'); }} onRegisterStaff={onRegisterStaff} onToggleRole={onToggleRole} />} />
 
                     {/* Management Sub-routes */}
                     <Route path="/protocol-edit" element={<ProtocolEditor protocol={undefined} onBack={() => navigate('/management')} onSave={async () => navigate('/management')} />} />
@@ -160,7 +166,7 @@ const AppLayout: React.FC<{
                   <Route path="*" element={<Navigate to="/login" />} />
                 )}
               </Routes>
-            </div>
+            </Suspense>
           </div>
         </div>
       </main>
@@ -168,9 +174,10 @@ const AppLayout: React.FC<{
       {showNav && user && (
         <Navigation
           role={user.role}
+          isDarkMode={isDarkMode}
         />
       )}
-    </div>
+    </div >
   );
 };
 
@@ -247,20 +254,22 @@ const AuthShell: React.FC<{ isDarkMode: boolean; toggleTheme: () => void }> = ({
   };
 
   return (
-    <Routes>
-      {/* Public routes */}
-      <Route path="/login" element={user ? <Navigate to="/home" /> : <Login onLogin={handleLogin} onGoogleLogin={handleGoogleLogin} onRegister={() => navigate('/register')} isDarkMode={isDarkMode} onToggleTheme={toggleTheme} />} />
-      <Route path="/register" element={user ? <Navigate to="/home" /> : <RegisterFlow onRegister={handleRegister} onBack={() => navigate('/login')} isDarkMode={isDarkMode} />} />
+    <Suspense fallback={<PageLoader />}>
+      <Routes>
+        {/* Public routes */}
+        <Route path="/login" element={user ? <Navigate to="/home" /> : <Login onLogin={handleLogin} onGoogleLogin={handleGoogleLogin} onRegister={() => navigate('/register')} isDarkMode={isDarkMode} onToggleTheme={toggleTheme} />} />
+        <Route path="/register" element={user ? <Navigate to="/home" /> : <RegisterFlow onRegister={handleRegister} onBack={() => navigate('/login')} isDarkMode={isDarkMode} />} />
 
-      {/* CheckIn (accessible when logged in) */}
-      <Route path="/checkin" element={<CheckIn userId={user?.id || ''} userName={user?.name || ''} onSuccess={handleCheckInSuccess} onCancel={() => navigate('/home')} />} />
+        {/* CheckIn (accessible when logged in) */}
+        <Route path="/checkin" element={<CheckIn userId={user?.id || ''} userName={user?.name || ''} onSuccess={handleCheckInSuccess} onCancel={() => navigate('/home')} />} />
 
-      {/* Edit Profile */}
-      <Route path="/edit-profile" element={user ? <EditProfile user={user} onBack={() => navigate('/profile')} onUpdated={(u) => { updateLocalUser(u); navigate('/profile'); }} /> : <Navigate to="/login" />} />
+        {/* Edit Profile */}
+        <Route path="/edit-profile" element={user ? <EditProfile user={user} onBack={() => navigate('/profile')} onUpdated={(u) => { updateLocalUser(u); navigate('/profile'); }} /> : <Navigate to="/login" />} />
 
-      {/* All other routes via AppLayout */}
-      <Route path="/*" element={<AppLayout user={user} onLogout={handleLogout} onUpdateUser={updateLocalUser} isDarkMode={isDarkMode} toggleTheme={toggleTheme} />} />
-    </Routes>
+        {/* All other routes via AppLayout */}
+        <Route path="/*" element={<AppLayout user={user} onLogout={handleLogout} onUpdateUser={updateLocalUser} onToggleRole={toggleUserRole} onRegisterStaff={async (data) => { if (data.email) await createUserDoc('staff_' + Date.now(), data as User); }} isDarkMode={isDarkMode} toggleTheme={toggleTheme} />} />
+      </Routes>
+    </Suspense>
   );
 };
 

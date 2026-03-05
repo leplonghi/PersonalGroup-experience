@@ -146,15 +146,15 @@ const ActiveSession: React.FC<ActiveSessionProps> = ({ user, executor, onFinish 
   };
 
   return (
-    <div className="min-h-screen bg-app flex flex-col transition-colors duration-500 grain-overlay relative font-sans">
+    <div className="flex flex-col transition-colors duration-500 relative font-sans">
       <div className="precision-bg absolute inset-0 z-0 opacity-40"></div>
 
       {/* 2. MAIN SCROLLABLE CONTENT */}
-      <main className="flex-1 px-6 pt-4 pb-56 overflow-y-auto no-scrollbar relative z-10 w-full max-w-lg mx-auto">
+      <main className="flex-1 px-6 pt-4 pb-48 relative z-10 w-full max-w-lg mx-auto overflow-y-auto no-scrollbar">
         {isLoading ? (
           <div className="h-full flex flex-col items-center justify-center space-y-4 pt-20">
-            <div className="w-12 h-12 border-4 border-pg-cobalt border-t-transparent rounded-full animate-spin"></div>
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em]">Carregando seu plano...</p>
+            <div className="w-12 h-12 border-4 border-cobalt border-t-transparent rounded-full animate-spin"></div>
+            <p className="text-xs font-black text-slate-800 dark:text-slate-400 uppercase tracking-[0.4em]">Carregando seu plano...</p>
           </div>
         ) : (
           <div className="space-y-12">
@@ -164,7 +164,7 @@ const ActiveSession: React.FC<ActiveSessionProps> = ({ user, executor, onFinish 
               {Array.from({ length: currentExercise.sets }).map((_, i) => (
                 <div
                   key={i}
-                  className={`flex-1 rounded-full transition-all duration-700 ${i + 1 < currentSet ? 'bg-pg-cobalt shadow-[0_0_10px_var(--pg-cobalt)]' :
+                  className={`flex-1 rounded-full transition-all duration-700 ${i + 1 < currentSet ? 'bg-cobalt shadow-[0_0_10px_var(--pg-accent)]' :
                     i + 1 === currentSet ? 'bg-slate-900 dark:bg-white shadow-xl' : 'bg-slate-200 dark:bg-white/10'
                     }`}
                 />
@@ -172,8 +172,8 @@ const ActiveSession: React.FC<ActiveSessionProps> = ({ user, executor, onFinish 
             </div>
 
             {/* VISUAL IMAGE CARD - PRECISION CUT */}
-            <div className="relative w-full aspect-[4/5] border border-white/10 overflow-hidden group shadow-2xl rounded-pg-premium bg-pg-titanium">
-              <div className="absolute inset-0 z-10 pointer-events-none border-[1px] border-white/10 rounded-pg-premium"></div>
+            <div className="relative w-full aspect-[4/5] border border-white/10 overflow-hidden group shadow-2xl rounded-sm bg-card">
+              <div className="absolute inset-0 z-10 pointer-events-none border-[1px] border-white/10 rounded-sm"></div>
 
               {/* VIDEO OVERLAY */}
               {!showingVideo ? (
@@ -203,8 +203,8 @@ const ActiveSession: React.FC<ActiveSessionProps> = ({ user, executor, onFinish 
                         </div>
                       </div>
 
-                      <div className="w-20 h-20 border border-pg-cobalt bg-midnight/80 flex flex-col items-center justify-center shadow-[0_0_40px_rgba(37,99,235,0.3)] rounded-lg backdrop-blur-sm">
-                        <span className="text-[10px] font-bold uppercase text-pg-cobalt mb-0.5 tracking-wider">Série</span>
+                      <div className="w-20 h-20 border border-cobalt bg-midnight/80 flex flex-col items-center justify-center shadow-[0_0_40px_rgba(37,99,235,0.3)] rounded-lg backdrop-blur-sm">
+                        <span className="text-xs font-bold uppercase text-cobalt mb-0.5 tracking-wider">Série</span>
                         <span className="text-4xl font-bold tracking-tight text-white leading-none font-display">{currentSet}</span>
                       </div>
                     </div>
@@ -230,7 +230,7 @@ const ActiveSession: React.FC<ActiveSessionProps> = ({ user, executor, onFinish 
             </div>
 
             {/* PERFORMANCE CONTROLS - OBSIDIAN HUD */}
-            <div className="glass-panel p-8 space-y-16 border-slate-200 dark:border-white/5 rounded-pg-premium">
+            <div className="glass-panel p-8 space-y-16 border-slate-200 dark:border-white/5 rounded-sm">
 
               {/* TRACKING MODE TOGGLE */}
               <div className="flex border border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-ocean/40 rounded-lg overflow-hidden p-1">
@@ -239,14 +239,14 @@ const ActiveSession: React.FC<ActiveSessionProps> = ({ user, executor, onFinish 
                   className={`flex-1 py-4 text-xs font-bold uppercase tracking-widest transition-all relative rounded-md ${trackingMode === 'REPS' ? 'text-white bg-slate-900 dark:bg-white/10' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'}`}
                 >
                   Peso e Repetições
-                  {trackingMode === 'REPS' && <div className="absolute bottom-1 w-1 h-1 bg-pg-cobalt rounded-full left-1/2 -translate-x-1/2 shadow-[0_0_10px_#2563EB]"></div>}
+                  {trackingMode === 'REPS' && <div className="absolute bottom-1 w-1 h-1 bg-cobalt rounded-full left-1/2 -translate-x-1/2 shadow-[0_0_10px_#2563EB]"></div>}
                 </button>
                 <button
                   onClick={() => { triggerHaptic(5); setTrackingMode('TIME'); }}
                   className={`flex-1 py-4 text-xs font-bold uppercase tracking-widest transition-all relative rounded-md ${trackingMode === 'TIME' ? 'text-white bg-slate-900 dark:bg-white/10' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'}`}
                 >
                   Peso e Tempo
-                  {trackingMode === 'TIME' && <div className="absolute bottom-1 w-1 h-1 bg-pg-cobalt rounded-full left-1/2 -translate-x-1/2 shadow-[0_0_10px_#2563EB]"></div>}
+                  {trackingMode === 'TIME' && <div className="absolute bottom-1 w-1 h-1 bg-cobalt rounded-full left-1/2 -translate-x-1/2 shadow-[0_0_10px_#2563EB]"></div>}
                 </button>
               </div>
 
@@ -255,14 +255,14 @@ const ActiveSession: React.FC<ActiveSessionProps> = ({ user, executor, onFinish 
                 <div className="space-y-8">
                   <div className="flex justify-between items-end px-2">
                     <div className="flex flex-col">
-                      <span className="text-xs font-bold text-slate-400 uppercase tracking-widest leading-none mb-2">Peso</span>
-                      <span className="text-[10px] font-bold text-pg-cobalt uppercase tracking-wider leading-none">
+                      <span className="text-xs font-bold text-slate-800 dark:text-slate-400 uppercase tracking-widest leading-none mb-2">Peso</span>
+                      <span className="text-xs font-bold text-cobalt uppercase tracking-wider leading-none">
                         Última: {Math.max(10, weight - 5)}kg (12 Abr)
                       </span>
                     </div>
                     <div className="flex items-baseline space-x-2">
                       <h4 className="text-7xl font-bold text-slate-900 dark:text-white tracking-tighter tabular-nums leading-none font-display">{weight}</h4>
-                      <span className="text-lg font-bold text-pg-cobalt uppercase">KG</span>
+                      <span className="text-lg font-bold text-cobalt uppercase">KG</span>
                     </div>
                   </div>
                   <div className="flex items-center space-x-4">
@@ -277,7 +277,7 @@ const ActiveSession: React.FC<ActiveSessionProps> = ({ user, executor, onFinish 
                         type="range" min="0" max="400" step="1"
                         value={weight}
                         onChange={e => { triggerHaptic(5); setWeight(parseInt(e.target.value)); }}
-                        className="w-full h-2 bg-slate-200 dark:bg-white/10 rounded-full appearance-none accent-pg-cobalt cursor-pointer"
+                        className="w-full h-2 bg-slate-200 dark:bg-white/10 rounded-full appearance-none accent-cobalt cursor-pointer"
                       />
                     </div>
                     <button
@@ -293,14 +293,14 @@ const ActiveSession: React.FC<ActiveSessionProps> = ({ user, executor, onFinish 
                 <div className="space-y-8">
                   <div className="flex justify-between items-end px-2">
                     <div className="flex flex-col">
-                      <span className="text-xs font-bold text-slate-400 uppercase tracking-widest leading-none mb-2">
+                      <span className="text-xs font-bold text-slate-800 dark:text-slate-400 uppercase tracking-widest leading-none mb-2">
                         {trackingMode === 'REPS' ? 'Repetições' : 'Duração (seg)'}
                       </span>
-                      <span className="text-[10px] font-bold text-pg-cobalt uppercase tracking-wider leading-none">Total</span>
+                      <span className="text-xs font-bold text-cobalt uppercase tracking-wider leading-none">Total</span>
                     </div>
                     <div className="flex items-baseline space-x-2">
                       <h4 className="text-7xl font-bold text-slate-900 dark:text-white tracking-tighter tabular-nums leading-none font-display">{volumeValue}</h4>
-                      <span className="text-lg font-bold text-pg-cobalt uppercase">{trackingMode === 'REPS' ? 'Reps' : 'Segs'}</span>
+                      <span className="text-lg font-bold text-cobalt uppercase">{trackingMode === 'REPS' ? 'Reps' : 'Segs'}</span>
                     </div>
                   </div>
                   <div className="flex items-center space-x-4">
@@ -315,7 +315,7 @@ const ActiveSession: React.FC<ActiveSessionProps> = ({ user, executor, onFinish 
                         type="range" min="1" max={trackingMode === 'REPS' ? 100 : 300} step="1"
                         value={volumeValue}
                         onChange={e => { triggerHaptic(5); setVolumeValue(parseInt(e.target.value)); }}
-                        className="w-full h-2 bg-slate-200 dark:bg-white/10 rounded-full appearance-none accent-pg-cobalt cursor-pointer"
+                        className="w-full h-2 bg-slate-200 dark:bg-white/10 rounded-full appearance-none accent-cobalt cursor-pointer"
                       />
                     </div>
                     <button
@@ -331,8 +331,8 @@ const ActiveSession: React.FC<ActiveSessionProps> = ({ user, executor, onFinish 
                 <div className="pt-12 border-t border-slate-200 dark:border-white/5">
                   <div className="flex justify-between items-center mb-10">
                     <div className="flex flex-col">
-                      <span className="text-xs font-bold text-slate-400 uppercase tracking-widest leading-none mb-2">Esforço</span>
-                      <span className="text-[10px] font-bold text-pg-cobalt uppercase tracking-wider leading-none">Nível (1-10)</span>
+                      <span className="text-xs font-bold text-slate-800 dark:text-slate-400 uppercase tracking-widest leading-none mb-2">Esforço</span>
+                      <span className="text-xs font-bold text-cobalt uppercase tracking-wider leading-none">Nível (1-10)</span>
                     </div>
                     <span className={`text-6xl font-bold tracking-tight tabular-nums font-display ${getRPEColor(rpe)}`}>{rpe}</span>
                   </div>
@@ -340,14 +340,14 @@ const ActiveSession: React.FC<ActiveSessionProps> = ({ user, executor, onFinish 
                     type="range" min="1" max="10"
                     value={rpe}
                     onChange={e => { triggerHaptic(5); setRpe(parseInt(e.target.value) as RPEValue); }}
-                    className="w-full h-3 bg-slate-200 dark:bg-white/10 rounded-full appearance-none accent-pg-cobalt cursor-pointer mb-6"
+                    className="w-full h-3 bg-slate-200 dark:bg-white/10 rounded-full appearance-none accent-cobalt cursor-pointer mb-6"
                   />
                   <div className="flex justify-between px-1">
                     {[...Array(10)].map((_, i) => (
                       <div
                         key={i}
                         className={`w-1.5 h-6 rounded-full transition-all duration-500 ${i + 1 <= rpe
-                          ? (i + 1 > 8 ? 'bg-red-600 shadow-[0_0_10px_#DC2626]' : i + 1 > 5 ? 'bg-cyan-500 shadow-[0_0_10px_#06b6d4]' : 'bg-pg-cobalt shadow-[0_0_10px_#2563EB]')
+                          ? (i + 1 > 8 ? 'bg-red-600 shadow-[0_0_10px_#DC2626]' : i + 1 > 5 ? 'bg-cyan-500 shadow-[0_0_10px_#06b6d4]' : 'bg-cobalt shadow-[0_0_10px_#2563EB]')
                           : 'bg-slate-200 dark:bg-white/5'
                           }`}
                       />
@@ -361,11 +361,11 @@ const ActiveSession: React.FC<ActiveSessionProps> = ({ user, executor, onFinish 
       </main>
 
       {/* 3. STICKY FOOTER */}
-      <footer className="fixed bottom-0 left-0 right-0 p-6 glass-panel border-t border-slate-200 dark:border-white/5 z-[120] shadow-2xl safe-pb">
+      <footer className="fixed bottom-24 left-0 right-0 p-6 glass-panel border-t border-slate-200 dark:border-white/5 z-[100] shadow-2xl safe-pb">
         <div className="max-w-lg mx-auto">
           <button
             onClick={handleLogSet}
-            className="w-full h-16 bg-pg-cobalt text-white font-bold text-sm uppercase tracking-[0.3em] transition-all relative overflow-hidden group/finish shadow-[0_0_30px_rgba(37,99,235,0.4)] rounded-pg-sharp active:scale-[0.98]"
+            className="w-full h-16 bg-cobalt text-white font-bold text-sm uppercase tracking-[0.3em] transition-all relative overflow-hidden group/finish shadow-[0_0_30px_rgba(37,99,235,0.4)] rounded-none active:scale-[0.98]"
           >
             <div className="absolute inset-0 bg-white translate-x-[-101%] group-hover/finish:translate-x-0 transition-transform duration-700 mix-blend-difference"></div>
             <div className="flex items-center justify-center space-x-4 relative z-10">
@@ -386,7 +386,7 @@ const ActiveSession: React.FC<ActiveSessionProps> = ({ user, executor, onFinish 
               <circle cx="160" cy="160" r="156" stroke="currentColor" strokeWidth="2" fill="transparent" className="text-white/5" />
               <circle
                 cx="160" cy="160" r="156" stroke="currentColor" strokeWidth="6" fill="transparent"
-                className="text-pg-cobalt shadow-[0_0_30px_#2563EB] transition-all duration-1000 ease-linear"
+                className="text-cobalt shadow-[0_0_30px_#2563EB] transition-all duration-1000 ease-linear"
                 strokeDasharray={980}
                 strokeDashoffset={980 - (980 * restTime) / 60}
                 strokeLinecap="round"
@@ -394,13 +394,13 @@ const ActiveSession: React.FC<ActiveSessionProps> = ({ user, executor, onFinish 
             </svg>
             <div className="flex flex-col items-center">
               <span className="text-9xl font-bold tabular-nums text-white leading-none tracking-tighter">{restTime}</span>
-              <span className="text-xs font-bold text-pg-cobalt uppercase tracking-[0.5em] mt-2 bg-midnight/50 px-4 py-1 rounded-full border border-pg-cobalt/30">Intervalo</span>
+              <span className="text-xs font-bold text-cobalt uppercase tracking-[0.5em] mt-2 bg-midnight/50 px-4 py-1 rounded-full border border-cobalt/30">Intervalo</span>
             </div>
           </div>
 
           <button
             onClick={() => { triggerHaptic(10); setIsResting(false); }}
-            className="relative z-10 w-full max-w-xs py-5 border border-white/20 bg-white/5 text-xs font-bold uppercase tracking-[0.3em] text-white hover:bg-white/10 transition-all shadow-xl rounded-pg-sharp active:scale-95"
+            className="relative z-10 w-full max-w-xs py-5 border border-white/20 bg-white/5 text-xs font-bold uppercase tracking-[0.3em] text-white hover:bg-white/10 transition-all shadow-xl rounded-none active:scale-95"
           >
             Pular Intervalo
           </button>
@@ -412,12 +412,12 @@ const ActiveSession: React.FC<ActiveSessionProps> = ({ user, executor, onFinish 
         <div className="fixed inset-0 z-[300] bg-midnight flex flex-col items-center justify-center p-8 animate-in slide-in-from-bottom-full duration-700">
           <div className="precision-bg absolute inset-0 z-0 opacity-40"></div>
 
-          <div className="w-40 h-40 border border-pg-cobalt/30 bg-pg-cobalt/10 rounded-full flex items-center justify-center mb-12 shadow-[0_0_60px_rgba(37,99,235,0.2)] relative z-10 animate-bounce">
-            <Icons.Shield className="w-20 h-20 text-pg-cobalt drop-shadow-[0_0_15px_rgba(37,99,235,0.8)]" />
+          <div className="w-40 h-40 border border-cobalt/30 bg-cobalt/10 rounded-full flex items-center justify-center mb-12 shadow-[0_0_60px_rgba(37,99,235,0.2)] relative z-10 animate-bounce">
+            <Icons.Shield className="w-20 h-20 text-cobalt drop-shadow-[0_0_15px_rgba(37,99,235,0.8)]" />
           </div>
 
           <h3 className="relative z-10 text-5xl md:text-6xl font-bold text-white mb-8 tracking-tighter text-center leading-none uppercase font-display">
-            Treino<br /><span className="text-transparent bg-clip-text bg-gradient-to-r from-pg-cobalt to-pg-laser">Finalizado</span>
+            Treino<br /><span className="text-transparent bg-clip-text bg-gradient-to-r from-cobalt to-laser">Finalizado</span>
           </h3>
 
           <p className="relative z-10 text-slate-400 text-sm text-center mb-24 max-w-xs font-medium uppercase tracking-widest leading-relaxed">
@@ -426,7 +426,7 @@ const ActiveSession: React.FC<ActiveSessionProps> = ({ user, executor, onFinish 
 
           <button
             onClick={handleFinishSession}
-            className="relative z-10 w-full max-w-sm h-16 bg-pg-cobalt text-white font-bold text-sm uppercase tracking-[0.4em] transition-all hover:bg-blue-600 shadow-2xl rounded-pg-sharp active:scale-[0.98]"
+            className="relative z-10 w-full max-w-sm h-16 bg-cobalt text-white font-bold text-sm uppercase tracking-[0.4em] transition-all hover:bg-blue-600 shadow-2xl rounded-none active:scale-[0.98]"
           >
             Salvar e Sair
           </button>

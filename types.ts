@@ -111,6 +111,16 @@ export interface User {
     impact: string;
     isBlocking: boolean;
   } | null;
+
+  // Security & Integration
+  biometricEnabled?: boolean;
+  biometricCredentialId?: string;
+  connectedDevices?: string[]; // ['APPLE_WATCH', 'MI_BAND', 'GARMIN']
+  onboardingStepsCompleted?: string[];
+
+  // Flex System (for Personal/Staff)
+  personalFlexStatus?: 'ACTIVE' | 'INACTIVE';
+  flexCapabilities?: FlexCapability[];
 }
 
 // --- New Interfaces (Etapas 2-5) ---
@@ -282,4 +292,27 @@ export interface SessionLog {
   value: number; // Renamed from reps to value to support time/reps
   mode: 'REPS' | 'TIME';
   rpe: number;
+}
+
+export interface Amenity {
+  id: string;
+  icon: string;
+  title: string;
+  description: string;
+  isAvailable: boolean;
+}
+
+export interface FlexCapability {
+  id: string;
+  name: string;
+  level: number; // 1-5
+  lastAssessment: string;
+  history: { date: string; level: number }[];
+}
+
+export interface OnboardingStep {
+  id: string;
+  title: string;
+  description: string;
+  isCompleted: boolean;
 }

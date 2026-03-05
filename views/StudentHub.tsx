@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { User } from '../types';
+import { User, UserRole } from '../types';
 import { Icons } from '../constants';
 import { gymSchedule, availableTrainers, assessmentHistory } from '../data/scheduleData';
 import ActivityCard from '../components/dashboard/ActivityCard';
@@ -25,25 +25,22 @@ const StudentHub: React.FC<StudentHubProps> = ({ user, onLogout, onNavigateTo })
             {/* Background Effects */}
             <div className="absolute inset-0 z-0 opacity-40 pointer-events-none"></div>
 
-            {/* Header */}
-            <header className="relative z-10 px-6 pt-6 pb-8 bg-deep-blue shadow-lg">
+            {/* Greeting Section (Integrated) */}
+            <div className="relative z-10 px-6 pt-2 pb-6">
                 <div className="flex justify-between items-center mb-6">
                     <div className="flex items-center space-x-4">
                         <div className="w-12 h-12 border border-white/10 rounded-full overflow-hidden relative shadow-[0_0_15px_rgba(37,99,235,0.3)]">
                             <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
                         </div>
                         <div>
-                            <h2 className="text-xl font-bold text-white uppercase tracking-tight leading-none">
+                            <h2 className="text-xl font-bold text-slate-900 dark:text-white uppercase tracking-tight leading-none">
                                 Olá, {user.name.split(' ')[0]}
                             </h2>
-                            <p className="text-[9px] font-bold text-blue-400 uppercase tracking-[0.2em] mt-1">
-                                Membro Exclusive
+                            <p className="text-xs font-black text-blue-900 dark:text-blue-400 uppercase tracking-[0.15em] mt-2">
+                                {user.role === UserRole.CHEFE || user.role === UserRole.ADMIN ? 'Gestão Exclusive' : 'Membro Exclusive'}
                             </p>
                         </div>
                     </div>
-                    <button onClick={onLogout} className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-white transition-colors">
-                        <Icons.X className="w-5 h-5" />
-                    </button>
                 </div>
 
                 {/* Quick Stats Grid */}
@@ -64,7 +61,7 @@ const StudentHub: React.FC<StudentHubProps> = ({ user, onLogout, onNavigateTo })
                         color="blue"
                     />
                 </div>
-            </header>
+            </div>
 
             {/* Main Content Area */}
             <div className="relative z-10 px-6 space-y-8 flex-1 overflow-y-auto no-scrollbar">
@@ -78,7 +75,7 @@ const StudentHub: React.FC<StudentHubProps> = ({ user, onLogout, onNavigateTo })
                         <div className="relative z-10 flex justify-between items-center">
                             <div>
                                 <h3 className="text-lg font-bold text-white uppercase tracking-wide">Wellness Day</h3>
-                                <p className="text-[10px] text-blue-100/70 uppercase tracking-widest mt-1">
+                                <p className="text-xs text-blue-950 dark:text-blue-100/70 uppercase tracking-widest mt-1 font-bold">
                                     Agende sua recuperação
                                 </p>
                             </div>
@@ -93,8 +90,8 @@ const StudentHub: React.FC<StudentHubProps> = ({ user, onLogout, onNavigateTo })
                 {/* Today's Schedule */}
                 <section className="space-y-4">
                     <div className="flex items-center justify-between">
-                        <h3 className="text-sm font-bold text-slate-500 uppercase tracking-[0.2em]">Agenda Hoje</h3>
-                        <span className="text-[9px] font-bold text-blue-500 uppercase tracking-widest cursor-pointer hover:text-white">Ver Tudo</span>
+                        <h3 className="text-xs font-black text-slate-800 dark:text-slate-400 uppercase tracking-[0.2em]">Agenda Hoje</h3>
+                        <span className="text-xs font-black text-blue-900 dark:text-blue-400 uppercase tracking-widest cursor-pointer hover:text-blue-600">Ver Tudo</span>
                     </div>
                     <div className="space-y-3">
                         {gymSchedule.slice(0, 2).map(session => (
@@ -106,10 +103,10 @@ const StudentHub: React.FC<StudentHubProps> = ({ user, onLogout, onNavigateTo })
                 {/* Trainers Available */}
                 <section className="space-y-4">
                     <div className="flex items-center justify-between">
-                        <h3 className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em]">Personal Trainers</h3>
+                        <h3 className="text-xs font-black text-slate-800 dark:text-slate-400 uppercase tracking-[0.2em]">Personal Trainers</h3>
                         <div className="flex items-center space-x-1">
                             <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                            <span className="text-[9px] font-bold text-green-500 uppercase tracking-widest">Ao Vivo</span>
+                            <span className="text-xs font-black text-green-800 dark:text-green-500 uppercase tracking-widest">Ao Vivo</span>
                         </div>
                     </div>
                     <div className="space-y-3">
@@ -120,18 +117,29 @@ const StudentHub: React.FC<StudentHubProps> = ({ user, onLogout, onNavigateTo })
                 </section>
 
                 {/* Reports & Docs */}
-                <section className="space-y-4 pb-10">
-                    <h3 className="text-sm font-bold text-slate-500 uppercase tracking-[0.2em]">Meus Relatórios</h3>
+                <section className="space-y-4">
+                    <h3 className="text-xs font-black text-slate-700 dark:text-slate-400 uppercase tracking-[0.2em]">Meus Relatórios</h3>
                     <div className="grid grid-cols-2 gap-3">
-                        <div className="glass-panel p-4 flex flex-col items-center justify-center gap-3 hover:bg-white/5 transition-colors cursor-pointer">
-                            <Icons.ClipboardCheck className="w-8 h-8 text-blue-500/80" />
-                            <span className="text-[9px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-widest text-center">Avaliações Físicas</span>
+                        <div className="glass-panel p-4 flex flex-col items-center justify-center gap-3 hover:bg-white/5 transition-colors cursor-pointer rounded-xl border border-white/10 shadow-sm">
+                            <Icons.ClipboardCheck className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+                            <span className="text-[10px] font-black text-slate-800 dark:text-slate-400 uppercase tracking-widest text-center">Avaliações Físicas</span>
                         </div>
-                        <div className="glass-panel p-4 flex flex-col items-center justify-center gap-3 hover:bg-white/5 transition-colors cursor-pointer">
-                            <Icons.FileText className="w-8 h-8 text-blue-500/80" />
-                            <span className="text-[9px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-widest text-center">Planos de Treino</span>
+                        <div className="glass-panel p-4 flex flex-col items-center justify-center gap-3 hover:bg-white/5 transition-colors cursor-pointer rounded-xl border border-white/10 shadow-sm">
+                            <Icons.FileText className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+                            <span className="text-[10px] font-black text-slate-800 dark:text-slate-400 uppercase tracking-widest text-center">Planos de Treino</span>
                         </div>
                     </div>
+                </section>
+
+                {/* Logout Section */}
+                <section className="pb-24">
+                    <button
+                        onClick={onLogout}
+                        className="w-full py-4 bg-white dark:bg-white/5 border border-red-500/40 text-red-700 dark:text-red-500 font-black text-xs uppercase tracking-[0.4em] rounded-xl hover:bg-red-500/10 transition-all active:scale-[0.98] flex items-center justify-center space-x-3"
+                    >
+                        <Icons.X className="w-4 h-4" />
+                        <span>Encerrar Sessão</span>
+                    </button>
                 </section>
             </div>
         </div>

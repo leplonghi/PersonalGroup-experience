@@ -66,22 +66,22 @@ const Profile: React.FC<ProfileProps> = ({ user, onLogout, onUpdateUser, onGoTim
   const guestPasses = { available: user.guestPassesAvailable ?? 1, used: user.guestPassesUsed || [] };
 
   return (
-    <div className="min-h-screen bg-app flex flex-col transition-colors duration-500 grain-overlay relative p-8 pb-48">
+    <div className="flex flex-col transition-colors duration-500 relative p-8 pb-32">
       <div className="precision-bg absolute inset-0 z-0 opacity-40"></div>
 
       <header className="relative z-10 flex flex-col items-center mb-20 pt-4">
 
         <div className="relative mb-10 group">
           {/* Sharp Avatar Border */}
-          <div className="w-40 h-40 border border-white/10 p-1 group-hover:border-blue-500/50 transition-all duration-700 relative">
-            <div className="absolute inset-0 bg-blue-600/5 group-hover:bg-blue-600/10"></div>
-            <div className="w-full h-full overflow-hidden bg-midnight relative z-10">
+          <div className="w-40 h-40 border border-white/10 p-1 group-hover:border-cobalt/50 transition-all duration-700 relative rounded-2xl overflow-hidden">
+            <div className="absolute inset-0 bg-cobalt/5 group-hover:bg-cobalt/10"></div>
+            <div className="w-full h-full overflow-hidden bg-midnight relative z-10 rounded-2xl">
               <img src={user.avatar} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" alt="Avatar" />
             </div>
           </div>
           <button
             onClick={() => setIsEditing(true)}
-            className="absolute -bottom-3 -right-3 w-12 h-12 bg-blue-600 text-white flex items-center justify-center border border-midnight shadow-[0_0_15px_#2563EB] active:scale-90 transition-all z-20 cursor-pointer hover:bg-blue-500"
+            className="absolute -bottom-3 -right-3 w-12 h-12 bg-cobalt text-white flex items-center justify-center border border-midnight shadow-[0_0_15px_rgba(0,182,253,0.5)] active:scale-90 transition-all z-20 cursor-pointer hover:bg-sky rounded-full"
           >
             <Icons.Edit className="w-5 h-5" />
           </button>
@@ -89,9 +89,9 @@ const Profile: React.FC<ProfileProps> = ({ user, onLogout, onUpdateUser, onGoTim
         <h2 className="text-4xl font-bold text-slate-900 dark:text-white tracking-tight leading-none uppercase text-center">{user.name}</h2>
         <div className="flex items-center space-x-3 mt-5">
           <div className="w-2 h-2 bg-blue-600 shadow-[0_0_10px_#2563EB]"></div>
-          <p className="text-[10px] text-blue-500 font-bold uppercase tracking-[0.3em] leading-none">Membro Exclusive Center</p>
+          <p className="text-xs text-blue-900 dark:text-blue-400 font-bold uppercase tracking-[0.3em] leading-none">Membro Exclusive Center</p>
           <div className="w-1 h-1 bg-slate-700"></div>
-          <p className="text-[10px] text-yellow-500 font-bold uppercase tracking-[0.3em] leading-none">LVL {userGamification.level}</p>
+          <p className="text-xs text-amber-600 dark:text-yellow-500 font-bold uppercase tracking-[0.3em] leading-none">LVL {userGamification.level}</p>
         </div>
       </header>
 
@@ -100,15 +100,15 @@ const Profile: React.FC<ProfileProps> = ({ user, onLogout, onUpdateUser, onGoTim
           <div
             key={idx}
             onClick={item.action}
-            className="glass-panel p-8 flex items-center justify-between cursor-pointer active:scale-[0.99] transition-all group border-white/5 hover:bg-white/[0.02]"
+            className="glass-panel p-8 flex items-center justify-between cursor-pointer active:scale-[0.99] transition-all group border-white/5 hover:bg-white/[0.02] rounded-2xl"
           >
             <div className="flex items-center">
-              <div className="w-14 h-14 border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 text-slate-500 flex items-center justify-center mr-6 group-hover:border-blue-600 group-hover:text-blue-500 transition-all">
+              <div className="w-14 h-14 border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 text-slate-500 flex items-center justify-center mr-6 group-hover:border-cobalt group-hover:text-cobalt transition-all rounded-xl">
                 {item.icon}
               </div>
               <div>
                 <p className="text-lg font-bold text-blue-950 dark:text-white tracking-tight uppercase leading-none">{item.label}</p>
-                <p className="text-[9px] text-slate-600 dark:text-slate-400 font-bold uppercase tracking-widest mt-2 leading-none">{item.desc}</p>
+                <p className="text-xs text-slate-700 dark:text-slate-400 font-bold uppercase tracking-widest mt-2 leading-none">{item.desc}</p>
               </div>
             </div>
             <Icons.ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-blue-500 transition-colors" />
@@ -119,7 +119,7 @@ const Profile: React.FC<ProfileProps> = ({ user, onLogout, onUpdateUser, onGoTim
       <section className="relative z-10 space-y-8 mb-20 px-2 text-left">
         <div className="flex items-center space-x-4">
           <div className="w-8 h-[1px] bg-blue-600"></div>
-          <h4 className="text-[10px] font-bold text-blue-900 dark:text-slate-400 uppercase tracking-[0.3em] leading-none">Suporte & Deep Intel</h4>
+          <h4 className="text-xs font-black text-blue-900 dark:text-slate-400 uppercase tracking-[0.3em] leading-none">Suporte & Deep Intel</h4>
         </div>
         <div className="space-y-4">
           {faqs.map((faq, i) => (
@@ -135,7 +135,7 @@ const Profile: React.FC<ProfileProps> = ({ user, onLogout, onUpdateUser, onGoTim
                 <Icons.Plus className={`w-4 h-4 shrink-0 transition-transform duration-700 text-slate-500 ${activeFaq === i ? 'rotate-45 text-blue-500' : ''}`} />
               </button>
               {activeFaq === i && (
-                <div className="p-8 border-t border-white/5 text-[9px] font-bold text-slate-500 dark:text-slate-400 leading-relaxed uppercase tracking-widest animate-in slide-in-from-top-4 duration-500">
+                <div className="p-8 border-t border-white/5 text-xs font-bold text-slate-600 dark:text-slate-400 leading-relaxed uppercase tracking-widest animate-in slide-in-from-top-4 duration-500">
                   {faq.a}
                 </div>
               )}
@@ -146,14 +146,14 @@ const Profile: React.FC<ProfileProps> = ({ user, onLogout, onUpdateUser, onGoTim
 
       <button
         onClick={onLogout}
-        className="relative z-10 w-full h-20 border border-red-900/30 bg-red-950/10 text-red-500 font-bold text-[10px] uppercase tracking-[0.4em] flex items-center justify-center gap-4 active:scale-[0.98] transition-all mb-24 hover:bg-red-950/20"
+        className="relative z-10 w-full h-20 border border-red-900/30 bg-red-950/10 text-red-500 font-black text-xs uppercase tracking-[0.4em] flex items-center justify-center gap-4 active:scale-[0.98] transition-all mb-24 hover:bg-red-950/20 rounded-full"
       >
         Encerrar Sessão Segura
       </button>
 
       <footer className="relative z-10 text-center space-y-12 pt-20 border-t border-white/5">
         <div className="flex justify-center p-2 relative group">
-          <img src="/personalgroup-logo.png" className="h-20 w-auto object-contain filter drop-shadow-[0_0_20px_rgba(37,99,235,0.4)] relative z-10 transition-transform duration-500 group-hover:scale-105" alt="PersonalGroup logo" />
+          <img src="/logo.png" className="h-16 w-auto object-contain filter drop-shadow-[0_0_20px_rgba(0,182,253,0.4)] relative z-10 transition-transform duration-500 group-hover:scale-105" alt="PersonalGroup logo" />
         </div>
         <div className="space-y-6">
           <h4 className="text-xl font-bold text-slate-900 dark:text-white uppercase tracking-[0.3em] leading-none">Personal<span className="text-blue-600">Group</span></h4>
@@ -254,6 +254,27 @@ const Profile: React.FC<ProfileProps> = ({ user, onLogout, onUpdateUser, onGoTim
                   </div>
                 </div>
               ))}
+
+              <div className="flex items-center justify-between p-4 bg-blue-600/10 border border-blue-500/20">
+                <div className="flex items-center space-x-3">
+                  <Icons.User className="w-4 h-4 text-blue-500" />
+                  <span className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">FaceID / Biometria</span>
+                </div>
+                <div className="relative inline-block w-10 h-5 align-middle select-none transition duration-200 ease-in">
+                  <input
+                    type="checkbox"
+                    onChange={(e) => {
+                      onUpdateUser({
+                        ...user,
+                        biometricEnabled: e.target.checked
+                      });
+                    }}
+                    checked={user.biometricEnabled}
+                    className="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer checked:right-0 right-5"
+                  />
+                  <label className="toggle-label block overflow-hidden h-5 rounded-full bg-slate-800 cursor-pointer checked:bg-blue-600"></label>
+                </div>
+              </div>
             </div>
 
             <div className="mt-8 pt-6 border-t border-white/5 text-center">

@@ -22,7 +22,7 @@ const TrainerRow: React.FC<TrainerRowProps> = ({ trainer }) => {
                 <h5 className="text-sm font-bold text-sky-950 dark:text-white uppercase tracking-wider leading-none">
                     {trainer.name}
                 </h5>
-                <p className="text-[9px] text-blue-500 font-bold uppercase tracking-widest mt-1">
+                <p className="text-xs text-blue-600 dark:text-blue-400 font-bold uppercase tracking-widest mt-1">
                     {trainer.specialty}
                 </p>
             </div>
@@ -30,17 +30,17 @@ const TrainerRow: React.FC<TrainerRowProps> = ({ trainer }) => {
             <div className="text-right">
                 {isAvailable ? (
                     <div className="space-y-1">
-                        <span className="text-[8px] font-bold text-slate-600 dark:text-slate-400 block uppercase tracking-widest">Disponível em:</span>
+                        <span className="text-[10px] font-black text-slate-800 dark:text-slate-400 block uppercase tracking-widest">Disponível em:</span>
                         <div className="flex space-x-1 justify-end">
                             {trainer.availableTimes.slice(0, 2).map(time => (
-                                <span key={time} className="bg-blue-600/10 text-blue-500 text-[9px] font-bold px-1.5 py-0.5 rounded-sm border border-blue-600/20">
+                                <span key={time} className="bg-blue-600/10 text-blue-600 dark:text-blue-500 text-xs font-bold px-1.5 py-0.5 rounded-sm border border-blue-600/20">
                                     {time}
                                 </span>
                             ))}
                         </div>
                     </div>
                 ) : (
-                    <span className="text-[9px] font-bold text-red-500 uppercase tracking-widest bg-red-500/10 px-2 py-1 rounded-sm border border-red-500/20">
+                    <span className="text-xs font-black text-red-700 dark:text-red-500 uppercase tracking-widest bg-red-500/10 px-2 py-1 rounded-sm border border-red-500/20">
                         Ocupado
                     </span>
                 )}

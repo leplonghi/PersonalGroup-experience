@@ -30,16 +30,16 @@ const FrequencyTracker: React.FC<FrequencyTrackerProps> = ({ user }) => {
     const isBehind = missed >= 2;
 
     return (
-        <div className="rounded-xl border border-white/10 bg-white/5 p-4 space-y-3">
+        <div className="rounded-xl border border-blue-200/50 dark:border-white/10 bg-white/40 dark:bg-white/5 p-4 space-y-3">
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
                     <Icons.Activity className="w-4 h-4 text-blue-400" />
-                    <span className="text-[10px] font-black text-slate-300 uppercase tracking-[0.25em]">
+                    <span className="text-[11px] font-black text-slate-800 dark:text-slate-300 uppercase tracking-[0.2em]">
                         Frequência Semanal
                     </span>
                 </div>
-                <span className="text-[10px] font-black text-blue-400 tabular-nums">
+                <span className="text-[11px] font-black text-blue-800 dark:text-blue-400 tabular-nums">
                     {completedThisWeek}/{target}
                 </span>
             </div>
@@ -48,8 +48,8 @@ const FrequencyTracker: React.FC<FrequencyTrackerProps> = ({ user }) => {
             <div className="h-2 bg-white/5 rounded-full overflow-hidden">
                 <div
                     className={`h-full rounded-full transition-all duration-700 ${isBehind
-                            ? 'bg-gradient-to-r from-amber-500 to-red-500'
-                            : 'bg-gradient-to-r from-blue-600 to-blue-400'
+                        ? 'bg-gradient-to-r from-amber-500 to-red-500'
+                        : 'bg-gradient-to-r from-blue-600 to-blue-400'
                         }`}
                     style={{ width: `${progressPct}%` }}
                 />
@@ -60,13 +60,13 @@ const FrequencyTracker: React.FC<FrequencyTrackerProps> = ({ user }) => {
                 {Array.from({ length: target }).map((_, i) => (
                     <div
                         key={i}
-                        className={`w-6 h-6 rounded-full flex items-center justify-center text-[8px] font-black transition-all ${i < completedThisWeek
-                                ? 'bg-blue-600 text-white shadow-[0_0_8px_rgba(37,99,235,0.4)]'
-                                : 'bg-white/5 text-slate-500 border border-white/10'
+                        className={`w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-black transition-all ${i < completedThisWeek
+                            ? 'bg-blue-600 text-white shadow-[0_4_12px_rgba(37,99,235,0.3)]'
+                            : 'bg-white/10 dark:bg-white/5 text-slate-600 dark:text-slate-500 border border-blue-100 dark:border-white/10'
                             }`}
                     >
                         {i < completedThisWeek ? (
-                            <Icons.Check className="w-3 h-3" />
+                            <Icons.Check className="w-3.5 h-3.5" />
                         ) : (
                             i + 1
                         )}

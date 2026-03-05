@@ -97,6 +97,36 @@ const Wearables: React.FC<WearablesProps> = ({ user, onBack }) => {
                         <Icons.ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-green-400 transition-colors" />
                     </button>
 
+                    {/* Garmin */}
+                    <button
+                        onClick={() => handleConnect('google' as any)}
+                        className="w-full flex items-center space-x-4 bg-white/5 border border-white/10 rounded-xl p-5 hover:bg-white/10 transition-all group"
+                    >
+                        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-slate-700 to-slate-900 flex items-center justify-center shadow-lg">
+                            <span className="text-2xl">🔘</span>
+                        </div>
+                        <div className="flex-1 text-left">
+                            <p className="text-[11px] font-black text-white uppercase tracking-[0.2em] group-hover:text-slate-300 transition-colors">Garmin Connect</p>
+                            <p className="text-[8px] text-slate-500 mt-0.5">Garmin Watches • Index Scale</p>
+                        </div>
+                        <Icons.ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-slate-400 transition-colors" />
+                    </button>
+
+                    {/* Strava */}
+                    <button
+                        onClick={() => handleConnect('google' as any)}
+                        className="w-full flex items-center space-x-4 bg-white/5 border border-white/10 rounded-xl p-5 hover:bg-white/10 transition-all group"
+                    >
+                        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center shadow-lg">
+                            <span className="text-2xl">🏃</span>
+                        </div>
+                        <div className="flex-1 text-left">
+                            <p className="text-[11px] font-black text-white uppercase tracking-[0.2em] group-hover:text-orange-300 transition-colors">Strava</p>
+                            <p className="text-[8px] text-slate-500 mt-0.5">Record activities • Segments</p>
+                        </div>
+                        <Icons.ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-orange-400 transition-colors" />
+                    </button>
+
                     <p className="text-[8px] text-slate-600 text-center font-bold uppercase tracking-widest">
                         🔒 Seus dados são privados e seguros
                     </p>

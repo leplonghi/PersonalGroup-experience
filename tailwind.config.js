@@ -12,17 +12,17 @@ export default {
     theme: {
         extend: {
             colors: {
-                'deep-blue': '#0c0a47',
-                'midnight': '#0c0a47',
-                'ocean': '#110e63',
-                'cobalt': '#2563EB',
+                'deep-blue': '#0A0F1D', /* Matte deep blue */
+                'midnight': '#0A0F1D',
+                'ocean': '#111827', /* Matte ocean */
+                'cobalt': '#1D4ED8', /* Matte accent */
                 'sky': '#3B82F6',
-                'laser': '#00F2FF',
+                'laser': '#2563EB', /* Replaced neon with solid blue */
                 'ice': '#E0F2FE',
                 'frost': '#F0F9FF',
                 'pg-success': '#10B981',
                 'pg-warning': '#F59E0B',
-                'ice-highlight': '#E0F2FE', // Blue-centric premium accent
+                'ice-highlight': '#E0F2FE',
             },
             fontFamily: {
                 sans: ['Inter', 'sans-serif'],
@@ -30,8 +30,8 @@ export default {
                 sport: ['"Barlow Condensed"', 'sans-serif'],
             },
             borderRadius: {
-                'pg-sharp': '4px',
-                'pg-premium': '12px',
+                'pg-sharp': '0px',
+                'pg-premium': '2px', /* Sharp architecture */
                 'pg-pill': '9999px',
             }
         },

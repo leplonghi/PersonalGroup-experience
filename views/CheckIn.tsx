@@ -70,6 +70,21 @@ const CheckIn: React.FC<CheckInProps> = ({ userId, userName, onSuccess, onCancel
     }
   };
 
+  const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+    const R = 6371e3; // metres
+    const φ1 = lat1 * Math.PI / 180;
+    const φ2 = lat2 * Math.PI / 180;
+    const Δφ = (lat2 - lat1) * Math.PI / 180;
+    const Δλ = (lon2 - lon1) * Math.PI / 180;
+
+    const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+      Math.cos(φ1) * Math.cos(φ2) *
+      Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    return R * c; // in metres
+  };
+
   const handleScanSuccess = async (qrCodeData: string) => {
     if (scannerRef.current) {
       await scannerRef.current.stop();
@@ -78,10 +93,42 @@ const CheckIn: React.FC<CheckInProps> = ({ userId, userName, onSuccess, onCancel
     setStatus('SYNCING');
 
     try {
-      // Allow any QR code for demo, or validate specific format
-      // In real scenario: if (qrCodeData.startsWith('pg_unit_')) ...
-      const gymId = qrCodeData || "unit_default";
+      // 1. GPS Validation (User must be within 100m of the gym)
+      // Gym Coords: Península Jardins (Example correct coords based on address/name context)
+      const gymLatLng = { lat: -2.482015, lng: -44.298132 };
 
+      const getPosition = (): Promise<GeolocationPosition> => {
+        return new Promise((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject, {
+            enableHighAccuracy: true,
+            timeout: 5000,
+            maximumAge: 0
+          });
+        });
+      };
+
+      try {
+        const position = await getPosition();
+        const distance = calculateDistance(
+          position.coords.latitude,
+          position.coords.longitude,
+          gymLatLng.lat,
+          gymLatLng.lng
+        );
+
+        if (distance > 100) {
+          setErrorMsg(`Você está muito longe (${Math.round(distance)}m). Vá até a recepção para confirmar.`);
+          setStatus('ERROR');
+          return;
+        }
+      } catch (geoErr) {
+        console.warn("GPS failed", geoErr);
+        setErrorMsg("Erro de GPS. Por favor, ative a localização e tente novamente.");
+        setStatus('ERROR');
+        return;
+      }
+
+      const gymId = qrCodeData || "unit_default";
       await performCheckIn(userId, gymId);
 
       setStatus('SUCCESS');

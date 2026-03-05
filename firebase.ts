@@ -143,6 +143,15 @@ export const syncUser = async (user: User): Promise<User> => {
   }
 };
 
+export const createUserDoc = async (userId: string, data: Partial<User>): Promise<void> => {
+  const userRef = doc(db, "users", userId);
+  await setDoc(userRef, {
+    ...data,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp()
+  });
+};
+
 export const logSession = async (userId: string, cycleId: string, logs: SessionLog[]) => {
   try {
     const userRef = doc(db, "users", userId);
@@ -511,6 +520,29 @@ export const getStudents = async (): Promise<User[]> => {
   }
 };
 
+export const getStaff = async (): Promise<User[]> => {
+  try {
+    const q = query(usersCol, where("role", "in", [UserRole.PERSONAL, UserRole.CHEFE]));
+    const snap = await getDocs(q);
+    return snap.docs.map(d => ({ id: d.id, ...d.data() } as User));
+  } catch (error) {
+    console.error("Erro getStaff:", error);
+    return [];
+  }
+};
+
+export const toggleUserRole = async (userId: string, currentRole: UserRole): Promise<UserRole> => {
+  const newRole = currentRole === UserRole.PERSONAL ? UserRole.CHEFE : UserRole.PERSONAL;
+  const userRef = doc(db, "users", userId);
+  await updateDoc(userRef, { role: newRole, updatedAt: serverTimestamp() });
+  return newRole;
+};
+
+export const updateStaffFlex = async (staffId: string, data: Partial<User>): Promise<void> => {
+  const userRef = doc(db, "users", staffId);
+  await updateDoc(userRef, { ...data, updatedAt: serverTimestamp() });
+};
+
 export const uploadProfilePhoto = async (userId: string, file: File): Promise<string> => {
   if (!storage) throw new Error("Firebase Storage não inicializado.");
   const photoRef = storageRef(storage, `profile_photos/${userId}/${file.name}`);
@@ -741,5 +773,23 @@ export const sendSegmentedMessage = async (
     })
   );
   await Promise.all(batch);
+};
+
+// --- Biometric & Wearables ---
+
+export const enableBiometrics = async (userId: string, credentialId: string): Promise<void> => {
+  await updateDoc(doc(db, "users", userId), {
+    biometricEnabled: true,
+    biometricCredentialId: credentialId,
+    updatedAt: serverTimestamp()
+  });
+};
+
+export const syncWearable = async (userId: string, device: string, data?: any): Promise<void> => {
+  await updateDoc(doc(db, "users", userId), {
+    connectedDevices: arrayUnion(device),
+    healthData: data, // Generic health data blob
+    updatedAt: serverTimestamp()
+  });
 };
 

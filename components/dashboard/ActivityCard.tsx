@@ -20,7 +20,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ session }) => {
         <div className="glass-panel p-6 border-l-4 border-l-blue-600 relative overflow-hidden group hover:bg-white/[0.02] transition-colors">
             <div className="flex justify-between items-start mb-4">
                 <div>
-                    <span className="text-[10px] font-bold text-blue-600 uppercase tracking-widest block mb-1">
+                    <span className="text-xs font-black text-blue-900 dark:text-blue-400 uppercase tracking-widest block mb-2">
                         {session.time} • {session.duration}
                     </span>
                     <h4 className="text-xl font-bold text-slate-900 uppercase tracking-tight leading-none">
@@ -40,13 +40,13 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ session }) => {
                             {session.instructor.charAt(0)}
                         </div>
                     </div>
-                    <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                    <span className="text-xs font-black text-slate-800 dark:text-slate-400 uppercase tracking-wider">
                         {session.instructor}
                     </span>
                 </div>
 
                 <div className="text-right">
-                    <span className={`text-[10px] font-bold uppercase tracking-widest ${isFull ? 'text-red-500' : 'text-green-500'}`}>
+                    <span className={`text-xs font-black uppercase tracking-widest ${isFull ? 'text-red-700' : 'text-green-800 dark:text-green-500'}`}>
                         {isFull ? 'Lotado' : `${session.capacity - session.enrolled} Vagas`}
                     </span>
                 </div>

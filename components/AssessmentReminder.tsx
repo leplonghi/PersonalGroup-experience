@@ -21,7 +21,7 @@ const AssessmentReminder: React.FC<AssessmentReminderProps> = ({ user, onSchedul
             gradient: 'from-cyan-600/20 to-cyan-900/10',
             border: 'border-cyan-500/30',
             iconColor: 'text-cyan-400',
-            titleColor: 'text-cyan-300',
+            titleColor: 'text-cyan-800 dark:text-cyan-300',
             title: 'Avaliação Física Inicial',
             detail: 'Agende sua primeira avaliação para começar o programa.',
             cta: 'Agendar Avaliação',
@@ -32,7 +32,7 @@ const AssessmentReminder: React.FC<AssessmentReminderProps> = ({ user, onSchedul
                 gradient: 'from-amber-600/20 to-amber-900/10',
                 border: 'border-amber-500/30',
                 iconColor: 'text-amber-400',
-                titleColor: 'text-amber-300',
+                titleColor: 'text-amber-800 dark:text-amber-300',
                 title: 'Reavaliação Necessária',
                 detail: '90 dias desde sua última avaliação. Hora de medir seu progresso!',
                 cta: 'Agendar Reavaliação',
@@ -42,7 +42,7 @@ const AssessmentReminder: React.FC<AssessmentReminderProps> = ({ user, onSchedul
                 gradient: 'from-blue-600/15 to-blue-900/5',
                 border: 'border-blue-500/20',
                 iconColor: 'text-blue-400',
-                titleColor: 'text-blue-300',
+                titleColor: 'text-blue-800 dark:text-blue-300',
                 title: 'PersonalDay 🎉',
                 detail: '45 dias desde sua avaliação! Seu dia exclusivo com consultoria personalizada.',
                 cta: 'Ver Detalhes',
@@ -57,16 +57,16 @@ const AssessmentReminder: React.FC<AssessmentReminderProps> = ({ user, onSchedul
                 </div>
                 <div className="flex-1 min-w-0 space-y-2">
                     <div>
-                        <p className={`text-[10px] font-black uppercase tracking-[0.3em] ${config.titleColor}`}>
+                        <p className={`text-[11px] font-black uppercase tracking-[0.2em] ${config.titleColor}`}>
                             {config.title}
                         </p>
-                        <p className="text-[9px] text-slate-400 mt-0.5 tracking-wide leading-relaxed">
+                        <p className="text-[10px] text-slate-700 dark:text-slate-400 mt-1 tracking-wide leading-relaxed font-medium">
                             {config.detail}
                         </p>
                     </div>
 
                     {daysLeft !== null && !needsInitial && !reassessmentDue && (
-                        <p className="text-[8px] text-slate-500 font-bold uppercase tracking-widest">
+                        <p className="text-[9px] text-slate-800 dark:text-slate-500 font-black uppercase tracking-widest">
                             Próxima reavaliação em {daysLeft} dias
                         </p>
                     )}
@@ -74,7 +74,7 @@ const AssessmentReminder: React.FC<AssessmentReminderProps> = ({ user, onSchedul
                     {onSchedule && (
                         <button
                             onClick={onSchedule}
-                            className="text-[9px] font-black text-blue-400 uppercase tracking-[0.2em] hover:text-blue-300 transition-colors"
+                            className="text-[10px] font-black text-blue-800 dark:text-blue-400 uppercase tracking-[0.2em] hover:text-blue-600 transition-colors mt-1"
                         >
                             {config.cta} →
                         </button>
