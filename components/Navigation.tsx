@@ -44,12 +44,12 @@ const Navigation: React.FC<NavigationProps> = ({ role, isDarkMode }) => {
         <nav className="h-full flex items-center justify-around">
           {isManagementRole ? (
             <>
-              <NavItem path="/management" icon={Icons.Home} label="Painel" />
-              <NavItem path="/messages" icon={Icons.Users} label="Equipe" />
+              <NavItem path="/home" icon={Icons.Home} label="Início" />
+              <NavItem path="/management" icon={Icons.Users} label="Gestão" />
 
               {/* Central Button Pattern */}
               <button
-                onClick={() => navigate('/protocol-edit')}
+                onClick={() => navigate('/floor-view')}
                 className="relative -top-6 flex flex-col items-center justify-center p-0 bg-transparent hover:scale-110 active:scale-95 transition-all outline-none"
               >
                 <div className="relative group">
@@ -59,7 +59,7 @@ const Navigation: React.FC<NavigationProps> = ({ role, isDarkMode }) => {
               </button>
 
               <NavItem path="/timeline" icon={Icons.Chart} label="Dados" />
-              <NavItem path="/admin" icon={Icons.FileText} label="Gestão" />
+              <NavItem path="/admin-requests" icon={Icons.FileText} label="Solicitações" />
             </>
           ) : (
             <>

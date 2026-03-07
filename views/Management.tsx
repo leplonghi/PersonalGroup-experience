@@ -25,7 +25,9 @@ const Management: React.FC<ManagementProps> = ({ user, onEditProtocol, onStartAs
   const [students, setStudents] = useState<User[]>([]);
   const [protocols, setProtocols] = useState<Protocol[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'DASHBOARD' | 'ALUNOS' | 'EQUIPE' | 'PROTOCOLOS'>('DASHBOARD');
+  const [activeTab, setActiveTab] = useState<'DASHBOARD' | 'ALUNOS' | 'EQUIPE' | 'PROTOCOLOS'>(
+    user.role === UserRole.PERSONAL ? 'ALUNOS' : 'DASHBOARD'
+  );
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStudentView, setSelectedStudentView] = useState<User | null>(null);
   const [staffList, setStaffList] = useState<User[]>([]);
@@ -295,7 +297,7 @@ const Management: React.FC<ManagementProps> = ({ user, onEditProtocol, onStartAs
           {['DASHBOARD', 'ALUNOS', 'EQUIPE', 'PROTOCOLOS']
             .filter(tab => {
               if (user.role === UserRole.PERSONAL) {
-                return tab === 'DASHBOARD' || tab === 'ALUNOS';
+                return tab === 'ALUNOS';
               }
               return true;
             })
@@ -332,7 +334,7 @@ const Management: React.FC<ManagementProps> = ({ user, onEditProtocol, onStartAs
 
             <div className="space-y-4">
               {filteredStudents.map(student => (
-                <StudentRow key={student.id} student={student} onSelect={setSelectedStudentForDetail} onStartAssessment={onStartAssessment} onStartCycle={onStartCycle} />
+                <StudentRow key={student.id} currentUser={user} student={student} onSelect={setSelectedStudentForDetail} onStartAssessment={onStartAssessment} onStartCycle={onStartCycle} />
               ))}
             </div>
           </div>
@@ -357,42 +359,48 @@ const Management: React.FC<ManagementProps> = ({ user, onEditProtocol, onStartAs
             </div>
 
             <div className="grid grid-cols-1 gap-4">
-              {staffList.map(staff => (
-                <div
-                  key={staff.id}
-                  className="flex items-center justify-between p-6 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/5 transition-all"
-                >
-                  <div className="flex items-center space-x-5 cursor-pointer" onClick={() => setSelectedStaff(staff)}>
-                    <img src={staff.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${staff.id}`} className="w-14 h-14 rounded-full" alt="Staff avatar" />
-                    <div>
-                      <h4 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-tight">{staff.name}</h4>
-                      <p className="text-[9px] font-bold text-blue-600 uppercase tracking-widest mt-1">
-                        {staff.role === UserRole.CHEFE ? 'Chefe de Pista' : 'Personal Flex'}
-                      </p>
+              {staffList
+                .filter(staff => {
+                  if (user.role === UserRole.ADMIN) return true;
+                  if (user.role === UserRole.CHEFE) return staff.role === UserRole.PERSONAL;
+                  return false;
+                })
+                .map(staff => (
+                  <div
+                    key={staff.id}
+                    className="flex items-center justify-between p-6 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/5 transition-all"
+                  >
+                    <div className="flex items-center space-x-5 cursor-pointer" onClick={() => setSelectedStaff(staff)}>
+                      <img src={staff.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${staff.id}`} className="w-14 h-14 rounded-full" alt="Staff avatar" />
+                      <div>
+                        <h4 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-tight">{staff.name}</h4>
+                        <p className="text-[9px] font-bold text-blue-600 uppercase tracking-widest mt-1">
+                          {staff.role === UserRole.CHEFE ? 'Chefe de Pista' : 'Personal Flex'}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex space-x-2">
+                      {user.role === UserRole.ADMIN && (
+                        <button
+                          onClick={() => handleToggleRole(staff.id, staff.role)}
+                          className="w-10 h-10 border border-slate-200 dark:border-white/10 flex items-center justify-center text-blue-500 hover:bg-blue-50 dark:hover:bg-white/5 active:scale-95 transition-all"
+                          title="Alternar Cargo"
+                        >
+                          <Icons.Refresh className="w-4 h-4" />
+                        </button>
+                      )}
+                      {(user.role === UserRole.CHEFE || user.role === UserRole.ADMIN) && (
+                        <button
+                          className="px-4 h-10 border border-slate-200 dark:border-white/10 flex items-center justify-center text-[9px] font-black text-slate-500 uppercase tracking-widest hover:bg-white/5 active:scale-95 transition-all"
+                          onClick={() => alert('Atribuição: Diária / Semanal / Mensal')}
+                        >
+                          Atribuir
+                        </button>
+                      )}
                     </div>
                   </div>
-
-                  <div className="flex space-x-2">
-                    {user.role === UserRole.ADMIN && (
-                      <button
-                        onClick={() => handleToggleRole(staff.id, staff.role)}
-                        className="w-10 h-10 border border-slate-200 dark:border-white/10 flex items-center justify-center text-blue-500 hover:bg-blue-50 dark:hover:bg-white/5 active:scale-95 transition-all"
-                        title="Alternar Cargo"
-                      >
-                        <Icons.Refresh className="w-4 h-4" />
-                      </button>
-                    )}
-                    {(user.role === UserRole.CHEFE || user.role === UserRole.ADMIN) && (
-                      <button
-                        className="px-4 h-10 border border-slate-200 dark:border-white/10 flex items-center justify-center text-[9px] font-black text-slate-500 uppercase tracking-widest hover:bg-white/5 active:scale-95 transition-all"
-                        onClick={() => alert('Atribuição: Diária / Semanal / Mensal')}
-                      >
-                        Atribuir
-                      </button>
-                    )}
-                  </div>
-                </div>
-              ))}
+                ))}
             </div>
           </div>
         )}

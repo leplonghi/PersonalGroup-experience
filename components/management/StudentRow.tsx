@@ -3,11 +3,12 @@ import { User } from '../../types';
 import { Icons } from '../../constants';
 
 export const StudentRow: React.FC<{
+    currentUser: User;
     student: User;
     onSelect: (u: User) => void;
     onStartAssessment: (u: User) => void;
     onStartCycle: (u: User) => void;
-}> = ({ student, onSelect, onStartAssessment, onStartCycle }) => {
+}> = ({ currentUser, student, onSelect, onStartAssessment, onStartCycle }) => {
     const isPersonalDay = student.lastAssessmentDate &&
         (new Date().getTime() - new Date(student.lastAssessmentDate).getTime()) / (1000 * 60 * 60 * 24) >= 45;
 
@@ -32,14 +33,16 @@ export const StudentRow: React.FC<{
                     </p>
                 </div>
             </div>
-            <div className="flex space-x-2">
-                <button onClick={() => onStartAssessment(student)} className="w-10 h-10 flex items-center justify-center border border-slate-200 dark:border-white/10 active:scale-95 text-cyan-500" title="Avaliação">
-                    <Icons.TrendingUp className="w-4 h-4" />
-                </button>
-                <button onClick={() => onStartCycle(student)} className="w-10 h-10 flex items-center justify-center border border-slate-200 dark:border-white/10 active:scale-95 text-blue-500" title="Treino">
-                    <Icons.Shield className="w-4 h-4" />
-                </button>
-            </div>
+            {currentUser.role !== 'PERSONAL' && (
+                <div className="flex space-x-2">
+                    <button onClick={() => onStartAssessment(student)} className="w-10 h-10 flex items-center justify-center border border-slate-200 dark:border-white/10 active:scale-95 text-cyan-500" title="Avaliação">
+                        <Icons.TrendingUp className="w-4 h-4" />
+                    </button>
+                    <button onClick={() => onStartCycle(student)} className="w-10 h-10 flex items-center justify-center border border-slate-200 dark:border-white/10 active:scale-95 text-blue-500" title="Treino">
+                        <Icons.Shield className="w-4 h-4" />
+                    </button>
+                </div>
+            )}
         </div>
     );
 };

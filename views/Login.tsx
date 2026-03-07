@@ -71,7 +71,7 @@ const Login: React.FC<LoginProps> = ({ onLogin, onGoogleLogin, onRegister, isDar
           style={{ backgroundImage: 'url(/gym-interior.png)' }}
         />
         {/* Layer 1: Matte Tint */}
-        <div className="absolute inset-0 bg-slate-950/80 mix-blend-multiply"></div>
+        <div className="absolute inset-0 bg-ocean/90 mix-blend-multiply"></div>
         {/* Layer 2: Deep Darkness Smooth Transition */}
         <div className="absolute inset-0 bg-gradient-to-b from-midnight/80 via-midnight/95 to-midnight"></div>
         {/* Layer 3: Soft Radial Focus */}

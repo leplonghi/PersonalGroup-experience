@@ -140,7 +140,7 @@ const AppLayout: React.FC<{
                     <Route path="/messages" element={<Messages user={user} />} />
                     <Route path="/timeline" element={<Timeline user={user} onBack={() => navigate('/home')} />} />
                     <Route path="/wellness" element={<Wellness user={user} onBack={() => navigate('/home')} />} />
-                    <Route path="/profile" element={<StudentHub user={user} onLogout={onLogout} onNavigateTo={(page) => navigate(`/${page}`)} />} />
+                    <Route path="/profile" element={user.role === UserRole.ALUNO ? <StudentHub user={user} onLogout={onLogout} onNavigateTo={(page) => navigate(`/${page}`)} /> : <EditProfile user={user} onBack={() => navigate('/home')} onUpdated={(u) => { onUpdateUser(u); navigate('/home'); }} />} />
                     <Route path="/onboarding" element={<Onboarding user={user} onComplete={() => navigate('/home')} />} />
 
                     {/* Active Session & Management */}
@@ -149,12 +149,15 @@ const AppLayout: React.FC<{
                     <Route path="/session-live" element={<SessionRoute executor={user} onFinish={() => navigate('/home')} />} />
                     <Route path="/floor-view" element={<FloorView />} />
                     <Route path="/student-briefing/:uid" element={<StudentBriefing trainer={user} />} />
-                    <Route path="/management" element={<Management user={user} onEditProtocol={() => navigate('/protocol-edit')} onStartAssessment={(s) => { setSelectedStudent(s); navigate('/assessment'); }} onStartCycle={(s) => { setSelectedStudent(s); navigate('/cycle-builder'); }} onJoinSession={(s) => navigate(`/session/${s.id}`)} onViewEvolution={(s) => navigate(`/evolution/${s.id}`)} onRegisterStaff={onRegisterStaff} onToggleRole={onToggleRole} />} />
+                    <Route path="/management" element={user.role !== UserRole.ALUNO ? <Management user={user} onEditProtocol={() => navigate('/protocol-edit')} onStartAssessment={(s) => { setSelectedStudent(s); navigate(`/assessment/${s.id}`); }} onStartCycle={(s) => { setSelectedStudent(s); navigate(`/cycle-builder/${s.id}`); }} onJoinSession={(s) => navigate(`/session/${s.id}`)} onViewEvolution={(s) => navigate(`/evolution/${s.id}`)} onRegisterStaff={onRegisterStaff} onToggleRole={onToggleRole} /> : <Navigate to="/home" />} />
 
                     {/* Management Sub-routes */}
                     <Route path="/protocol-edit" element={<ProtocolEditor protocol={undefined} onBack={() => navigate('/management')} onSave={async () => navigate('/management')} />} />
-                    <Route path="/assessment" element={selectedStudent ? <AssessmentFlow student={selectedStudent} chefe={user} onBack={() => navigate('/management')} onFinish={async (assessment, newStatus) => { await saveAssessment(assessment, newStatus); navigate('/management'); }} /> : <Navigate to="/management" />} />
-                    <Route path="/cycle-builder" element={selectedStudent ? <CycleBuilder student={selectedStudent} onBack={() => navigate('/management')} onConfirm={async (cycle) => { if (selectedStudent) { await startNewCycle(selectedStudent.id, cycle); setSelectedStudent(null); navigate('/management'); } }} /> : <Navigate to="/management" />} />
+                    <Route path="/assessment/:studentId?" element={user.role !== UserRole.ALUNO ? <AssessmentFlow student={selectedStudent} chefe={user} onBack={() => navigate('/management')} onFinish={async (assessment, newStatus) => { await saveAssessment(assessment, newStatus); navigate('/management'); }} /> : <Navigate to="/home" />} />
+                    <Route path="/cycle-builder/:studentId?" element={user.role !== UserRole.ALUNO ? <CycleBuilder student={selectedStudent} onBack={() => navigate('/management')} onConfirm={async (cycle) => { if (selectedStudent) { await startNewCycle(selectedStudent.id, cycle); setSelectedStudent(null); navigate('/management'); } }} /> : <Navigate to="/home" />} />
+
+                    {/* Evolution / Results */}
+                    <Route path="/evolution/:studentId?" element={<EvolutionRoute viewer={user} />} />
 
                     {/* Frequency Dashboard */}
                     <Route path="/frequency" element={<FrequencyDashboard user={user} onBack={() => navigate('/home')} />} />
@@ -255,7 +258,7 @@ const AuthShell: React.FC<{ isDarkMode: boolean; toggleTheme: () => void }> = ({
         checkInTime: now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
       });
     }
-    navigate('/home');
+    navigate('/session');
   };
 
   return (

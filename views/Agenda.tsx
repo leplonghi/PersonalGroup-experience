@@ -55,13 +55,7 @@ const Agenda: React.FC = () => {
     return days;
   };
 
-  const sessions: AgendaSession[] = [
-    { time: '07:00', label: 'Treino Personal', type: 'TREINO', status: 'Concluído', instructor: 'Prof. Ricardo', location: 'Pista 02' },
-    { time: '09:00', label: 'Reavaliação Bio.', type: 'AVALIACAO', status: 'Confirmado', instructor: 'Coord. Felipe', location: 'Lab 01' },
-    { time: '11:00', label: 'Horário Livre', type: 'LIVRE', status: 'Disponível' },
-    { time: '15:30', label: 'Wellness', type: 'WELLNESS', status: 'Pendente', instructor: 'Dra. Ana', location: 'SPA 03' },
-    { time: '18:00', label: 'Treino Personal', type: 'TREINO', status: 'Confirmado', instructor: 'Prof. Ricardo', location: 'Pista 02' },
-  ];
+  const sessions: AgendaSession[] = [];
 
   const timeSlots = [
     '06:00', '07:00', '08:00', '09:00', '10:00', '11:00',

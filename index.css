@@ -106,15 +106,15 @@
     /* Slate 50 */
     --pg-text-muted: #94A3B8;
     /* Slate 400 */
-    --pg-bg-main: #010409;
-    /* Very Deep Blue/Black */
-    --pg-bg-surface: #0D1117;
+    --pg-bg-main: #050b14;
+    /* Deep Blue/Black */
+    --pg-bg-surface: #0a1128;
     /* Deep Overlay */
     --pg-border-main: rgba(255, 255, 255, 0.08);
 
     /* Dark Gradients */
-    --pg-bg-gradient: linear-gradient(180deg, #020617 0%, #010409 100%);
-    --pg-glass-bg-main: rgba(1, 4, 9, 0.50);
+    --pg-bg-gradient: linear-gradient(180deg, #0a1128 0%, #050b14 100%);
+    --pg-glass-bg-main: rgba(5, 11, 20, 0.50);
 
     /* Dark Shadow Scale */
     --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.30);
@@ -149,7 +149,12 @@ span,
 li,
 td,
 th,
-h1, h2, h3, h4, h5, h6,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
 blockquote {
     user-select: text;
 }
@@ -309,17 +314,49 @@ h6,
 }
 
 @keyframes noise-move {
-    0% { transform: translate(0, 0); }
-    10% { transform: translate(-1%, -1%); }
-    20% { transform: translate(-2%, 1%); }
-    30% { transform: translate(1%, -2%); }
-    40% { transform: translate(-1%, 2%); }
-    50% { transform: translate(-2%, -2%); }
-    60% { transform: translate(2%, 1%); }
-    70% { transform: translate(1%, 2%); }
-    80% { transform: translate(-2%, 1%); }
-    90% { transform: translate(1%, -1%); }
-    100% { transform: translate(0, 0); }
+    0% {
+        transform: translate(0, 0);
+    }
+
+    10% {
+        transform: translate(-1%, -1%);
+    }
+
+    20% {
+        transform: translate(-2%, 1%);
+    }
+
+    30% {
+        transform: translate(1%, -2%);
+    }
+
+    40% {
+        transform: translate(-1%, 2%);
+    }
+
+    50% {
+        transform: translate(-2%, -2%);
+    }
+
+    60% {
+        transform: translate(2%, 1%);
+    }
+
+    70% {
+        transform: translate(1%, 2%);
+    }
+
+    80% {
+        transform: translate(-2%, 1%);
+    }
+
+    90% {
+        transform: translate(1%, -1%);
+    }
+
+    100% {
+        transform: translate(0, 0);
+    }
 }
 
 /* ─── Gradients & Glass ───────────────────────────────── */
@@ -345,6 +382,7 @@ h6,
         opacity: 0;
         transform: translateY(30px) skewY(2deg);
     }
+
     to {
         opacity: 1;
         transform: translateY(0) skewY(0deg);
@@ -352,8 +390,13 @@ h6,
 }
 
 @keyframes scanline {
-    0% { transform: translateY(-100%); }
-    100% { transform: translateY(100%); }
+    0% {
+        transform: translateY(-100%);
+    }
+
+    100% {
+        transform: translateY(100%);
+    }
 }
 
 .scanline-effect {
@@ -374,14 +417,27 @@ h6,
 }
 
 @keyframes progress {
-    0% { transform: translateX(-101%); }
-    100% { transform: translateX(101%); }
+    0% {
+        transform: translateX(-101%);
+    }
+
+    100% {
+        transform: translateX(101%);
+    }
 }
 
 @keyframes slow-pan {
-    0% { transform: scale(1.0) translate(0, 0); }
-    50% { transform: scale(1.1) translate(-2%, -1%); }
-    100% { transform: scale(1.0) translate(0, 0); }
+    0% {
+        transform: scale(1.0) translate(0, 0);
+    }
+
+    50% {
+        transform: scale(1.1) translate(-2%, -1%);
+    }
+
+    100% {
+        transform: scale(1.0) translate(0, 0);
+    }
 }
 
 .animate-slow-pan {
@@ -403,8 +459,17 @@ h6,
 
 /* ─── Precision Background ────────────────────────────── */
 @keyframes pulse-glow {
-    0%, 100% { opacity: 0.3; filter: blur(40px); }
-    50% { opacity: 0.6; filter: blur(60px); }
+
+    0%,
+    100% {
+        opacity: 0.3;
+        filter: blur(40px);
+    }
+
+    50% {
+        opacity: 0.6;
+        filter: blur(60px);
+    }
 }
 
 .precision-bg {
@@ -420,7 +485,7 @@ h6,
     right: -20%;
     width: 100%;
     height: 100%;
-    background: radial-gradient(circle, #00b6fd 0%, transparent 70%);
+    background: radial-gradient(circle, #2563eb 0%, transparent 70%);
     opacity: 0.02;
     filter: blur(250px);
     animation: pulse-glow 20s ease-in-out infinite;
@@ -434,7 +499,7 @@ h6,
     left: -10%;
     width: 80%;
     height: 80%;
-    background: radial-gradient(circle, #3363a2 0%, transparent 70%);
+    background: radial-gradient(circle, #1e3a8a 0%, transparent 70%);
     opacity: 0.015;
     filter: blur(200px);
     animation: pulse-glow 25s ease-in-out infinite reverse;

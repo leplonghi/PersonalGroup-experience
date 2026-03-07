@@ -131,7 +131,7 @@ const Messages: React.FC<MessagesProps> = ({ user }) => {
 
       {/* Message Modal Experience */}
       {selectedMsg && (
-        <div className="fixed inset-0 z-[100] bg-slate-950/40 dark:bg-ocean/80 backdrop-blur-xl flex items-end animate-in fade-in duration-500">
+        <div className="fixed inset-0 z-[100] bg-deep-blue/40 dark:bg-ocean/80 backdrop-blur-xl flex items-end animate-in fade-in duration-500">
           <div className="w-full bg-white dark:bg-ocean rounded-t-[48px] p-10 pb-16 border-t border-slate-200 dark:border-white/20 animate-in slide-in-from-bottom-20 duration-700 shadow-2xl shadow-black/30">
             <div className="flex justify-between items-start mb-8">
               <div>

@@ -1,5 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
+import { Navigate } from 'react-router-dom';
 import { User, UserRole, Protocol } from '../types';
 import { getProtocolById, subscribeToActiveStaff } from '../firebase';
 import { StudentHome } from '../components/home/StudentHome';
@@ -38,6 +38,8 @@ const Home: React.FC<HomeProps> = ({ user, onStartSession }) => {
       <div className="precision-bg min-h-screen">
         {user.role === UserRole.PERSONAL ? (
           <PersonalHome user={user} />
+        ) : user.role === UserRole.CHEFE || user.role === UserRole.ADMIN ? (
+          <Navigate to="/management" replace />
         ) : (
           <StudentHome
             user={user}

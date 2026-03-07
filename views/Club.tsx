@@ -57,7 +57,9 @@ const Club: React.FC<ClubProps> = ({ user, onBack }) => {
                             <Icons.Star className="w-6 h-6 text-blue-400 opacity-50" />
                         </div>
 
-                        Cuidamos de você por completo. Força, mobilidade e bem-estar integrados para o seu resultado.
+                        <p className="text-blue-900/80 dark:text-slate-300 text-sm mb-6">
+                            Cuidamos de você por completo. Força, mobilidade e bem-estar integrados para o seu resultado.
+                        </p>
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="flex items-center space-x-3">

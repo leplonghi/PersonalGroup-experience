@@ -69,7 +69,7 @@ export const StudentHome: React.FC<StudentHomeProps> = ({
                     variant="elevated"
                     onClick={() => {
                         if (navigator.vibrate) navigator.vibrate(50);
-                        setShowBlackCard(true);
+                        navigate('/checkin');
                     }}
                     className="p-8 group border-l-4 border-l-cobalt hover:border-l-sky transition-all active:scale-[0.99] rounded-2xl bg-white relative overflow-hidden shadow-xl shadow-blue-900/5 dark:shadow-none cursor-pointer"
                 >
@@ -426,7 +426,7 @@ export const StudentHome: React.FC<StudentHomeProps> = ({
                         Sua Jornada
                     </h4>
                     <button
-                        onClick={() => navigate('/club')}
+                        onClick={() => navigate('/timeline')}
                         className="text-[10px] font-black text-cobalt uppercase tracking-widest hover:underline"
                     >
                         Ver Tudo
