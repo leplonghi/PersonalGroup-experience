@@ -22,15 +22,30 @@ const MOTIVATIONAL_PHRASES = [
   "Qualidade acima de quantidade. Execute com perfeição."
 ];
 
+const SESSION_MAX_AGE_MS = 8 * 60 * 60 * 1000; // 8 horas
+
+const clearSessionStorage = () => {
+  localStorage.removeItem('pg-session-ex-idx');
+  localStorage.removeItem('pg-session-set');
+  localStorage.removeItem('pg-session-logs');
+  localStorage.removeItem('pg-session-ts');
+};
+
+const isSessionStorageValid = () => {
+  const ts = localStorage.getItem('pg-session-ts');
+  if (!ts) return false;
+  return Date.now() - parseInt(ts) < SESSION_MAX_AGE_MS;
+};
+
 const ActiveSession: React.FC<ActiveSessionProps> = ({ user, executor, onFinish }) => {
   const [currentExerciseIdx, setCurrentExerciseIdx] = useState(() => {
+    if (!isSessionStorageValid()) { clearSessionStorage(); return 0; }
     const saved = localStorage.getItem('pg-session-ex-idx');
     return saved ? parseInt(saved) : 0;
   });
   const [currentCoachName, setCurrentCoachName] = useState<string | null>(null);
 
   const handleReportIssue = () => {
-    // In a real app, this would send a ticket to the gym management system
     if (currentExerciseIdx < exercises.length - 1) {
       triggerHaptic(50);
       setCurrentExerciseIdx(prev => prev + 1);
@@ -42,11 +57,13 @@ const ActiveSession: React.FC<ActiveSessionProps> = ({ user, executor, onFinish 
   };
 
   const [currentSet, setCurrentSet] = useState(() => {
+    if (!isSessionStorageValid()) return 1;
     const saved = localStorage.getItem('pg-session-set');
     return saved ? parseInt(saved) : 1;
   });
 
   const [sessionLogs, setSessionLogs] = useState<SessionLog[]>(() => {
+    if (!isSessionStorageValid()) return [];
     const saved = localStorage.getItem('pg-session-logs');
     return saved ? JSON.parse(saved) : [];
   });
@@ -125,6 +142,9 @@ const ActiveSession: React.FC<ActiveSessionProps> = ({ user, executor, onFinish 
   // Persistence Effects (Only for Staff/Local redundancy)
   useEffect(() => {
     if (isStaff) {
+      if (!localStorage.getItem('pg-session-ts')) {
+        localStorage.setItem('pg-session-ts', Date.now().toString());
+      }
       localStorage.setItem('pg-session-ex-idx', currentExerciseIdx.toString());
     }
   }, [currentExerciseIdx, isStaff]);
@@ -194,10 +214,7 @@ const ActiveSession: React.FC<ActiveSessionProps> = ({ user, executor, onFinish 
     if (isStaff) {
       await endLiveSession(user.id);
     }
-    // Clear storage on finish
-    localStorage.removeItem('pg-session-ex-idx');
-    localStorage.removeItem('pg-session-set');
-    localStorage.removeItem('pg-session-logs');
+    clearSessionStorage();
     onFinish();
   };
 

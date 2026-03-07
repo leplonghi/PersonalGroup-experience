@@ -37,13 +37,6 @@ const Management: React.FC<ManagementProps> = ({ user, onEditProtocol, onStartAs
     s.role.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const staffUsers = [
-    { id: 'p1', name: 'João P.', role: UserRole.PERSONAL, status: 'Online', color: 'bg-blue-600' },
-    { id: 'p2', name: 'Ana L.', role: UserRole.PERSONAL, status: 'Online', color: 'bg-blue-600' },
-    { id: 'p3', name: 'Carlos R.', role: UserRole.PERSONAL, status: '14h', color: 'bg-ocean' },
-    { id: 'p4', name: 'Beatriz M.', role: UserRole.PERSONAL, status: 'Off', color: 'bg-midnight' },
-  ];
-
   const [selectedStudentForDetail, setSelectedStudentForDetail] = useState<User | null>(null);
 
   const fetchData = async () => {

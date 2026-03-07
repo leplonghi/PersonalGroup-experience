@@ -1,14 +1,15 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { User } from '../../types';
 import Card from '../Card';
 import { Icons } from '../../constants';
 
 interface PersonalHomeProps {
     user: User;
-    onGoAgenda?: () => void;
 }
 
-export const PersonalHome: React.FC<PersonalHomeProps> = ({ user, onGoAgenda }) => {
+export const PersonalHome: React.FC<PersonalHomeProps> = ({ user }) => {
+    const navigate = useNavigate();
     return (
         <div className="animate-in fade-in duration-1000 space-y-8 px-6 pb-24 pt-10">
             <header className="space-y-2">
@@ -88,7 +89,7 @@ export const PersonalHome: React.FC<PersonalHomeProps> = ({ user, onGoAgenda }) 
                 <div className="flex justify-between items-center border-b border-blue-100 dark:border-white/5 pb-4">
                     <h4 className="text-[11px] font-bold text-slate-700 dark:text-slate-400 uppercase tracking-[0.4em]">Próximos Alunos</h4>
                     <button
-                        onClick={onGoAgenda}
+                        onClick={() => navigate('/agenda')}
                         className="group flex items-center text-[10px] font-bold text-blue-500 uppercase tracking-widest"
                     >
                         Agenda Completa

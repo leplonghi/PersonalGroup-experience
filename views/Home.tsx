@@ -9,49 +9,13 @@ import { Icons } from '../constants';
 interface HomeProps {
   user: User;
   onStartSession?: (student?: User) => void;
-  onGoWellness?: () => void;
-  onGoTimeline?: () => void;
-  onGoMessages?: () => void;
-  onGoAgenda?: () => void;
-  onGoCheckIn?: () => void;
-  onGoClub?: () => void;
-  onGoEvolution?: () => void;
-  onGoAdmin?: () => void;
-  onGoSupport?: () => void;
-  onGoRanking?: () => void;
-  onGoWearables?: () => void;
 }
 
-const Home: React.FC<HomeProps> = ({
-  user,
-  onStartSession,
-  onGoWellness,
-  onGoTimeline,
-  onGoMessages,
-  onGoAgenda,
-  onGoCheckIn,
-  onGoClub,
-  onGoEvolution,
-  onGoAdmin,
-  onGoSupport,
-  onGoRanking,
-  onGoWearables
-}) => {
+const Home: React.FC<HomeProps> = ({ user, onStartSession }) => {
   const [protocol, setProtocol] = useState<Protocol | null>(null);
   const [loadingProtocol, setLoadingProtocol] = useState(false);
   const [activeStaff, setActiveStaff] = useState<User[]>([]);
   const [showBlackCard, setShowBlackCard] = useState(false);
-  const [lastRecap, setLastRecap] = useState<any>(null);
-
-  useEffect(() => {
-    // Mock simulation for the recap to show the value immediately
-    setLastRecap({
-      title: 'Treino Destruído!',
-      message: 'Seu treinador notou melhoria impressionante na postura da Remada e aumento de resistência. Continue assim!',
-      date: 'Ontem',
-      rpe: 8
-    });
-  }, []);
 
   useEffect(() => {
     const unsubscribe = subscribeToActiveStaff((staff) => {
@@ -73,27 +37,15 @@ const Home: React.FC<HomeProps> = ({
     <div className="min-h-screen bg-app transition-colors duration-1000 relative">
       <div className="precision-bg min-h-screen">
         {user.role === UserRole.PERSONAL ? (
-          <PersonalHome user={user} onGoAgenda={onGoAgenda} />
+          <PersonalHome user={user} />
         ) : (
           <StudentHome
             user={user}
             protocol={protocol}
             loadingProtocol={loadingProtocol}
             activeStaff={activeStaff}
-            lastRecap={lastRecap}
             setShowBlackCard={setShowBlackCard}
             onStartSession={() => onStartSession?.()}
-            onGoClub={onGoClub}
-            onGoAdmin={onGoAdmin}
-            onGoSupport={onGoSupport}
-            onGoEvolution={onGoEvolution}
-            onGoWellness={onGoWellness}
-            onGoTimeline={onGoTimeline}
-            onGoMessages={onGoMessages}
-            onGoAgenda={onGoAgenda}
-            onGoCheckIn={onGoCheckIn}
-            onGoRanking={onGoRanking}
-            onGoWearables={onGoWearables}
           />
         )}
       </div>

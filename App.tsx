@@ -9,7 +9,6 @@ const RegisterFlow = lazy(() => import('./views/RegisterFlow'));
 const EditProfile = lazy(() => import('./views/EditProfile'));
 const Home = lazy(() => import('./views/Home'));
 const Agenda = lazy(() => import('./views/Agenda'));
-const Profile = lazy(() => import('./views/Profile'));
 const StudentHub = lazy(() => import('./views/StudentHub'));
 const ActiveSession = lazy(() => import('./views/ActiveSession'));
 const Wellness = lazy(() => import('./views/Wellness'));
@@ -135,7 +134,7 @@ const AppLayout: React.FC<{
                 {/* Protected Routes */}
                 {user ? (
                   <>
-                    <Route path="/home" element={<Home user={user} onStartSession={() => navigate('/session')} onGoWellness={() => navigate('/wellness')} onGoTimeline={() => navigate('/timeline')} onGoMessages={() => navigate('/messages')} onGoAgenda={() => navigate('/agenda')} onGoCheckIn={() => navigate('/checkin')} onGoClub={() => navigate('/club')} onGoEvolution={() => navigate('/evolution')} onGoAdmin={() => navigate('/admin-requests')} onGoSupport={() => navigate('/support')} onGoRanking={() => navigate('/ranking')} onGoWearables={() => navigate('/wearables')} />} />
+                    <Route path="/home" element={<Home user={user} onStartSession={() => navigate('/session')} />} />
                     <Route path="/club" element={<Club user={user} onBack={() => navigate('/home')} />} />
                     <Route path="/agenda" element={<Agenda />} />
                     <Route path="/messages" element={<Messages user={user} />} />

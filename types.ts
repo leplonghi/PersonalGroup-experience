@@ -121,6 +121,15 @@ export interface User {
   // Flex System (for Personal/Staff)
   personalFlexStatus?: 'ACTIVE' | 'INACTIVE';
   flexCapabilities?: FlexCapability[];
+
+  // Gym Presence
+  status?: 'ACTIVE_IN_GYM' | 'OFFLINE';
+
+  // Aggregated Stats
+  stats?: {
+    totalSessions: number;
+    totalCheckins: number;
+  };
 }
 
 // --- New Interfaces (Etapas 2-5) ---

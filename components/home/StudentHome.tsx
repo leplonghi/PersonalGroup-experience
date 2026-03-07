@@ -1,30 +1,20 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { User, Protocol } from '../../types';
 import Card from '../Card';
 import PlanStatusBanner from '../PlanStatusBanner';
 import FrequencyTracker from '../FrequencyTracker';
 import AssessmentReminder from '../AssessmentReminder';
 import { Icons } from '../../constants';
+import { getLastTrainerSession } from '../../firebase';
 
 interface StudentHomeProps {
     user: User;
     protocol: Protocol | null;
     loadingProtocol: boolean;
     activeStaff: User[];
-    lastRecap: any;
     setShowBlackCard: (show: boolean) => void;
     onStartSession?: () => void;
-    onGoWellness?: () => void;
-    onGoTimeline?: () => void;
-    onGoMessages?: () => void;
-    onGoAgenda?: () => void;
-    onGoCheckIn?: () => void;
-    onGoClub?: () => void;
-    onGoEvolution?: () => void;
-    onGoAdmin?: () => void;
-    onGoSupport?: () => void;
-    onGoRanking?: () => void;
-    onGoWearables?: () => void;
 }
 
 export const StudentHome: React.FC<StudentHomeProps> = ({
@@ -32,15 +22,26 @@ export const StudentHome: React.FC<StudentHomeProps> = ({
     protocol,
     loadingProtocol,
     activeStaff,
-    lastRecap,
     setShowBlackCard,
     onStartSession,
-    onGoClub,
-    onGoAdmin,
-    onGoSupport,
-    onGoEvolution,
-    onGoWellness
 }) => {
+    const navigate = useNavigate();
+    const [lastRecap, setLastRecap] = useState<any>(null);
+
+    useEffect(() => {
+        getLastTrainerSession(user.id).then(session => {
+            if (session) {
+                const rpe = (session as any).rpeGeral;
+                const nota = (session as any).notaTrainer;
+                setLastRecap({
+                    title: rpe >= 8 ? 'Treino Destruído!' : 'Treino Concluído!',
+                    message: nota || 'Continue assim, você está evoluindo!',
+                    date: 'Recente',
+                    rpe: rpe || 7
+                });
+            }
+        }).catch(() => { /* sem sessão anterior, recap fica null */ });
+    }, [user.id]);
     return (
         <div className="animate-in fade-in duration-1000 space-y-8 px-6 pb-24 pt-6">
 
@@ -54,7 +55,7 @@ export const StudentHome: React.FC<StudentHomeProps> = ({
                         <h1 className="text-4xl font-black tracking-tight leading-none text-app uppercase">
                             {user.name.split(' ')[0]}<span className="text-cobalt">.</span>
                         </h1>
-                        <button onClick={onGoClub} className="text-xs font-bold text-app-muted uppercase tracking-[0.15em] mt-2 flex items-center hover:text-cobalt transition-colors group/status text-left">
+                        <button onClick={() => navigate('/club')} className="text-xs font-bold text-app-muted uppercase tracking-[0.15em] mt-2 flex items-center hover:text-cobalt transition-colors group/status text-left">
                             <span className="w-1.5 h-1.5 bg-green-500 rounded-full mr-2 shadow-[0_0_8px_#22C55E] group-hover/status:animate-ping"></span>
                             Unidade: Península
                         </button>
@@ -159,7 +160,7 @@ export const StudentHome: React.FC<StudentHomeProps> = ({
             {/* Quick Links: Admin, Ranking, Wearables, Support */}
             <div className="grid grid-cols-2 gap-3">
                 <button
-                    onClick={onGoAdmin}
+                    onClick={() => navigate('/admin-requests')}
                     className="p-4 bg-surface border border-app rounded-2xl hover:brightness-110 hover:border-cobalt/30 transition-all text-left space-y-2 group shadow-sm"
                 >
                     <div className="w-9 h-9 rounded-full bg-amber-600/10 flex items-center justify-center">
@@ -169,7 +170,7 @@ export const StudentHome: React.FC<StudentHomeProps> = ({
                     <p className="text-[10px] text-app-muted font-bold uppercase tracking-widest">Solicitações</p>
                 </button>
                 <button
-                    onClick={onGoSupport}
+                    onClick={() => navigate('/support')}
                     className="p-4 bg-surface border border-app rounded-2xl hover:brightness-110 hover:border-green-500/30 transition-all text-left space-y-2 group shadow-sm"
                 >
                     <div className="w-9 h-9 rounded-full bg-green-600/10 flex items-center justify-center">
@@ -187,7 +188,7 @@ export const StudentHome: React.FC<StudentHomeProps> = ({
                         Sua Evolução
                     </h4>
                     <button
-                        onClick={onGoEvolution}
+                        onClick={() => navigate('/evolution')}
                         className="text-[10px] font-black text-cobalt uppercase tracking-widest hover:underline"
                     >
                         Ver Histórico
@@ -425,7 +426,7 @@ export const StudentHome: React.FC<StudentHomeProps> = ({
                         Sua Jornada
                     </h4>
                     <button
-                        onClick={onGoClub}
+                        onClick={() => navigate('/club')}
                         className="text-[10px] font-black text-cobalt uppercase tracking-widest hover:underline"
                     >
                         Ver Tudo
@@ -486,7 +487,7 @@ export const StudentHome: React.FC<StudentHomeProps> = ({
 
             {/* 5. NEXT EXPERIENCE */}
             <button
-                onClick={onGoWellness}
+                onClick={() => navigate('/wellness')}
                 className="w-full group relative overflow-hidden h-24 rounded-2xl shadow-xl hover:shadow-2xl hover:shadow-blue-900/20 transition-all active:scale-[0.99]"
             >
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 group-hover:from-blue-500 group-hover:to-indigo-500 transition-all"></div>
