@@ -330,3 +330,72 @@ export interface LiveSession {
   lastUpdate: any; // serverTimestamp
   logs: SessionLog[];
 }
+
+export type EnergyLevel = 'low' | 'medium' | 'high';
+
+export interface CheckInData {
+  id: string;
+  uid: string;
+  data: string;
+  energiaLevel: EnergyLevel;
+  limitacao: string | null;
+  presente: boolean;
+  timestamp: any;
+}
+
+export type SessionStatus = 'ACTIVE' | 'DONE';
+
+export interface ExerciseSetLog {
+  carga: number;
+  timestamp: any;
+}
+
+export interface ExerciseLog {
+  id: string;
+  name: string;
+  sets?: ExerciseSetLog[];
+}
+
+export interface TrainerLedSession {
+  id: string;
+  alunoUid: string;
+  personalFlexId: string;
+  personalNome: string;
+  exercicios: ExerciseLog[];
+  status: SessionStatus;
+  startTime: any;
+  endTime?: any;
+  rpeGeral?: number;
+  notaTrainer?: string;
+}
+
+export interface TeamNote {
+  id: string;
+  alunoUid: string;
+  trainerNome: string;
+  texto: string;
+  timestamp: any;
+}
+
+export interface FloorStudent {
+  id: string;
+  uid: string;
+  userName?: string;
+  energiaLevel?: EnergyLevel;
+  limitacao?: string;
+  emSessao?: boolean;
+  trainerNome?: string;
+}
+
+export interface AcademiaConfig {
+  lat: number;
+  lng: number;
+  raio: number;
+  nome: string;
+}
+
+export interface HealthInsight {
+  type: string;
+  message: string;
+  timestamp: any;
+}

@@ -1,8 +1,6 @@
-
-import React, { useState, useEffect, useRef } from 'react';
-import { Html5Qrcode, Html5QrcodeSupportedFormats } from "html5-qrcode";
+import React, { useState, useCallback } from 'react';
 import { Icons } from '../constants';
-import { performCheckIn, getGymConfig, isGymOpen } from '../firebase';
+import { obterLocalizacao, verificarDentroDoRaio, registrarCheckIn } from '../src/services/checkInService';
 
 interface CheckInProps {
   userId: string;
@@ -11,225 +9,218 @@ interface CheckInProps {
   onCancel: () => void;
 }
 
+type Step = 'GPS_CHECK' | 'LOADING' | 'OUTSIDE' | 'ENERGY' | 'LIMITATION' | 'CONFIRMING' | 'DONE' | 'ERROR';
+
 const CheckIn: React.FC<CheckInProps> = ({ userId, userName, onSuccess, onCancel }) => {
-  const [status, setStatus] = useState<'IDLE' | 'SCANNING' | 'SYNCING' | 'SUCCESS' | 'ERROR'>('IDLE');
-  const [errorMsg, setErrorMsg] = useState('');
-  const [gymOpen, setGymOpen] = useState<{ open: boolean; reason?: string } | null>(null);
-  const scannerRef = useRef<Html5Qrcode | null>(null);
+  const [step, setStep] = useState<Step>('GPS_CHECK');
+  const [energy, setEnergy] = useState<'low' | 'medium' | 'high' | null>(null);
+  const [limitation, setLimitation] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
-  useEffect(() => {
-    // Check gym hours on mount
-    getGymConfig().then(cfg => {
-      setGymOpen(isGymOpen(cfg));
-    });
-
-    // Cleanup scanner on unmount
-    return () => {
-      if (scannerRef.current) {
-        scannerRef.current.stop().catch(err => console.error("Failed to stop scanner", err));
-      }
-    };
+  const triggerHaptic = useCallback((pattern: number | number[]) => {
+    if ('vibrate' in navigator) navigator.vibrate(pattern);
   }, []);
 
-  const startScanner = async () => {
-    // Block if gym is closed
-    if (gymOpen && !gymOpen.open) {
-      setErrorMsg(gymOpen.reason || 'Academia fechada neste horário.');
-      setStatus('ERROR');
-      return;
-    }
-
-    setStatus('SCANNING');
-    await new Promise(r => setTimeout(r, 100)); // Wait for DOM render
-
+  const handleVerificarLocalizacao = async () => {
+    setStep('LOADING');
     try {
-      const scanner = new Html5Qrcode("reader");
-      scannerRef.current = scanner;
+      const position = await obterLocalizacao();
+      const taDentro = verificarDentroDoRaio(position.coords.latitude, position.coords.longitude);
 
-      const config = {
-        fps: 10,
-        qrbox: { width: 250, height: 250 },
-        aspectRatio: 1.0
-      };
-
-      await scanner.start(
-        { facingMode: "environment" },
-        config,
-        async (decodedText) => {
-          // Success callback
-          await handleScanSuccess(decodedText);
-        },
-        (errorMessage) => {
-          // Error callback (ignore frequent read errors)
-        }
-      );
-    } catch (err) {
-      console.error("Camera error", err);
-      setErrorMsg("Não foi possível acessar a câmera. Verifique as permissões.");
-      setStatus('ERROR');
-    }
-  };
-
-  const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
-    const R = 6371e3; // metres
-    const φ1 = lat1 * Math.PI / 180;
-    const φ2 = lat2 * Math.PI / 180;
-    const Δφ = (lat2 - lat1) * Math.PI / 180;
-    const Δλ = (lon2 - lon1) * Math.PI / 180;
-
-    const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
-      Math.cos(φ1) * Math.cos(φ2) *
-      Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-    return R * c; // in metres
-  };
-
-  const handleScanSuccess = async (qrCodeData: string) => {
-    if (scannerRef.current) {
-      await scannerRef.current.stop();
-      scannerRef.current = null;
-    }
-    setStatus('SYNCING');
-
-    try {
-      // 1. GPS Validation (User must be within 100m of the gym)
-      // Gym Coords: Península Jardins (Example correct coords based on address/name context)
-      const gymLatLng = { lat: -2.482015, lng: -44.298132 };
-
-      const getPosition = (): Promise<GeolocationPosition> => {
-        return new Promise((resolve, reject) => {
-          navigator.geolocation.getCurrentPosition(resolve, reject, {
-            enableHighAccuracy: true,
-            timeout: 5000,
-            maximumAge: 0
-          });
-        });
-      };
-
-      try {
-        const position = await getPosition();
-        const distance = calculateDistance(
-          position.coords.latitude,
-          position.coords.longitude,
-          gymLatLng.lat,
-          gymLatLng.lng
-        );
-
-        if (distance > 100) {
-          setErrorMsg(`Você está muito longe (${Math.round(distance)}m). Vá até a recepção para confirmar.`);
-          setStatus('ERROR');
-          return;
-        }
-      } catch (geoErr) {
-        console.warn("GPS failed", geoErr);
-        setErrorMsg("Erro de GPS. Por favor, ative a localização e tente novamente.");
-        setStatus('ERROR');
-        return;
+      if (taDentro) {
+        triggerHaptic(50);
+        setStep('ENERGY');
+      } else {
+        triggerHaptic([50, 100, 50]);
+        setStep('OUTSIDE');
       }
+    } catch (e: any) {
+      setErrorMessage(e.message || 'Erro ao obter localização. Permita o acesso ao GPS.');
+      setStep('ERROR');
+    }
+  };
 
-      const gymId = qrCodeData || "unit_default";
-      await performCheckIn(userId, gymId);
-
-      setStatus('SUCCESS');
-      setTimeout(onSuccess, 2000);
-    } catch (err) {
-      console.error("Check-in failed", err);
-      setErrorMsg("Falha ao registrar presença. Tente novamente.");
-      setStatus('ERROR');
+  const handleConfirmar = async () => {
+    if (!energy) return;
+    setStep('CONFIRMING');
+    try {
+      await registrarCheckIn(userId, energy, limitation);
+      triggerHaptic([50, 30, 80]);
+      setStep('DONE');
+      setTimeout(() => onSuccess(), 2500);
+    } catch (e: any) {
+      setErrorMessage(e.message || 'Erro ao registrar check-in');
+      setStep('ERROR');
     }
   };
 
   return (
-    <div className="fixed inset-0 z-[200] bg-[#020617] flex flex-col transition-colors duration-500 overflow-hidden font-sans">
-      <div className="absolute inset-0 mesh-gradient opacity-5"></div>
-
-      {/* Header Bar */}
-      <div className="absolute top-0 left-0 right-0 p-6 flex justify-between items-center z-50">
-        <button onClick={onCancel} className="text-white/50 hover:text-white p-2">
-          <Icons.X className="w-8 h-8" />
-        </button>
+    <div className="fixed inset-0 z-[200] bg-[#021141] text-white flex flex-col font-sans overflow-hidden">
+      {/* Background detail */}
+      <div className="absolute inset-0 z-0 opacity-20 pointer-events-none">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-[#00b6fd] rounded-full blur-[120px] mix-blend-screen translate-x-1/2 -translate-y-1/2"></div>
       </div>
 
-      <main className="flex-1 flex flex-col items-center justify-center p-6 text-center relative z-10 w-full max-w-md mx-auto">
+      {/* Header */}
+      <div className="pt-12 px-6 pb-6 relative z-10 flex items-center">
+        <button onClick={onCancel} className="w-10 h-10 border border-white/20 bg-white/5 backdrop-blur-md rounded-xl flex items-center justify-center active:scale-95 transition-all text-white hover:bg-white/10">
+          <Icons.X className="w-5 h-5" />
+        </button>
+        <div className="flex-1 text-center pr-10">
+          <h1 className="text-[10px] font-black uppercase tracking-widest text-[#00b6fd] font-display">Check-in</h1>
+        </div>
+      </div>
 
-        {status === 'IDLE' && (
-          <div className="animate-in fade-in zoom-in duration-700 flex flex-col items-center w-full">
-            <div className="w-72 h-72 glass-panel rounded-[64px] border-2 border-dashed border-blue-500/20 flex items-center justify-center mb-16 relative overflow-hidden group shadow-2xl">
-              <Icons.QRCode className="w-36 h-36 text-slate-200 dark:text-slate-950 dark:text-white/10 group-hover:scale-110 transition-transform duration-1000" />
-              <div className="absolute inset-0 bg-blue-600/5 animate-pulse"></div>
-              <div className="absolute top-0 left-0 right-0 h-1 mesh-gradient animate-[bounce_3s_infinite] opacity-50 shadow-[0_0_20px_rgba(59,130,246,0.8)]"></div>
+      <main className="flex-1 px-6 flex flex-col justify-center relative z-10 pb-12 max-w-lg mx-auto w-full">
+        {step === 'GPS_CHECK' && (
+          <div className="flex flex-col items-center justify-center space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
+            <div className="w-40 h-40 bg-[#00b6fd]/10 rounded-[40px] flex items-center justify-center border border-[#00b6fd]/30 shadow-[0_0_40px_rgba(0,182,253,0.3)] relative">
+              <div className="absolute inset-0 border-[3px] border-[#00b6fd]/30 rounded-[40px] animate-ping opacity-50 duration-1000"></div>
+              <Icons.Target className="w-16 h-16 text-[#00b6fd]" />
             </div>
-            <h3 className="text-4xl font-bold text-white mb-6 tracking-tight uppercase leading-none">VAMOS<br /><span className="text-blue-600">TREINAR?</span></h3>
-            <p className="text-slate-500 text-xs font-bold uppercase tracking-[0.3em] mb-16 max-w-[280px] leading-relaxed">Escaneie o QR Code na recepção.</p>
+            <div className="text-center space-y-3">
+              <h2 className="text-3xl font-black tracking-tighter uppercase leading-none">Localização</h2>
+              <p className="text-sm text-white/60 font-medium px-4 leading-relaxed">Confirme que você está no raio de 100m da academia.</p>
+            </div>
             <button
-              onClick={startScanner}
-              className="w-full h-20 bg-blue-600 hover:bg-blue-500 text-white rounded-[32px] font-bold text-xs uppercase tracking-[0.4em] shadow-2xl shadow-blue-900/40 active:scale-[0.97] transition-all border border-white/10"
+              onClick={handleVerificarLocalizacao}
+              className="w-full h-16 bg-[#00b6fd] rounded-2xl text-white font-black text-sm uppercase tracking-widest shadow-[0_10px_30px_rgba(0,182,253,0.4)] transition-all active:scale-[0.98] mt-8 flex items-center justify-center"
             >
-              Ler QR Code
+              <Icons.MapPin className="w-5 h-5 mr-2" />
+              Verificar
             </button>
           </div>
         )}
 
-        {status === 'SCANNING' && (
-          <div className="flex flex-col items-center w-full animate-in fade-in duration-500">
-            <div className="relative w-full aspect-square max-w-sm mb-8 overflow-hidden rounded-[40px] border-4 border-blue-500/30 bg-black shadow-2xl">
-              <div id="reader" className="w-full h-full object-cover"></div>
-              {/* Overlay Guide */}
-              <div className="absolute inset-0 border-[40px] border-black/50 pointer-events-none z-10"></div>
-              <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
-                <div className="w-48 h-48 border-2 border-white/50 rounded-3xl relative">
-                  <div className="absolute top-0 left-0 w-6 h-6 border-t-4 border-l-4 border-blue-500 -mt-1 -ml-1 rounded-tl-lg"></div>
-                  <div className="absolute top-0 right-0 w-6 h-6 border-t-4 border-r-4 border-blue-500 -mt-1 -mr-1 rounded-tr-lg"></div>
-                  <div className="absolute bottom-0 left-0 w-6 h-6 border-b-4 border-l-4 border-blue-500 -mb-1 -ml-1 rounded-bl-lg"></div>
-                  <div className="absolute bottom-0 right-0 w-6 h-6 border-b-4 border-r-4 border-blue-500 -mb-1 -mr-1 rounded-br-lg"></div>
-                </div>
-              </div>
-            </div>
-            <p className="text-white font-bold text-xs uppercase tracking-[0.2em] animate-pulse">Aponte para o QR Code</p>
+        {step === 'LOADING' && (
+          <div className="flex flex-col items-center justify-center space-y-6 animate-in fade-in duration-500">
+            <div className="w-16 h-16 border-4 border-[#00b6fd] border-t-white/10 rounded-full animate-spin"></div>
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#00b6fd] animate-pulse">Buscando sinal...</p>
           </div>
         )}
 
-        {status === 'SYNCING' && (
-          <div className="flex flex-col items-center animate-in zoom-in duration-500">
-            <div className="w-24 h-24 bg-blue-600 rounded-[40px] flex items-center justify-center text-white shadow-2xl shadow-blue-900/40 animate-bounce mb-12">
-              <Icons.Repeat className="w-12 h-12 animate-spin" />
+        {step === 'OUTSIDE' && (
+          <div className="flex flex-col items-center justify-center space-y-8 animate-in slide-in-from-bottom-8 duration-500 text-center">
+            <div className="w-32 h-32 bg-red-500/10 rounded-full flex items-center justify-center border border-red-500/30">
+              <Icons.Map className="w-12 h-12 text-red-500" />
             </div>
-            <h3 className="text-2xl font-bold text-white mb-4 uppercase tracking-tight">Validando...</h3>
-            <p className="text-slate-400 text-[10px] font-bold uppercase tracking-[0.3em]">Registrando sua presença...</p>
-          </div>
-        )}
-
-        {status === 'SUCCESS' && (
-          <div className="animate-in zoom-in duration-700 flex flex-col items-center">
-            <div className="w-40 h-40 bg-green-500 text-white rounded-[56px] flex items-center justify-center mb-16 shadow-2xl shadow-green-900/40 group">
-              <Icons.Shield className="w-20 h-20 group-hover:rotate-12 transition-transform duration-500" />
+            <div className="space-y-3">
+              <h2 className="text-2xl font-black tracking-tight text-white uppercase">Muito Longe</h2>
+              <p className="text-sm text-white/60 px-2 leading-relaxed">Aproxime-se da recepção para liberar o check-in.</p>
             </div>
-            <h3 className="text-5xl font-bold text-white mb-6 tracking-tight uppercase leading-none animate-in slide-in-from-bottom-8 duration-700">ACESSO<br /><span className="text-green-500">CONFIRMADO</span></h3>
-            <p className="text-slate-400 text-lg font-bold uppercase tracking-widest animate-in slide-in-from-bottom-8 duration-700 delay-300">Bom treino, {userName.split(' ')[0]}!</p>
-          </div>
-        )}
-
-        {status === 'ERROR' && (
-          <div className="animate-in shake duration-500 flex flex-col items-center">
-            <div className="w-24 h-24 bg-red-600/20 text-red-500 rounded-full flex items-center justify-center mb-8 border border-red-500/50">
-              <Icons.ExclamationCircle className="w-12 h-12" />
-            </div>
-            <p className="text-red-400 font-bold text-center capitalize mb-8 px-4">{errorMsg}</p>
             <button
-              onClick={() => { setStatus('IDLE'); setErrorMsg(''); }}
-              className="px-8 py-4 bg-white/10 text-white rounded-xl font-bold uppercase tracking-wider hover:bg-white/20"
+              onClick={() => setStep('GPS_CHECK')}
+              className="w-full h-16 border-2 border-white/20 bg-white/5 rounded-2xl text-white font-bold text-xs uppercase tracking-widest transition-all active:scale-[0.98] mt-4"
             >
               Tentar Novamente
             </button>
           </div>
         )}
 
-      </main>
+        {step === 'ENERGY' && (
+          <div className="flex flex-col space-y-6 animate-in slide-in-from-bottom-8 duration-500">
+            <div className="text-center space-y-3 mb-4">
+              <h2 className="text-3xl font-black tracking-tight uppercase leading-none">Bateria de Hoje</h2>
+              <p className="text-xs text-white/50 font-medium tracking-wide uppercase">Selecione seu nível de energia</p>
+            </div>
 
-      <footer className="p-16 text-center relative z-10">
-        <p className="text-[9px] font-bold text-slate-800 uppercase tracking-[0.5em]">Personal Group Experience</p>
-      </footer>
+            <div className="grid grid-cols-1 gap-4">
+              {[
+                { id: 'high', label: 'Energia Alta', icon: Icons.Activity, desc: 'Pronto para bater PR', color: 'text-orange-400', border: 'border-orange-400/50', bg: 'bg-orange-400/10' },
+                { id: 'medium', label: 'Normal', icon: Icons.Zap, desc: 'Siga a planilha', color: 'text-[#00b6fd]', border: 'border-[#00b6fd]/50', bg: 'bg-[#00b6fd]/10' },
+                { id: 'low', label: 'Energia Baixa', icon: Icons.Moon, desc: 'Preciso pegar leve', color: 'text-indigo-400', border: 'border-indigo-400/50', bg: 'bg-indigo-400/10' }
+              ].map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => {
+                    triggerHaptic(15);
+                    setEnergy(item.id as any);
+                    setTimeout(() => setStep('LIMITATION'), 300);
+                  }}
+                  className={`w-full text-left p-6 rounded-[24px] flex items-center space-x-5 border-2 transition-all active:scale-[0.98] ${energy === item.id ? `${item.border} ${item.bg}` : 'border-white/5 bg-white/5 hover:bg-white/10'}`}
+                >
+                  <div className={`w-12 h-12 flex items-center justify-center rounded-2xl ${energy === item.id ? item.bg : 'bg-white/5'}`}>
+                    <item.icon className={`w-6 h-6 ${energy === item.id ? item.color : 'text-white/50'}`} />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-bold text-lg leading-tight">{item.label}</h3>
+                    <p className="text-[11px] text-white/50 uppercase tracking-wider mt-1 font-medium">{item.desc}</p>
+                  </div>
+                  <Icons.ArrowRight className={`w-5 h-5 ${energy === item.id ? item.color : 'text-white/30'}`} />
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {step === 'LIMITATION' && (
+          <div className="flex flex-col h-full animate-in slide-in-from-right-8 duration-500">
+            <div className="text-center space-y-3 mb-8">
+              <h2 className="text-3xl font-black tracking-tight uppercase leading-none">Limitações?</h2>
+              <p className="text-xs text-white/50 font-medium tracking-wide uppercase">Alguma dor ou desconforto? (Opcional)</p>
+            </div>
+
+            <div className="flex-1 flex flex-col">
+              <textarea
+                className="w-full flex-1 min-h-[160px] bg-white/5 border-2 border-white/10 rounded-[24px] p-6 text-white text-lg placeholder-white/20 focus:outline-none focus:border-[#00b6fd]/50 transition-colors resize-none mb-6"
+                placeholder="Ex: Dor na lombar, não dormi bem..."
+                value={limitation}
+                onChange={(e) => setLimitation(e.target.value)}
+              ></textarea>
+
+              <div className="flex space-x-3 mt-auto">
+                <button
+                  onClick={() => setStep('ENERGY')}
+                  className="w-16 h-16 border-2 border-white/10 bg-white/5 rounded-2xl flex items-center justify-center shrink-0 active:scale-95 transition-all text-white/50 hover:text-white hover:border-white/20 hover:bg-white/10"
+                >
+                  <Icons.ArrowLeft className="w-6 h-6" />
+                </button>
+                <button
+                  onClick={handleConfirmar}
+                  className="flex-1 h-16 bg-[#00b6fd] rounded-2xl text-white font-black text-sm uppercase tracking-[0.2em] shadow-[0_10px_30px_rgba(0,182,253,0.4)] transition-all active:scale-[0.98] flex items-center justify-center"
+                >
+                  Concluir
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {step === 'CONFIRMING' && (
+          <div className="flex flex-col items-center justify-center space-y-6 animate-in fade-in duration-500">
+            <div className="w-16 h-16 border-4 border-[#00b6fd] border-t-transparent rounded-full animate-spin"></div>
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#00b6fd] animate-pulse">Registrando...</p>
+          </div>
+        )}
+
+        {step === 'DONE' && (
+          <div className="flex flex-col items-center justify-center h-full animate-in zoom-in-95 duration-500">
+            <div className="w-32 h-32 bg-emerald-500/10 rounded-[40px] flex items-center justify-center border-2 border-emerald-500/50 shadow-[0_0_60px_rgba(16,185,129,0.3)] text-emerald-400 mb-8">
+              <Icons.Check className="w-16 h-16 animate-in zoom-in duration-300 delay-150" />
+            </div>
+            <h2 className="text-4xl font-black tracking-tighter text-white mb-3 text-center uppercase leading-none">Treino<br />Liberado</h2>
+            <p className="text-[10px] font-bold text-emerald-400 uppercase tracking-[0.3em]">Bom treino, {userName.split(' ')[0]}</p>
+          </div>
+        )}
+
+        {step === 'ERROR' && (
+          <div className="flex flex-col items-center justify-center space-y-8 animate-in slide-in-from-bottom-8 duration-500 text-center">
+            <div className="w-32 h-32 bg-red-500/10 rounded-[40px] flex items-center justify-center border-2 border-red-500/30">
+              <Icons.AlertTriangle className="w-16 h-16 text-red-500" />
+            </div>
+            <div className="space-y-3">
+              <h2 className="text-3xl font-black tracking-tighter text-white uppercase leading-none">Erro</h2>
+              <p className="text-sm text-white/50 px-6 leading-relaxed font-medium">{errorMessage}</p>
+            </div>
+            <button
+              onClick={() => setStep('GPS_CHECK')}
+              className="w-full h-16 border-2 border-white/20 bg-white/5 rounded-2xl text-white font-bold text-xs uppercase tracking-widest transition-all active:scale-[0.98] mt-4"
+            >
+              Recomeçar
+            </button>
+          </div>
+        )}
+      </main>
     </div>
   );
 };

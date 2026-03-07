@@ -78,7 +78,7 @@ const Navigation: React.FC<NavigationProps> = ({ role, isDarkMode }) => {
               </button>
 
               <NavItem path="/agenda" icon={Icons.Calendar} label="Agenda" />
-              <NavItem path="/timeline" icon={Icons.Chart} label="Histórico" />
+              <NavItem path="/club" icon={Icons.Star} label="Clube" />
             </>
           )}
         </nav>

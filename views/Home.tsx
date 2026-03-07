@@ -398,6 +398,43 @@ const Home: React.FC<HomeProps> = ({
         ))}
       </div>
 
+      {/* 4.5 SUA JORNADA */}
+      <section className="space-y-4">
+        <div className="flex justify-between items-end px-1">
+          <h4 className="text-[11px] font-black text-blue-950 dark:text-slate-400 uppercase tracking-[0.3em]">
+            Sua Jornada
+          </h4>
+          <button
+            onClick={onGoClub}
+            className="text-[10px] font-black text-cobalt uppercase tracking-widest hover:underline"
+          >
+            Ver Tudo
+          </button>
+        </div>
+        <div className="space-y-3">
+          {[
+            { date: 'Hoje', title: 'Treino A - Superior', trainer: 'Paulo H.', status: 'Concluído' },
+            { date: 'Avaliando', title: 'Avaliação Flex', trainer: 'Sofia M.', status: 'Finalizado' },
+            { date: 'Semana Passada', title: 'Treino B - Inferior', trainer: 'Carlos R.', status: 'Concluído' }
+          ].map((item, idx) => (
+            <Card key={idx} variant="flat" className="p-4 border-slate-200 dark:border-white/5 hover:border-cobalt/30 transition-all flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <div className="w-10 h-10 rounded-full bg-green-50 text-green-600 flex items-center justify-center">
+                  <Icons.Check className="w-5 h-5" />
+                </div>
+                <div>
+                  <h5 className="text-[11px] font-bold text-slate-800 dark:text-slate-300 uppercase tracking-widest">{item.title}</h5>
+                  <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">{item.date} • {item.trainer}</p>
+                </div>
+              </div>
+              <div className="text-[9px] font-black text-green-600 uppercase tracking-widest bg-green-50 px-2 py-1 rounded">
+                {item.status}
+              </div>
+            </Card>
+          ))}
+        </div>
+      </section>
+
       {/* 5. NEXT EXPERIENCE */}
       <button
         onClick={onGoWellness}

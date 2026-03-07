@@ -13,6 +13,7 @@ import {
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase';
 import { User, UserRole } from '../types';
+import { PRESET_AVATARS } from '../constants';
 
 const auth = getAuth();
 const googleProvider = new GoogleAuthProvider();
@@ -30,13 +31,16 @@ const createUserDoc = async (
     firebaseUser: FirebaseUser,
     extraData: Partial<User> = {}
 ): Promise<User> => {
+    const defaultAvatar = PRESET_AVATARS[Math.floor(Math.random() * PRESET_AVATARS.length)];
+    const avatarToUse = firebaseUser.photoURL || defaultAvatar;
+
     const newUser: Omit<User, 'currentCycle'> & { createdAt: any } = {
         id: firebaseUser.uid,
         name: firebaseUser.displayName || extraData.name || 'Usuário',
         email: firebaseUser.email || '',
         role: UserRole.ALUNO,
-        avatar: firebaseUser.photoURL || '',
-        photoUrl: firebaseUser.photoURL || '',
+        avatar: avatarToUse,
+        photoUrl: avatarToUse,
         healthStatus: 'NORMAL',
         wellnessSessionsUsed: 0,
         lastWellnessResetMonth: new Date().getMonth(),

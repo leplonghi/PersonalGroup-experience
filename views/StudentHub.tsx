@@ -131,6 +131,21 @@ const StudentHub: React.FC<StudentHubProps> = ({ user, onLogout, onNavigateTo })
                     </div>
                 </section>
 
+                {/* Settings Section */}
+                <section className="space-y-4">
+                    <h3 className="text-xs font-black text-slate-700 dark:text-slate-400 uppercase tracking-[0.2em]">Configurações</h3>
+                    <div className="grid grid-cols-2 gap-3">
+                        <div onClick={() => onNavigateTo('wearables')} className="glass-panel group p-4 flex flex-col items-center justify-center gap-3 hover:bg-white/5 transition-colors cursor-pointer rounded-xl border border-white/10 shadow-sm">
+                            <Icons.Activity className="w-8 h-8 text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform" />
+                            <span className="text-[10px] font-black text-slate-800 dark:text-slate-400 uppercase tracking-widest text-center">Wearables & Saúde</span>
+                        </div>
+                        <div onClick={() => onNavigateTo('profile')} className="glass-panel group p-4 flex flex-col items-center justify-center gap-3 hover:bg-white/5 transition-colors cursor-pointer rounded-xl border border-white/10 shadow-sm">
+                            <Icons.User className="w-8 h-8 text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform" />
+                            <span className="text-[10px] font-black text-slate-800 dark:text-slate-400 uppercase tracking-widest text-center">Editar Perfil</span>
+                        </div>
+                    </div>
+                </section>
+
                 {/* Logout Section */}
                 <section className="pb-24">
                     <button

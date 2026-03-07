@@ -2,7 +2,7 @@
 import React, { useState, useRef } from 'react';
 import { User, UserRole } from '../types';
 import { updateUserProfile, uploadProfilePhoto } from '../firebase';
-import { Icons } from '../constants';
+import { Icons, PRESET_AVATARS } from '../constants';
 
 interface EditProfileProps {
     user: User;
@@ -71,6 +71,8 @@ const EditProfile: React.FC<EditProfileProps> = ({ user, onBack, onUpdated }) =>
         const data: Partial<User> = {
             name,
             whatsapp,
+            photoUrl: photoPreview,
+            avatar: photoPreview,
             ...(isPersonal ? {
                 bio,
                 specialty: selectedSpecialties,
@@ -129,7 +131,23 @@ const EditProfile: React.FC<EditProfileProps> = ({ user, onBack, onUpdated }) =>
                         </button>
                     </div>
                     <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoChange} />
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Toque para alterar foto</p>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center mt-2">Toque para enviar foto</p>
+
+                    {/* Default Avatars */}
+                    <div className="pt-2 w-full max-w-[280px]">
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center mb-3">Ou escolha um avatar</p>
+                        <div className="flex flex-wrap justify-center gap-3">
+                            {PRESET_AVATARS.map((avatar, idx) => (
+                                <button
+                                    key={idx}
+                                    onClick={() => setPhotoPreview(avatar)}
+                                    className={`w-10 h-10 rounded-full overflow-hidden border-2 transition-all ${photoPreview === avatar ? 'border-blue-500 scale-110 shadow-lg shadow-blue-500/30' : 'border-slate-800 opacity-70 hover:opacity-100 hover:scale-105 hover:border-blue-500/50'}`}
+                                >
+                                    <img src={avatar} alt={`Avatar ${idx + 1}`} className="w-full h-full object-cover" />
+                                </button>
+                            ))}
+                        </div>
+                    </div>
                 </div>
 
                 {/* Common Fields */}

@@ -28,7 +28,9 @@ const Evolution = lazy(() => import('./views/Evolution'));
 const SupportChat = lazy(() => import('./views/SupportChat'));
 const Ranking = lazy(() => import('./views/Ranking'));
 const Wearables = lazy(() => import('./views/Wearables'));
-
+const FloorView = lazy(() => import('./views/FloorView'));
+const StudentBriefing = lazy(() => import('./views/StudentBriefing'));
+const Onboarding = lazy(() => import('./views/Onboarding'));
 // Shared Loader
 export const PageLoader = () => (
   <div className="flex-1 min-h-[50vh] flex flex-col items-center justify-center p-8 space-y-4">
@@ -149,6 +151,8 @@ const AppLayout: React.FC<{
     if (path === '/assessment') return { title: 'Avaliação', subtitle: 'Intervenção Técnica', leftAction: backBtn('/management'), rightAction: <div className="w-12 h-12 border border-app bg-surface flex items-center justify-center font-black text-[10px] text-cobalt italic">GOV</div> };
     if (path === '/cycle-builder') return { title: 'Novo Ciclo', subtitle: 'Planejamento', leftAction: backBtn('/management'), rightAction: <div className="w-12 h-12 border border-app bg-surface flex items-center justify-center font-black text-[10px] text-cobalt italic">v1.2</div> };
     if (path === '/checkin') return { title: 'Validação de Acesso', subtitle: 'Unidade Península Jardins', leftAction: backBtn('/home') };
+    if (path === '/floor-view') return { title: 'Pista', subtitle: 'Visão Geral', leftAction: backBtn('/management') };
+    if (path.startsWith('/student-briefing')) return { title: 'Prontuário', subtitle: 'Aluno', leftAction: backBtn('/floor-view') };
     if (path.startsWith('/evolution')) return { title: 'Evolução', subtitle: 'Acompanhamento', leftAction: backBtn(-1) };
 
     return {};
@@ -183,10 +187,14 @@ const AppLayout: React.FC<{
                     <Route path="/timeline" element={<Timeline user={user} onBack={() => navigate('/home')} />} />
                     <Route path="/wellness" element={<Wellness user={user} onBack={() => navigate('/home')} />} />
                     <Route path="/profile" element={<StudentHub user={user} onLogout={onLogout} onNavigateTo={(page) => navigate(`/${page}`)} />} />
-
+                    <Route path="/onboarding" element={<Onboarding user={user} onComplete={() => navigate('/home')} />} />
 
                     {/* Active Session & Management */}
                     <Route path="/session/:studentId?" element={<SessionRoute executor={user} onFinish={() => navigate('/home')} />} />
+                    <Route path="/live-session/:sessionId" element={<SessionRoute executor={user} onFinish={() => navigate('/home')} />} />
+                    <Route path="/session-live" element={<SessionRoute executor={user} onFinish={() => navigate('/home')} />} />
+                    <Route path="/floor-view" element={<FloorView />} />
+                    <Route path="/student-briefing/:uid" element={<StudentBriefing trainer={user} />} />
                     <Route path="/management" element={<Management user={user} onEditProtocol={() => navigate('/protocol-edit')} onStartAssessment={(s) => { setSelectedStudent(s); navigate('/assessment'); }} onStartCycle={(s) => { setSelectedStudent(s); navigate('/cycle-builder'); }} onJoinSession={(s) => navigate(`/session/${s.id}`)} onViewEvolution={(s) => navigate(`/evolution/${s.id}`)} onRegisterStaff={onRegisterStaff} onToggleRole={onToggleRole} />} />
 
                     {/* Management Sub-routes */}
@@ -228,10 +236,7 @@ const AppLayout: React.FC<{
 };
 
 const App: React.FC = () => {
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    const saved = localStorage.getItem('pg-theme');
-    return saved ? saved === 'dark' : false;
-  });
+  const [isDarkMode, setIsDarkMode] = useState(true);
 
   useEffect(() => {
     if (isDarkMode) {

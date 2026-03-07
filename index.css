@@ -33,6 +33,10 @@
     --color-bg-main: var(--pg-bg-main);
     --color-bg-surface: var(--pg-bg-surface);
     --color-border-main: var(--pg-border-main);
+
+    /* Typography Adjustments (Less Bold) */
+    --font-weight-bold: 600;
+    --font-weight-black: 700;
 }
 
 :root {
@@ -77,7 +81,7 @@
     --pg-primary-gradient: linear-gradient(180deg, #25235b 0%, #171638 100%);
     --pg-accent-gradient: linear-gradient(180deg, #00b6fd 0%, #3363a2 100%);
     --pg-hero-gradient: linear-gradient(180deg, #25235b 0%, #171638 100%);
-    --pg-glass-bg-main: rgba(255, 255, 255, 0.95);
+    --pg-glass-bg-main: rgba(255, 255, 255, 0.65);
 }
 
 .dark {
@@ -94,7 +98,7 @@
 
     /* Dark Gradients */
     --pg-bg-gradient: linear-gradient(180deg, #020617 0%, #010409 100%);
-    --pg-glass-bg-main: rgba(1, 4, 9, 0.85);
+    --pg-glass-bg-main: rgba(1, 4, 9, 0.50);
 }
 
 * {

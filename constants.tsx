@@ -11,6 +11,21 @@ export const COLORS = {
   danger: '#EF4444'
 };
 
+export const PRESET_AVATARS = [
+  "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix&backgroundColor=1e293b",
+  "https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka&backgroundColor=312e81",
+  "https://api.dicebear.com/7.x/avataaars/svg?seed=Buster&backgroundColor=172554",
+  "https://api.dicebear.com/7.x/avataaars/svg?seed=Mimi&backgroundColor=0f172a",
+  "https://api.dicebear.com/7.x/avataaars/svg?seed=Snuggles&backgroundColor=312e81",
+  "https://api.dicebear.com/7.x/avataaars/svg?seed=Shadow&backgroundColor=1e293b",
+  "https://api.dicebear.com/7.x/avataaars/svg?seed=Oscar&backgroundColor=172554",
+  "https://api.dicebear.com/7.x/avataaars/svg?seed=Coco&backgroundColor=0f172a",
+  "https://api.dicebear.com/7.x/avataaars/svg?seed=Max&backgroundColor=1e293b",
+  "https://api.dicebear.com/7.x/avataaars/svg?seed=Lucy&backgroundColor=172554",
+  "https://api.dicebear.com/7.x/avataaars/svg?seed=Charlie&backgroundColor=312e81",
+  "https://api.dicebear.com/7.x/avataaars/svg?seed=Luna&backgroundColor=0f172a",
+];
+
 export const BRAND = {
   name: 'Personal Group',
   tagline: 'Mais que uma academia, uma experiência a cada treino',
@@ -351,6 +366,51 @@ export const Icons = {
   Download: ({ className }: { className?: string }) => (
     <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+    </svg>
+  ),
+  Target: ({ className }: { className?: string }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18C15.3137 18 18 15.3137 18 12C18 8.68629 15.3137 6 12 6C8.68629 6 6 8.68629 6 12C6 15.3137 8.68629 18 12 18Z" />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14C13.1046 14 14 13.1046 14 12C14 10.8954 13.1046 10 12 10C10.8954 10 10 10.8954 10 12C10 13.1046 10.8954 14 12 14Z" />
+    </svg>
+  ),
+  Map: ({ className }: { className?: string }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 6V20M16 4V18M4 8L8 6L16 10L20 8V22L16 20L8 16L4 18V8Z" />
+    </svg>
+  ),
+  Zap: ({ className }: { className?: string }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 2L3 14H12L11 22L21 10H12L13 2Z" />
+    </svg>
+  ),
+  ArrowRight: ({ className }: { className?: string }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12h14M12 5l7 7-7 7" />
+    </svg>
+  ),
+  ArrowLeft: ({ className }: { className?: string }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 12H5M12 19l-7-7 7-7" />
+    </svg>
+  ),
+  AlertTriangle: ({ className }: { className?: string }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+    </svg>
+  ),
+  Eye: ({ className }: { className?: string }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+    </svg>
+  ),
+  AlertOctagon: ({ className }: { className?: string }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 2L16 2L22 8V16L16 22H8L2 16V8L8 2Z" />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8V12" />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 16H12.01" />
     </svg>
   )
 };

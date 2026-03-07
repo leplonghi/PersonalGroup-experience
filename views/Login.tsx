@@ -65,29 +65,20 @@ const Login: React.FC<LoginProps> = ({ onLogin, onGoogleLogin, onRegister, isDar
   return (
     <div className="min-h-screen w-full flex flex-col items-center justify-center relative overflow-hidden p-6">
       {/* Background Image & Overlays - Cinematic Movement */}
-      <div className="absolute inset-0 z-0 select-none pointer-events-none overflow-hidden">
+      <div className="absolute inset-0 z-0 select-none pointer-events-none overflow-hidden bg-black">
         <div
-          className="absolute inset-x-[-10%] inset-y-[-10%] w-[120%] h-[120%] bg-cover bg-center animate-slow-pan"
+          className="absolute inset-x-[-10%] inset-y-[-10%] w-[120%] h-[120%] bg-cover bg-center animate-slow-pan opacity-20"
           style={{ backgroundImage: 'url(/gym-interior.png)' }}
         />
         {/* Layer 1: Matte Tint */}
-        <div className="absolute inset-0 bg-slate-950/60 mix-blend-multiply"></div>
+        <div className="absolute inset-0 bg-slate-950/80 mix-blend-multiply"></div>
         {/* Layer 2: Deep Darkness Smooth Transition */}
-        <div className="absolute inset-0 bg-gradient-to-b from-midnight/60 via-midnight/90 to-midnight"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-midnight/80 via-midnight/95 to-midnight"></div>
         {/* Layer 3: Soft Radial Focus */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,transparent_20%,#000000_100%)] opacity-60"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,transparent_20%,#000000_100%)] opacity-80"></div>
       </div>
 
-      {/* Theme Toggle Button */}
-      {onToggleTheme && (
-        <button
-          onClick={onToggleTheme}
-          className="absolute top-6 right-6 z-50 w-12 h-12 border border-white/10 bg-black/20 flex items-center justify-center text-white active:scale-95 transition-all hover:bg-white/10 rounded-full backdrop-blur-md shadow-lg"
-          aria-label="Alternar tema"
-        >
-          {isDarkMode ? <Icons.Sun className="w-5 h-5 text-amber-400" /> : <Icons.Moon className="w-5 h-5 text-blue-200" />}
-        </button>
-      )}
+
 
       <div className="w-full max-w-sm z-10 space-y-8 animate-in fade-in slide-in-from-bottom-12 duration-1000">
         {/* Logo Section */}
