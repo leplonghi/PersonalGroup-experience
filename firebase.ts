@@ -47,7 +47,8 @@ import {
   AdminRequestType,
   EvolutionEntry,
   FrequencyReport,
-  CheckInRecord
+  CheckInRecord,
+  LiveSession
 } from "./types";
 
 const firebaseConfig = {
@@ -118,6 +119,11 @@ const checkAndResetWellness = async (user: User) => {
 };
 
 // --- Service Functions ---
+
+export const getUserById = async (userId: string): Promise<User | null> => {
+  const snap = await getDoc(doc(db, "users", userId));
+  return snap.exists() ? snap.data() as User : null;
+};
 
 export const syncUser = async (user: User): Promise<User> => {
   try {
@@ -803,5 +809,53 @@ export const syncWearable = async (userId: string, device: string, data?: any): 
     healthData: data, // Generic health data blob
     updatedAt: serverTimestamp()
   });
+};
+
+// --- Real-time Session Sync ---
+export const liveSessionsCol = collection(db, "active_sessions");
+
+export const startLiveSession = async (studentId: string, personalId: string, personalName: string, protocolId: string): Promise<void> => {
+  const sessionRef = doc(db, "active_sessions", studentId);
+  await setDoc(sessionRef, {
+    studentId,
+    personalId,
+    personalName,
+    protocolId,
+    currentExerciseIdx: 0,
+    currentSet: 1,
+    isResting: false,
+    restTimeRemaining: 0,
+    status: 'ACTIVE',
+    logs: [],
+    lastUpdate: serverTimestamp()
+  });
+};
+
+export const updateLiveSession = async (studentId: string, data: Partial<LiveSession>): Promise<void> => {
+  const sessionRef = doc(db, "active_sessions", studentId);
+  await updateDoc(sessionRef, {
+    ...data,
+    lastUpdate: serverTimestamp()
+  });
+};
+
+export const subscribeToLiveSession = (studentId: string, callback: (session: LiveSession | null) => void) => {
+  const sessionRef = doc(db, "active_sessions", studentId);
+  return onSnapshot(sessionRef, (snap) => {
+    if (snap.exists()) {
+      callback(snap.data() as LiveSession);
+    } else {
+      callback(null);
+    }
+  });
+};
+
+export const endLiveSession = async (studentId: string): Promise<void> => {
+  const sessionRef = doc(db, "active_sessions", studentId);
+  await updateDoc(sessionRef, {
+    status: 'FINISHED',
+    lastUpdate: serverTimestamp()
+  });
+  // Optional: move to history and delete active session document
 };
 

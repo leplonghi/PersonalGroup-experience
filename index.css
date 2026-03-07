@@ -26,10 +26,27 @@
     --radius-pg-premium: 16px;
     /* 2xl rounded corners as seen on site */
     --radius-pg-pill: 9999px;
+
+    /* Semantic Tailwind v4 Tokens */
+    --color-text-main: var(--pg-text-main);
+    --color-text-muted: var(--pg-text-muted);
+    --color-bg-main: var(--pg-bg-main);
+    --color-bg-surface: var(--pg-bg-surface);
+    --color-border-main: var(--pg-border-main);
 }
 
 :root {
-    /* Brand Palette Variables */
+    /* Base Semantic Tokens - Light Mode */
+    --pg-text-main: #0F172A;
+    /* Slate 900 */
+    --pg-text-muted: #475569;
+    /* Slate 600 */
+    --pg-bg-main: #F8FAFC;
+    /* Slate 50 */
+    --pg-bg-surface: #FFFFFF;
+    --pg-border-main: rgba(15, 23, 42, 0.08);
+
+    /* Brand Palette Aliases */
     --pg-deep-blue: #25235b;
     --pg-midnight: #171638;
     --pg-ocean: #1a1945;
@@ -42,7 +59,6 @@
     /* Functional Colors */
     --pg-success: #10B981;
     --pg-warning: #F59E0B;
-    --pg-surface: #FFFFFF;
     --pg-accent: var(--pg-cobalt);
 
     /* Glass & Borders - Brand Based */
@@ -56,14 +72,29 @@
     --pg-radius-premium: 16px;
     --pg-radius-pill: 9999px;
 
-    /* Brand Gradients - More natural and subtle */
-    --pg-bg-light: linear-gradient(180deg, #F8FAFC 0%, #F1F5F9 100%);
-    --pg-bg-dark: linear-gradient(180deg, #25235b 0%, #171638 100%);
+    /* Brand Gradients */
+    --pg-bg-gradient: linear-gradient(180deg, #F8FAFC 0%, #F1F5F9 100%);
     --pg-primary-gradient: linear-gradient(180deg, #25235b 0%, #171638 100%);
     --pg-accent-gradient: linear-gradient(180deg, #00b6fd 0%, #3363a2 100%);
     --pg-hero-gradient: linear-gradient(180deg, #25235b 0%, #171638 100%);
-    --pg-glass-bg-light: rgba(255, 255, 255, 0.95);
-    --pg-glass-bg-dark: rgba(1, 8, 31, 0.85);
+    --pg-glass-bg-main: rgba(255, 255, 255, 0.95);
+}
+
+.dark {
+    /* Base Semantic Tokens - Dark Mode */
+    --pg-text-main: #F8FAFC;
+    /* Slate 50 */
+    --pg-text-muted: #94A3B8;
+    /* Slate 400 */
+    --pg-bg-main: #010409;
+    /* Very Deep Blue/Black */
+    --pg-bg-surface: #0D1117;
+    /* Deep Overlay */
+    --pg-border-main: rgba(255, 255, 255, 0.08);
+
+    /* Dark Gradients */
+    --pg-bg-gradient: linear-gradient(180deg, #020617 0%, #010409 100%);
+    --pg-glass-bg-main: rgba(1, 4, 9, 0.85);
 }
 
 * {
@@ -74,15 +105,13 @@
 
 body {
     font-family: var(--font-sans);
-    background: var(--pg-bg-light);
-    color: #0F172A;
-    /* slate-900 */
+    background: var(--pg-bg-main);
+    color: var(--pg-text-main);
     overscroll-behavior-y: none;
-    transition: background 0.8s cubic-bezier(0.16, 1, 0.3, 1), color 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: background 0.5s cubic-bezier(0.16, 1, 0.3, 1), color 0.5s cubic-bezier(0.16, 1, 0.3, 1);
     letter-spacing: -0.01em;
     background-attachment: fixed;
     font-size: 17px;
-    /* Slightly larger base size */
 }
 
 h1,
@@ -94,82 +123,45 @@ h6,
 .font-display {
     font-family: var(--font-display);
     letter-spacing: -0.02em;
-}
-
-.dark body {
-    background: var(--pg-bg-dark);
-    background-attachment: fixed;
-    color: #E0F2FE;
+    color: var(--pg-text-main);
 }
 
 /* Theme-aware background utilities */
 .bg-app {
-    background: var(--pg-bg-light);
-}
-
-.dark .bg-app {
-    background: var(--pg-bg-dark);
+    background: var(--pg-bg-main) !important;
+    color: var(--pg-text-main) !important;
 }
 
 .text-app {
-    color: #0F172A;
-}
-
-.dark .text-app {
-    color: #F8FAFC;
+    color: var(--pg-text-main) !important;
 }
 
 .text-app-muted {
-    color: #475569;
-}
-
-.dark .text-app-muted {
-    color: #94A3B8;
+    color: var(--pg-text-muted) !important;
 }
 
 .border-app {
-    border-color: var(--pg-border-light);
+    border-color: var(--pg-border-main) !important;
 }
-
-.dark .border-app {
-    border-color: var(--pg-border-dark);
-}
-
-/* Removed aggressive GLOBAL LIGHT MODE TEXT FIX.
-   Use specific Tailwind classes (e.g., text-slate-900 dark:text-white) directly in components instead. */
 
 /* Card and surface backgrounds */
 .bg-card {
-    background: #FFFFFF;
-    border: 1px solid var(--pg-border-light);
-    box-shadow: none;
-    /* Removing drop-shadows for a flat, Swiss-like premium style */
-}
-
-.dark .bg-card {
-    background: #111827;
-    border: 1px solid var(--pg-border-dark);
-    box-shadow: none;
+    background: var(--pg-bg-surface);
+    border: 1px solid var(--pg-border-main);
+    color: var(--pg-text-main);
 }
 
 .bg-surface {
-    background: var(--pg-ice);
-}
-
-.dark .bg-surface {
-    background: var(--pg-ocean);
+    background: var(--pg-bg-surface);
 }
 
 /* Input backgrounds */
 .bg-input {
-    background: #FFFFFF;
-    border: 1px solid var(--pg-border-light);
+    background: var(--pg-bg-surface);
+    border: 1px solid var(--pg-border-main);
+    color: var(--pg-text-main);
 }
 
-.dark .bg-input {
-    background: #0A0F1D;
-    border: 1px solid var(--pg-border-dark);
-}
 
 .no-scrollbar::-webkit-scrollbar {
     display: none;

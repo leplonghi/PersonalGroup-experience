@@ -26,7 +26,7 @@ const Header: React.FC<HeaderProps> = ({
   onGoProfile
 }) => {
   return (
-    <header className="fixed top-0 left-0 right-0 z-[150] h-20 backdrop-blur-xl border-b border-app/5 transition-all duration-500 shadow-2xl dark:shadow-blue-950/40 shadow-slate-200/50" style={{ background: isDarkMode ? 'linear-gradient(180deg, #25235b 0%, #1a1945 100%)' : 'rgba(255, 255, 255, 0.95)' }}>
+    <header className="fixed top-0 left-0 right-0 z-[150] h-20 backdrop-blur-xl border-b border-white/5 transition-all duration-500 shadow-2xl dark:shadow-blue-950/40 shadow-slate-200/50 bg-[var(--pg-glass-bg-main)]">
       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-400/5 to-transparent"></div>
       <div className="absolute inset-x-0 bottom-0 h-[1px] bg-gradient-to-r from-transparent via-blue-500/10 to-transparent"></div>
 

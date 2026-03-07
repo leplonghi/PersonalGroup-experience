@@ -316,3 +316,17 @@ export interface OnboardingStep {
   description: string;
   isCompleted: boolean;
 }
+
+export interface LiveSession {
+  studentId: string;
+  personalId: string;
+  personalName?: string;
+  protocolId: string;
+  currentExerciseIdx: number;
+  currentSet: number;
+  isResting: boolean;
+  restTimeRemaining: number;
+  status: 'ACTIVE' | 'FINISHED';
+  lastUpdate: any; // serverTimestamp
+  logs: SessionLog[];
+}

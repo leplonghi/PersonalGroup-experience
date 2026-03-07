@@ -10,11 +10,11 @@ interface CardProps {
 
 const Card: React.FC<CardProps> = ({ children, variant = 'flat', className = '', onClick }) => {
   const variants = {
-    flat: 'bg-white dark:bg-ocean border border-slate-200 dark:border-white/10 shadow-sm hover:shadow-md hover:border-blue-200 dark:hover:border-blue-500/30 ring-1 ring-black/5 dark:ring-white/5',
-    elevated: 'bg-white dark:bg-ocean border border-slate-100 dark:border-white/10 shadow-xl shadow-blue-900/5 hover:translate-y-[-2px] hover:shadow-2xl hover:shadow-blue-900/10',
-    glass: 'bg-white/80 dark:bg-ocean/80 border border-white/40 dark:border-white/10 backdrop-blur-xl shadow-lg hover:bg-white/90 dark:hover:bg-ocean/90',
-    blue: 'bg-deep-blue text-white border border-white/10 shadow-lg shadow-blue-900/20 relative overflow-hidden',
-    outline: 'bg-transparent border border-slate-300 dark:border-white/20 hover:border-blue-600 dark:hover:border-blue-400 hover:bg-blue-50/50 dark:hover:bg-blue-900/20 transition-all cursor-pointer',
+    flat: 'bg-surface text-app border border-app shadow-sm hover:shadow-md hover:border-cobalt/50 ring-1 ring-black/5 dark:ring-white/5',
+    elevated: 'bg-surface text-app border border-app shadow-xl shadow-blue-900/5 hover:translate-y-[-2px] hover:shadow-2xl hover:shadow-blue-900/10',
+    glass: 'bg-[var(--pg-glass-bg-main)] text-app border border-app backdrop-blur-xl shadow-lg hover:brightness-110',
+    blue: 'bg-cobalt text-white border border-white/10 shadow-lg shadow-blue-900/20 relative overflow-hidden',
+    outline: 'bg-transparent text-app border border-app hover:border-cobalt hover:bg-cobalt/10 transition-all cursor-pointer',
     gradient: 'bg-gradient-to-b from-blue-600 to-indigo-700 text-white border border-white/20 shadow-xl shadow-blue-900/30'
   };
 

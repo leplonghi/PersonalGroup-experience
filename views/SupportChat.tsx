@@ -138,7 +138,7 @@ const SupportChat: React.FC<SupportChatProps> = ({ user, onBack }) => {
                                             className="w-full text-left bg-white/5 border border-white/10 rounded-xl p-4 transition-all hover:bg-white/10"
                                         >
                                             <div className="flex items-start justify-between">
-                                                <p className="text-[10px] font-bold text-white leading-relaxed pr-4">{item.q}</p>
+                                                <p className="text-[10px] font-bold text-slate-900 dark:text-white leading-relaxed pr-4">{item.q}</p>
                                                 <Icons.ChevronRight className={`w-4 h-4 text-slate-500 flex-shrink-0 transition-transform ${isOpen ? 'rotate-90' : ''}`} />
                                             </div>
                                             {isOpen && (
@@ -174,23 +174,23 @@ const SupportChat: React.FC<SupportChatProps> = ({ user, onBack }) => {
                     </div>
 
                     <div className="space-y-2">
-                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em]">Assunto</p>
+                        <p className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.3em]">Assunto</p>
                         <input
                             type="text"
                             value={subject}
                             onChange={e => setSubject(e.target.value)}
-                            className="w-full bg-black/20 border border-white/10 rounded-xl p-3 text-sm text-white placeholder:text-white/20 focus:border-blue-500/50 outline-none"
+                            className="w-full bg-slate-100 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl p-3 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-white/20 focus:border-blue-600/50 outline-none transition-all"
                             placeholder="Resumo da sua dúvida..."
                         />
                     </div>
 
                     <div className="space-y-2">
-                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em]">Mensagem</p>
+                        <p className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.3em]">Mensagem</p>
                         <textarea
                             value={message}
                             onChange={e => setMessage(e.target.value)}
                             rows={5}
-                            className="w-full bg-black/20 border border-white/10 rounded-xl p-3 text-sm text-white placeholder:text-white/20 focus:border-blue-500/50 outline-none resize-none"
+                            className="w-full bg-slate-100 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl p-3 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-white/20 focus:border-blue-600/50 outline-none resize-none transition-all"
                             placeholder="Descreva sua dúvida em detalhes..."
                         />
                     </div>

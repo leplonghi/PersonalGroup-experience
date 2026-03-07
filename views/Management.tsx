@@ -11,11 +11,13 @@ interface ManagementProps {
   onEditProtocol: (protocol?: Protocol) => void;
   onStartAssessment: (student: User) => void;
   onStartCycle: (student: User) => void;
+  onJoinSession: (student: User) => void;
+  onViewEvolution: (student: User) => void;
   onRegisterStaff: (data: Partial<User>) => Promise<void>;
   onToggleRole: (userId: string, currentRole: UserRole) => Promise<void>;
 }
 
-const Management: React.FC<ManagementProps> = ({ user, onEditProtocol, onStartAssessment, onStartCycle, onRegisterStaff, onToggleRole }) => {
+const Management: React.FC<ManagementProps> = ({ user, onEditProtocol, onStartAssessment, onStartCycle, onRegisterStaff, onToggleRole, onJoinSession, onViewEvolution }) => {
   const [students, setStudents] = useState<User[]>([]);
   const [protocols, setProtocols] = useState<Protocol[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -454,6 +456,8 @@ const Management: React.FC<ManagementProps> = ({ user, onEditProtocol, onStartAs
           onClose={() => setSelectedStudentForDetail(null)}
           onStartAssessment={onStartAssessment}
           onStartCycle={onStartCycle}
+          onJoinSession={onJoinSession}
+          onViewEvolution={onViewEvolution}
         />
       )}
     </div>
@@ -467,7 +471,9 @@ const StudentDetailView: React.FC<{
   onClose: () => void;
   onStartAssessment: (student: User) => void;
   onStartCycle: (student: User) => void;
-}> = ({ currentUser, student, onClose, onStartAssessment, onStartCycle }) => {
+  onJoinSession: (student: User) => void;
+  onViewEvolution: (student: User) => void;
+}> = ({ currentUser, student, onClose, onStartAssessment, onStartCycle, onJoinSession, onViewEvolution }) => {
   const [evolutionData, setEvolutionData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -499,6 +505,11 @@ const StudentDetailView: React.FC<{
             </div>
             <h3 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tighter leading-none">{student.name}</h3>
             <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] mt-3">{student.role}</p>
+            {student.isCheckedIn && (
+              <div className="mt-4 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
+                <p className="text-[9px] font-black text-emerald-500 uppercase tracking-widest">Ativo no Studio</p>
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-2 gap-4 mt-10">
@@ -515,6 +526,18 @@ const StudentDetailView: React.FC<{
             </div>
           </div>
 
+          {student.isCheckedIn && (
+            <div className="mt-8">
+              <button
+                onClick={() => { onClose(); onJoinSession(student); }}
+                className="w-full h-16 bg-blue-600 text-white font-black text-[10px] uppercase tracking-[0.4em] rounded-2xl flex items-center justify-center space-x-4 shadow-lg shadow-blue-600/20 active:scale-95 transition-all"
+              >
+                <Icons.Play className="w-4 h-4" />
+                <span>Intervir / Acompanhar Sessão</span>
+              </button>
+            </div>
+          )}
+
           {currentUser.role !== UserRole.PERSONAL ? (
             <div className="mt-8 space-y-4">
               <button
@@ -523,6 +546,13 @@ const StudentDetailView: React.FC<{
               >
                 <Icons.TrendingUp className="w-4 h-4" />
                 <span>Nova Avaliação / Biometria</span>
+              </button>
+              <button
+                onClick={() => { onClose(); onViewEvolution(student); }}
+                className="w-full h-16 bg-surface border border-app text-app font-black text-[10px] uppercase tracking-[0.4em] rounded-2xl flex items-center justify-center space-x-4 active:scale-95 transition-all"
+              >
+                <Icons.TrendingUp className="w-4 h-4" />
+                <span>Ver Evolução Completa</span>
               </button>
               <button
                 onClick={() => { onClose(); onStartCycle(student); }}

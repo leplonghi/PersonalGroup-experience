@@ -46,12 +46,12 @@ const Wearables: React.FC<WearablesProps> = ({ user, onBack }) => {
         <div className="min-h-screen bg-app p-6 pb-32 space-y-6">
             {/* Header */}
             <div className="flex items-center justify-between">
-                <button onClick={onBack} className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-all">
-                    <Icons.ChevronLeft className="w-5 h-5 text-slate-400" />
+                <button onClick={onBack} className="w-10 h-10 rounded-full bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-white/10 transition-all">
+                    <Icons.ChevronLeft className="w-5 h-5 text-slate-500 dark:text-slate-400" />
                 </button>
                 <div className="text-center">
-                    <h1 className="text-lg font-black text-white uppercase tracking-widest">Wearables</h1>
-                    <p className="text-[9px] text-blue-400 font-bold uppercase tracking-[0.4em] mt-0.5">Dados de Saúde</p>
+                    <h1 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-widest">Wearables</h1>
+                    <p className="text-[9px] text-blue-600 dark:text-blue-400 font-black uppercase tracking-[0.4em] mt-0.5">Dados de Saúde</p>
                 </div>
                 <div className="w-10" />
             </div>
@@ -61,8 +61,8 @@ const Wearables: React.FC<WearablesProps> = ({ user, onBack }) => {
                 <div className="space-y-6 animate-in fade-in duration-500">
                     <div className="text-center py-6 space-y-3">
                         <div className="text-5xl">⌚</div>
-                        <h2 className="text-xl font-black text-white uppercase tracking-widest">Conectar Dispositivo</h2>
-                        <p className="text-sm text-slate-400 max-w-xs mx-auto leading-relaxed">
+                        <h2 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-widest">Conectar Dispositivo</h2>
+                        <p className="text-sm text-slate-600 dark:text-slate-400 max-w-xs mx-auto leading-relaxed">
                             Sincronize seus dados de saúde para acompanhar seu progresso de forma integrada.
                         </p>
                     </div>
@@ -76,7 +76,7 @@ const Wearables: React.FC<WearablesProps> = ({ user, onBack }) => {
                             <span className="text-2xl">🍎</span>
                         </div>
                         <div className="flex-1 text-left">
-                            <p className="text-[11px] font-black text-white uppercase tracking-[0.2em] group-hover:text-pink-300 transition-colors">Apple Health</p>
+                            <p className="text-[11px] font-black text-slate-900 dark:text-white uppercase tracking-[0.2em] group-hover:text-blue-600 transition-colors">Apple Health</p>
                             <p className="text-[8px] text-slate-500 mt-0.5">HealthKit • Apple Watch • iPhone</p>
                         </div>
                         <Icons.ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-pink-400 transition-colors" />
@@ -91,7 +91,7 @@ const Wearables: React.FC<WearablesProps> = ({ user, onBack }) => {
                             <span className="text-2xl">💚</span>
                         </div>
                         <div className="flex-1 text-left">
-                            <p className="text-[11px] font-black text-white uppercase tracking-[0.2em] group-hover:text-green-300 transition-colors">Google Fit</p>
+                            <p className="text-[11px] font-black text-slate-900 dark:text-white uppercase tracking-[0.2em] group-hover:text-blue-600 transition-colors">Google Fit</p>
                             <p className="text-[8px] text-slate-500 mt-0.5">Wear OS • Android • Fitbit</p>
                         </div>
                         <Icons.ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-green-400 transition-colors" />
@@ -106,7 +106,7 @@ const Wearables: React.FC<WearablesProps> = ({ user, onBack }) => {
                             <span className="text-2xl">🔘</span>
                         </div>
                         <div className="flex-1 text-left">
-                            <p className="text-[11px] font-black text-white uppercase tracking-[0.2em] group-hover:text-slate-300 transition-colors">Garmin Connect</p>
+                            <p className="text-[11px] font-black text-slate-900 dark:text-white uppercase tracking-[0.2em] group-hover:text-blue-600 transition-colors">Garmin Connect</p>
                             <p className="text-[8px] text-slate-500 mt-0.5">Garmin Watches • Index Scale</p>
                         </div>
                         <Icons.ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-slate-400 transition-colors" />
@@ -121,7 +121,7 @@ const Wearables: React.FC<WearablesProps> = ({ user, onBack }) => {
                             <span className="text-2xl">🏃</span>
                         </div>
                         <div className="flex-1 text-left">
-                            <p className="text-[11px] font-black text-white uppercase tracking-[0.2em] group-hover:text-orange-300 transition-colors">Strava</p>
+                            <p className="text-[11px] font-black text-slate-900 dark:text-white uppercase tracking-[0.2em] group-hover:text-blue-600 transition-colors">Strava</p>
                             <p className="text-[8px] text-slate-500 mt-0.5">Record activities • Segments</p>
                         </div>
                         <Icons.ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-orange-400 transition-colors" />

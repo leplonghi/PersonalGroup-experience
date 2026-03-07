@@ -144,7 +144,7 @@ const Login: React.FC<LoginProps> = ({ onLogin, onGoogleLogin, onRegister, isDar
             </div>
 
             {errorMessage && (
-              <div className="bg-red-500/15 border border-red-500/30 rounded-lg p-3 text-[11px] font-black text-red-600 dark:text-red-400 text-center uppercase tracking-widest animate-in fade-in slide-in-from-top-1">
+              <div className="bg-red-500/15 border border-red-500/30 rounded-lg p-3 text-[11px] font-black text-red-400 text-center uppercase tracking-widest animate-in fade-in slide-in-from-top-1">
                 {errorMessage}
               </div>
             )}
@@ -175,8 +175,8 @@ const Login: React.FC<LoginProps> = ({ onLogin, onGoogleLogin, onRegister, isDar
               }}
               className="w-full h-14 flex items-center justify-center space-x-4 bg-white/5 border border-white/10 rounded-full hover:bg-white/10 transition-all group"
             >
-              <Icons.Fingerprint className="w-6 h-6 text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform" />
-              <span className="text-xs font-black text-blue-950 dark:text-slate-300 uppercase tracking-widest">Acesso Biométrico</span>
+              <Icons.Fingerprint className="w-6 h-6 text-cobalt group-hover:scale-110 transition-transform" />
+              <span className="text-xs font-black text-slate-300 uppercase tracking-widest">Acesso Biométrico</span>
             </button>
           </form>
 

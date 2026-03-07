@@ -6,7 +6,8 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 
 interface EvolutionProps {
     user: User;
-    onBack: () => void;
+    viewer?: User;
+    onBack?: () => void;
 }
 
 const measureLabels: Record<string, string> = {
@@ -22,7 +23,7 @@ const measureLabels: Record<string, string> = {
     peitoral: 'Peitoral (cm)',
 };
 
-const Evolution: React.FC<EvolutionProps> = ({ user, onBack }) => {
+const Evolution: React.FC<EvolutionProps> = ({ user, viewer, onBack }) => {
     const [entries, setEntries] = useState<EvolutionEntry[]>([]);
     const [loading, setLoading] = useState(true);
     const [view, setView] = useState<'list' | 'add'>('list');
@@ -108,7 +109,8 @@ const Evolution: React.FC<EvolutionProps> = ({ user, onBack }) => {
     const latest = entries[0];
     const prev = entries[1];
 
-    const isStudent = user.role === UserRole.ALUNO;
+    const actualViewer = viewer || user;
+    const canAdd = actualViewer.role === UserRole.CHEFE || actualViewer.role === UserRole.ADMIN;
 
     const handleExport = () => {
         const exportData = entries.map(e => ({
@@ -126,18 +128,18 @@ const Evolution: React.FC<EvolutionProps> = ({ user, onBack }) => {
     return (
         <div className="min-h-screen bg-app space-y-6 pb-32">
             {/* Pill Segmented Control - Fixed below Global Header (h-20) */}
-            <div className="sticky top-[80px] z-50 bg-app/90 backdrop-blur-md pt-4 pb-2 px-6 shadow-sm border-b border-white/5 font-display">
-                <div className="bg-black/20 border border-white/10 rounded-full p-1 flex items-center shadow-inner">
+            <div className="sticky top-[80px] z-50 bg-app backdrop-blur-md pt-4 pb-2 px-6 shadow-sm border-b border-app font-display">
+                <div className="bg-surface border border-app rounded-full p-1 flex items-center shadow-inner">
                     <button
                         onClick={() => setView('list')}
-                        className={`flex-1 text-[10px] font-black uppercase tracking-widest py-2.5 rounded-full transition-all whitespace-nowrap px-4 ${view === 'list' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
+                        className={`flex-1 text-[10px] font-black uppercase tracking-widest py-2.5 rounded-full transition-all whitespace-nowrap px-4 ${view === 'list' ? 'bg-blue-600 text-white shadow-lg' : 'text-app-muted hover:text-app'}`}
                     >
                         Relatório de Progresso
                     </button>
-                    {!isStudent && (
+                    {canAdd && (
                         <button
                             onClick={() => setView('add')}
-                            className={`flex-1 text-[10px] font-black uppercase tracking-widest py-2.5 rounded-full transition-all whitespace-nowrap px-4 ${view === 'add' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
+                            className={`flex-1 text-[10px] font-black uppercase tracking-widest py-2.5 rounded-full transition-all whitespace-nowrap px-4 ${view === 'add' ? 'bg-blue-600 text-white shadow-lg' : 'text-app-muted hover:text-app'}`}
                         >
                             Nova Medição
                         </button>
@@ -150,21 +152,21 @@ const Evolution: React.FC<EvolutionProps> = ({ user, onBack }) => {
                     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
                         {/* Photo Upload styled dynamically */}
                         <div className="space-y-3">
-                            <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">📸 Foto de Progresso</p>
+                            <p className="text-[11px] font-black text-app-muted uppercase tracking-[0.2em]">📸 Foto de Progresso</p>
                             <label className="block cursor-pointer">
                                 {photoPreview ? (
-                                    <div className="relative rounded-3xl overflow-hidden border border-white/10 shadow-lg group">
+                                    <div className="relative rounded-3xl overflow-hidden border border-app shadow-lg group">
                                         <img src={photoPreview} alt="Preview" className="w-full h-56 object-cover" />
                                         <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                                             <span className="text-[10px] font-black text-white uppercase tracking-widest px-4 py-2 bg-white/10 rounded-full backdrop-blur-md">Trocar foto</span>
                                         </div>
                                     </div>
                                 ) : (
-                                    <div className="flex flex-col items-center justify-center py-12 bg-white/5 border-2 border-dashed border-white/10 rounded-3xl hover:bg-white/10 hover:border-blue-500/50 transition-all">
+                                    <div className="flex flex-col items-center justify-center py-12 bg-surface border-2 border-dashed border-app rounded-3xl hover:bg-surface/10 hover:border-blue-500/50 transition-all">
                                         <div className="w-16 h-16 rounded-full bg-blue-500/10 flex items-center justify-center mb-4">
                                             <Icons.Upload className="w-6 h-6 text-blue-400" />
                                         </div>
-                                        <span className="text-[12px] font-bold text-slate-400">Toque p/ enviar foto</span>
+                                        <span className="text-[12px] font-bold text-app-muted">Toque p/ enviar foto</span>
                                     </div>
                                 )}
                                 <input type="file" accept="image/*" className="hidden" onChange={handlePhotoChange} />
@@ -173,27 +175,27 @@ const Evolution: React.FC<EvolutionProps> = ({ user, onBack }) => {
 
                         {/* Core Metrics Grid styled soft & modern */}
                         <div className="grid grid-cols-3 gap-3">
-                            <div className="bg-white/5 border border-white/10 rounded-2xl p-4 text-center space-y-2">
-                                <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Peso (kg)</p>
+                            <div className="bg-surface border border-app rounded-2xl p-4 text-center space-y-2">
+                                <p className="text-[9px] font-black text-app-muted uppercase tracking-widest">Peso (kg)</p>
                                 <input
                                     type="number" step="0.1" value={weight} onChange={e => setWeight(e.target.value)}
-                                    className="w-full bg-transparent text-xl font-bold text-white text-center flex-1 outline-none placeholder:text-white/20"
+                                    className="w-full bg-transparent text-xl font-bold text-app text-center flex-1 outline-none placeholder:text-app/20"
                                     placeholder="0.0"
                                 />
                             </div>
-                            <div className="bg-white/5 border border-white/10 rounded-2xl p-4 text-center space-y-2">
-                                <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Gordura (%)</p>
+                            <div className="bg-surface border border-app rounded-2xl p-4 text-center space-y-2">
+                                <p className="text-[9px] font-black text-app-muted uppercase tracking-widest">Gordura (%)</p>
                                 <input
                                     type="number" step="0.1" value={fat} onChange={e => setFat(e.target.value)}
-                                    className="w-full bg-transparent text-xl font-bold text-white text-center flex-1 outline-none placeholder:text-white/20"
+                                    className="w-full bg-transparent text-xl font-bold text-app text-center flex-1 outline-none placeholder:text-app/20"
                                     placeholder="0.0"
                                 />
                             </div>
-                            <div className="bg-white/5 border border-white/10 rounded-2xl p-4 text-center space-y-2">
-                                <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Massa M.</p>
+                            <div className="bg-surface border border-app rounded-2xl p-4 text-center space-y-2">
+                                <p className="text-[9px] font-black text-app-muted uppercase tracking-widest">Massa M.</p>
                                 <input
                                     type="number" step="0.1" value={lean} onChange={e => setLean(e.target.value)}
-                                    className="w-full bg-transparent text-xl font-bold text-white text-center flex-1 outline-none placeholder:text-white/20"
+                                    className="w-full bg-transparent text-xl font-bold text-app text-center flex-1 outline-none placeholder:text-app/20"
                                     placeholder="0.0"
                                 />
                             </div>
@@ -201,14 +203,14 @@ const Evolution: React.FC<EvolutionProps> = ({ user, onBack }) => {
 
                         {/* Circular/Body Measurements */}
                         <div className="space-y-3">
-                            <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">📏 Circunferências</p>
+                            <p className="text-[11px] font-black text-app-muted uppercase tracking-[0.2em]">📏 Circunferências</p>
                             <div className="grid grid-cols-2 gap-3">
                                 {Object.entries(measureLabels).filter(([k]) => !['peso', 'gordura', 'massaMagra'].includes(k)).map(([key, label]) => (
-                                    <div key={key} className="flex justify-between items-center bg-white/5 border border-white/10 rounded-2xl p-3">
-                                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{label.replace(/\s*\(.*\)/, '')}</p>
+                                    <div key={key} className="flex justify-between items-center bg-surface border border-app rounded-2xl p-3">
+                                        <p className="text-[9px] font-bold text-app-muted uppercase tracking-widest">{label.replace(/\s*\(.*\)/, '')}</p>
                                         <input
                                             type="number" step="0.1" value={measures[key] || ''} onChange={e => setMeasures(prev => ({ ...prev, [key]: e.target.value }))}
-                                            className="w-16 bg-black/20 text-xs font-bold text-white text-center py-1.5 rounded-lg outline-none placeholder:text-white/20 focus:ring-1 focus:ring-blue-500"
+                                            className="w-16 bg-app text-xs font-bold text-app text-center py-1.5 rounded-lg outline-none placeholder:text-app/20 focus:ring-1 focus:ring-blue-500"
                                             placeholder="--"
                                         />
                                     </div>
@@ -218,10 +220,10 @@ const Evolution: React.FC<EvolutionProps> = ({ user, onBack }) => {
 
                         {/* Notes */}
                         <div className="space-y-3">
-                            <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">📝 Observações</p>
+                            <p className="text-[11px] font-black text-app-muted uppercase tracking-[0.2em]">📝 Observações</p>
                             <textarea
                                 value={notes} onChange={e => setNotes(e.target.value)} rows={3}
-                                className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-sm font-medium text-white placeholder:text-slate-500 focus:border-blue-500/50 outline-none resize-none"
+                                className="w-full bg-surface border border-app rounded-2xl p-4 text-sm font-medium text-app placeholder:text-app-muted focus:border-blue-500/50 outline-none resize-none"
                                 placeholder="Como está indo o planejamento? Digite aqui..."
                             />
                         </div>
@@ -257,19 +259,19 @@ const Evolution: React.FC<EvolutionProps> = ({ user, onBack }) => {
                             <>
                                 {/* Hero Card like the Calories Chart */}
                                 {latest && (
-                                    <div className="bg-white/5 border border-white/10 rounded-[32px] p-6 relative overflow-hidden mb-6">
+                                    <div className="bg-surface border border-app rounded-[32px] p-6 relative overflow-hidden mb-6">
                                         <div className="absolute top-0 right-0 w-48 h-48 bg-blue-600/10 blur-[60px] rounded-full pointer-events-none -mr-10 -mt-10"></div>
 
                                         <div className="mb-4 relative z-10">
                                             <div className="flex justify-between items-start mb-2">
-                                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Peso Atual</p>
+                                                <p className="text-[10px] font-bold text-app-muted uppercase tracking-widest">Peso Atual</p>
                                                 <div className="px-3 py-1 bg-blue-500/10 border border-blue-500/20 rounded-lg">
                                                     <span className="text-[9px] font-black text-blue-400 uppercase">Resumo</span>
                                                 </div>
                                             </div>
                                             <div className="flex items-baseline space-x-1">
-                                                <h2 className="text-4xl font-black text-white tracking-tight">{latest.weight ?? '--'}</h2>
-                                                <span className="text-xs font-bold text-slate-500">kg</span>
+                                                <h2 className="text-4xl font-black text-app tracking-tight">{latest.weight ?? '--'}</h2>
+                                                <span className="text-xs font-bold text-app-muted">kg</span>
                                             </div>
 
                                             {prev?.weight && getDelta(latest.weight, prev.weight) !== null && (
@@ -289,15 +291,15 @@ const Evolution: React.FC<EvolutionProps> = ({ user, onBack }) => {
                                 {latest && (
                                     <div className="space-y-4">
                                         <div className="grid grid-cols-2 gap-3">
-                                            <div className="bg-white/5 border border-white/10 rounded-[24px] p-5 hover:bg-white/10 transition-colors">
+                                            <div className="bg-surface border border-app rounded-[24px] p-5 hover:bg-surface/50 transition-colors">
                                                 <div className="flex items-center space-x-2 mb-3">
                                                     <div className="w-6 h-6 rounded-full bg-red-500/10 flex items-center justify-center">
                                                         <span className="text-[10px]">🔥</span>
                                                     </div>
-                                                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Gordura</p>
+                                                    <p className="text-[9px] font-bold text-app-muted uppercase tracking-widest">Gordura</p>
                                                 </div>
                                                 <div className="flex items-end justify-between">
-                                                    <p className="text-2xl font-black text-white">{latest.fatPercentage ?? '--'}<span className="text-[10px] text-slate-500 ml-0.5 font-bold">%</span></p>
+                                                    <p className="text-2xl font-black text-app">{latest.fatPercentage ?? '--'}<span className="text-[10px] text-app-muted ml-0.5 font-bold">%</span></p>
                                                     {prev?.fatPercentage && (
                                                         <span className={`text-[9px] font-bold mb-1 ${getDelta(latest.fatPercentage, prev.fatPercentage)! < 0 ? 'text-green-400' : 'text-red-400'}`}>
                                                             {getDelta(latest.fatPercentage, prev.fatPercentage)! > 0 ? '↗' : '↘'} {Math.abs(getDelta(latest.fatPercentage, prev.fatPercentage)!)}%
@@ -306,15 +308,15 @@ const Evolution: React.FC<EvolutionProps> = ({ user, onBack }) => {
                                                 </div>
                                             </div>
 
-                                            <div className="bg-white/5 border border-white/10 rounded-[24px] p-5 hover:bg-white/10 transition-colors">
+                                            <div className="bg-surface border border-app rounded-[24px] p-5 hover:bg-surface/50 transition-colors">
                                                 <div className="flex items-center space-x-2 mb-3">
                                                     <div className="w-6 h-6 rounded-full bg-blue-500/10 flex items-center justify-center">
                                                         <span className="text-[10px]">💪</span>
                                                     </div>
-                                                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">M. Magra</p>
+                                                    <p className="text-[9px] font-bold text-app-muted uppercase tracking-widest">M. Magra</p>
                                                 </div>
                                                 <div className="flex items-end justify-between">
-                                                    <p className="text-2xl font-black text-white">{latest.leanMass ?? '--'}<span className="text-[10px] text-slate-500 ml-0.5 font-bold">kg</span></p>
+                                                    <p className="text-2xl font-black text-app">{latest.leanMass ?? '--'}<span className="text-[10px] text-app-muted ml-0.5 font-bold">kg</span></p>
                                                     {prev?.leanMass && (
                                                         <span className={`text-[9px] font-bold mb-1 ${getDelta(latest.leanMass, prev.leanMass)! > 0 ? 'text-green-400' : 'text-red-400'}`}>
                                                             {getDelta(latest.leanMass, prev.leanMass)! > 0 ? '↗' : '↘'} {Math.abs(getDelta(latest.leanMass, prev.leanMass)!)}kg
@@ -325,17 +327,17 @@ const Evolution: React.FC<EvolutionProps> = ({ user, onBack }) => {
                                         </div>
 
                                         {/* Composition Chart */}
-                                        <div className="bg-white/5 border border-white/10 rounded-[28px] p-6">
+                                        <div className="bg-surface border border-app rounded-[28px] p-6">
                                             <div className="flex justify-between items-center mb-6">
-                                                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Composição Corporal</h4>
+                                                <h4 className="text-[10px] font-black text-app-muted uppercase tracking-widest">Composição Corporal</h4>
                                                 <div className="flex space-x-3">
                                                     <div className="flex items-center space-x-1">
                                                         <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                                                        <span className="text-[8px] font-bold text-slate-500 uppercase">Muscular</span>
+                                                        <span className="text-[8px] font-bold text-app-muted uppercase">Muscular</span>
                                                     </div>
                                                     <div className="flex items-center space-x-1">
                                                         <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                                                        <span className="text-[8px] font-bold text-slate-500 uppercase">Gordura</span>
+                                                        <span className="text-[8px] font-bold text-app-muted uppercase">Gordura</span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -355,18 +357,18 @@ const Evolution: React.FC<EvolutionProps> = ({ user, onBack }) => {
                                 {/* History Timeline List */}
                                 <div className="pt-6">
                                     <div className="flex justify-between items-center mb-6">
-                                        <h3 className="text-[11px] font-black text-slate-300 uppercase tracking-[0.2em]">Histórico de Medidas</h3>
+                                        <h3 className="text-[11px] font-black text-app uppercase tracking-[0.2em]">Histórico de Medidas</h3>
                                         <button
                                             onClick={handleExport}
-                                            className="flex items-center space-x-2 px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 transition-all group"
+                                            className="flex items-center space-x-2 px-3 py-1.5 bg-surface border border-app rounded-lg hover:bg-surface/10 transition-all group"
                                         >
                                             <Icons.Download className="w-3 h-3 text-blue-400 group-hover:scale-110 transition-transform" />
-                                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Planilha CSV</span>
+                                            <span className="text-[9px] font-black text-app-muted uppercase tracking-widest">Planilha CSV</span>
                                         </button>
                                     </div>
                                     <div className="space-y-4">
                                         {entries.map((entry, idx) => (
-                                            <div key={entry.id || idx} className="bg-white/5 border border-white/10 rounded-[28px] p-4 flex items-center space-x-4 hover:bg-white/[0.07] transition-colors relative">
+                                            <div key={entry.id || idx} className="bg-surface border border-app rounded-[28px] p-4 flex items-center space-x-4 hover:bg-surface/50 transition-colors relative">
                                                 <div className="relative">
                                                     <div className="w-12 h-12 rounded-full border-2 border-blue-500/30 flex items-center justify-center bg-blue-500/10 z-10 relative">
                                                         <span className="text-blue-400 font-bold text-sm tracking-tighter">{entries.length - idx}</span>
@@ -377,16 +379,16 @@ const Evolution: React.FC<EvolutionProps> = ({ user, onBack }) => {
                                                     )}
                                                 </div>
                                                 <div className="flex-1 py-1">
-                                                    <p className="text-[13px] font-bold text-white mb-2">
+                                                    <p className="text-[13px] font-bold text-app mb-2">
                                                         {new Date(entry.date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })}
                                                     </p>
                                                     <div className="flex flex-wrap items-center gap-2">
-                                                        {entry.weight && <span className="bg-white/10 border border-white/5 text-[9px] font-bold text-slate-300 px-2 py-1 rounded-[8px] uppercase tracking-wider">{entry.weight} kg</span>}
-                                                        {entry.fatPercentage && <span className="bg-white/10 border border-white/5 text-[9px] font-bold text-slate-300 px-2 py-1 rounded-[8px] uppercase tracking-wider">{entry.fatPercentage}% Gord.</span>}
+                                                        {entry.weight && <span className="bg-app border border-app text-[9px] font-bold text-app-muted px-2 py-1 rounded-[8px] uppercase tracking-wider">{entry.weight} kg</span>}
+                                                        {entry.fatPercentage && <span className="bg-app border border-app text-[9px] font-bold text-app-muted px-2 py-1 rounded-[8px] uppercase tracking-wider">{entry.fatPercentage}% Gord.</span>}
                                                     </div>
                                                 </div>
                                                 {entry.photoUrl && (
-                                                    <div className="w-14 h-14 rounded-2xl overflow-hidden shadow-lg border border-white/10">
+                                                    <div className="w-14 h-14 rounded-2xl overflow-hidden shadow-lg border border-app">
                                                         <img src={entry.photoUrl} alt="Progress" className="w-full h-full object-cover" />
                                                     </div>
                                                 )}

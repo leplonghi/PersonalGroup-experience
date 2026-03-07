@@ -66,13 +66,13 @@ const Home: React.FC<HomeProps> = ({
       <div className="flex flex-col space-y-0.5 pt-2">
         <div className="flex justify-between items-start">
           <div className="flex flex-col">
-            <span className="text-xs font-black text-blue-900 dark:text-blue-400 uppercase tracking-[0.2em] mb-2">
+            <span className="text-xs font-black text-app-muted uppercase tracking-[0.2em] mb-2">
               Olá, bom te ver
             </span>
-            <h1 className="text-4xl font-black tracking-tight leading-none text-app dark:text-white uppercase">
+            <h1 className="text-4xl font-black tracking-tight leading-none text-app uppercase">
               {user.name.split(' ')[0]}<span className="text-cobalt">.</span>
             </h1>
-            <button onClick={onGoClub} className="text-xs font-bold text-slate-800 dark:text-slate-400 uppercase tracking-[0.15em] mt-2 flex items-center hover:text-blue-600 transition-colors group/status text-left">
+            <button onClick={onGoClub} className="text-xs font-bold text-app-muted uppercase tracking-[0.15em] mt-2 flex items-center hover:text-cobalt transition-colors group/status text-left">
               <span className="w-1.5 h-1.5 bg-green-500 rounded-full mr-2 shadow-[0_0_8px_#22C55E] group-hover/status:animate-ping"></span>
               Unidade: Península
             </button>
@@ -140,30 +140,30 @@ const Home: React.FC<HomeProps> = ({
       <div className="grid grid-cols-2 gap-3">
         <button
           onClick={onGoAdmin}
-          className="p-4 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl hover:bg-slate-50 dark:hover:bg-white/10 hover:border-cobalt/30 transition-all text-left space-y-2 group shadow-sm dark:shadow-none"
+          className="p-4 bg-surface border border-app rounded-2xl hover:brightness-110 hover:border-cobalt/30 transition-all text-left space-y-2 group shadow-sm"
         >
           <div className="w-9 h-9 rounded-full bg-amber-600/10 flex items-center justify-center">
-            <Icons.FileText className="w-4 h-4 text-amber-500 dark:text-amber-400" />
+            <Icons.FileText className="w-4 h-4 text-amber-500" />
           </div>
-          <p className="text-[11px] font-black text-slate-900 dark:text-white uppercase tracking-[0.1em] group-hover:text-amber-600 dark:group-hover:text-amber-300 transition-colors">Administrativo</p>
-          <p className="text-[10px] text-slate-700 dark:text-slate-500 font-bold uppercase tracking-widest">Solicitações</p>
+          <p className="text-[11px] font-black text-app uppercase tracking-[0.1em] group-hover:text-amber-600 transition-colors">Administrativo</p>
+          <p className="text-[10px] text-app-muted font-bold uppercase tracking-widest">Solicitações</p>
         </button>
         <button
           onClick={onGoSupport}
-          className="p-4 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl hover:bg-slate-50 dark:hover:bg-white/10 hover:border-green-500/30 transition-all text-left space-y-2 group shadow-sm dark:shadow-none"
+          className="p-4 bg-surface border border-app rounded-2xl hover:brightness-110 hover:border-green-500/30 transition-all text-left space-y-2 group shadow-sm"
         >
           <div className="w-9 h-9 rounded-full bg-green-600/10 flex items-center justify-center">
-            <Icons.Message className="w-4 h-4 text-green-500 dark:text-green-400" />
+            <Icons.Message className="w-4 h-4 text-green-500" />
           </div>
-          <p className="text-[11px] font-black text-slate-900 dark:text-white uppercase tracking-[0.1em] group-hover:text-green-600 dark:group-hover:text-green-300 transition-colors">Suporte</p>
-          <p className="text-[10px] text-slate-700 dark:text-slate-500 font-bold uppercase tracking-widest">Central de Ajuda</p>
+          <p className="text-[11px] font-black text-app uppercase tracking-[0.1em] group-hover:text-green-600 transition-colors">Suporte</p>
+          <p className="text-[10px] text-app-muted font-bold uppercase tracking-widest">Central de Ajuda</p>
         </button>
       </div>
 
       {/* 2.5. EVOLUTION SUMMARY */}
       <section className="space-y-4">
         <div className="flex justify-between items-end px-1">
-          <h4 className="text-[11px] font-black text-blue-950 dark:text-slate-400 uppercase tracking-[0.3em]">
+          <h4 className="text-[11px] font-black text-app-muted uppercase tracking-[0.3em]">
             Sua Evolução
           </h4>
           <button
@@ -377,21 +377,21 @@ const Home: React.FC<HomeProps> = ({
           { label: 'Frequência', val: '85', unit: '%', icon: Icons.TrendingUp, color: 'text-green-500', trend: 'Regular' },
           { label: 'Volume Total', val: '1.4', unit: 'ton', icon: Icons.Chart, color: 'text-blue-500', trend: 'Alto' }
         ].map((m, i) => (
-          <Card key={i} variant="flat" className="p-6 transition-colors relative group hover:shadow-lg border border-slate-100 bg-white">
-            <div className={`absolute top-4 right-4 text-[9px] font-black tracking-widest ${m.trend === 'Alto' ? 'text-blue-600' : 'text-green-600'}`}>{m.trend}</div>
+          <Card key={i} variant="flat" className="p-6 transition-colors relative group hover:shadow-lg border-app bg-surface">
+            <div className={`absolute top-4 right-4 text-[9px] font-black tracking-widest ${m.trend === 'Alto' ? 'text-cobalt' : 'text-green-600'}`}>{m.trend}</div>
             <div className="space-y-6">
               <div className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all ${i === 0 ? 'bg-green-50 text-green-600' : 'bg-blue-50 text-blue-600'}`}>
                 <m.icon className="w-5 h-5" />
               </div>
               <div className="space-y-1">
-                <p className="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-widest">{m.label}</p>
+                <p className="text-[10px] font-bold text-app-muted uppercase tracking-widest">{m.label}</p>
                 <div className="flex items-baseline">
-                  <span className="text-4xl font-bold tracking-tight text-blue-950 dark:text-white">{m.val}</span>
-                  <span className="text-sm font-bold text-slate-700 dark:text-slate-500 ml-1">{m.unit}</span>
+                  <span className="text-4xl font-bold tracking-tight text-app">{m.val}</span>
+                  <span className="text-sm font-bold text-app-muted ml-1">{m.unit}</span>
                 </div>
               </div>
-              <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                <div className={`h-full rounded-full ${i === 0 ? 'w-[85%] bg-green-500' : 'w-[65%] bg-blue-600'}`}></div>
+              <div className="w-full h-1.5 bg-app rounded-full overflow-hidden">
+                <div className={`h-full rounded-full ${i === 0 ? 'w-[85%] bg-green-500' : 'w-[65%] bg-cobalt'}`}></div>
               </div>
             </div>
           </Card>

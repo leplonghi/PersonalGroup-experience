@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo, useEffect, lazy, Suspense } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { User, UserRole, Protocol, Assessment, TrainingCycle, HealthStatus } from './types';
 import { useAuth } from './hooks/useAuth';
 
@@ -32,14 +32,63 @@ const Wearables = lazy(() => import('./views/Wearables'));
 // Shared Loader
 export const PageLoader = () => (
   <div className="flex-1 min-h-[50vh] flex flex-col items-center justify-center p-8 space-y-4">
-    <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Carregando...</p>
+    <div className="w-8 h-8 border-2 border-cobalt border-t-transparent rounded-full animate-spin"></div>
+    <p className="text-[10px] font-black text-app-muted uppercase tracking-widest">Carregando...</p>
   </div>
 );
 import Navigation from './components/Navigation';
 import Header from './components/Header';
-import { saveProtocol, saveAssessment, startNewCycle, createUserDoc, toggleUserRole } from './firebase';
+import { saveProtocol, saveAssessment, startNewCycle, createUserDoc, toggleUserRole, getUserById } from './firebase';
 import { Icons } from './constants.tsx';
+
+// Session Route Wrapper to handle student selection for staff
+const SessionRoute: React.FC<{ executor: User; onFinish: () => void }> = ({ executor, onFinish }) => {
+  const { studentId } = useParams();
+  const [student, setStudent] = useState<User | null>(null);
+  const [loading, setLoading] = useState(!!studentId);
+
+  useEffect(() => {
+    if (studentId) {
+      getUserById(studentId).then(s => {
+        setStudent(s);
+        setLoading(false);
+      });
+    } else {
+      setStudent(executor);
+      setLoading(false);
+    }
+  }, [studentId, executor]);
+
+  if (loading) return <PageLoader />;
+  if (!student) return <Navigate to="/home" />;
+
+  return <ActiveSession user={student} executor={executor} onFinish={onFinish} />;
+};
+
+// Evolution Route Wrapper to handle student selection for staff
+const EvolutionRoute: React.FC<{ viewer: User }> = ({ viewer }) => {
+  const { studentId } = useParams();
+  const [student, setStudent] = useState<User | null>(null);
+  const [loading, setLoading] = useState(!!studentId);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (studentId) {
+      getUserById(studentId).then(s => {
+        setStudent(s);
+        setLoading(false);
+      });
+    } else {
+      setStudent(viewer);
+      setLoading(false);
+    }
+  }, [studentId, viewer]);
+
+  if (loading) return <PageLoader />;
+  if (!student) return <Navigate to="/home" />;
+
+  return <Evolution user={student} viewer={viewer} onBack={() => navigate(-1)} />;
+};
 
 // Layout wraper to handle Header and Navigation visibility
 const AppLayout: React.FC<{
@@ -64,19 +113,17 @@ const AppLayout: React.FC<{
 
   // Header Props Logic based on Route
   const headerProps = useMemo(() => {
-    const backBtn = (path: string) => (
+    const backBtn = (path: string | number) => (
       <button
-        onClick={() => navigate(path)}
-        className={`w-12 h-12 border flex items-center justify-center active:scale-95 transition-all outline-none rounded-xl ${isDarkMode ? 'border-white/10 bg-white/5 text-white' : 'border-slate-200 bg-slate-50 text-slate-700'
-          }`}
+        onClick={() => navigate(path as any)}
+        className="w-12 h-12 border border-app bg-surface text-app flex items-center justify-center active:scale-95 transition-all outline-none rounded-xl"
       >
         <Icons.ChevronRight className="w-5 h-5 rotate-180" />
       </button>
     );
 
     const bellBtn = (
-      <button className={`w-12 h-12 border flex items-center justify-center relative active:scale-95 transition-all outline-none rounded-xl ${isDarkMode ? 'border-white/10 bg-white/5 text-white' : 'border-slate-200 bg-slate-50 text-slate-700'
-        }`}>
+      <button className="w-12 h-12 border border-app bg-surface text-app flex items-center justify-center relative active:scale-95 transition-all outline-none rounded-xl">
         <Icons.Bell className="w-5 h-5" />
         <div className="absolute top-3.5 right-3.5 w-1.5 h-1.5 bg-red-600 shadow-[0_0_10px_#DC2626]"></div>
       </button>
@@ -99,10 +146,10 @@ const AppLayout: React.FC<{
     };
     if (path === '/management') return { title: <>Gestão de <span className="text-blue-400">Pista</span></>, subtitle: 'Painel do Professor', rightAction: bellBtn };
     if (path === '/protocol-edit') return { title: 'Editar Treino', subtitle: 'Detalhes Técnicos', leftAction: backBtn('/management') };
-    if (path === '/assessment') return { title: 'Avaliação', subtitle: 'Intervenção Técnica', leftAction: backBtn('/management'), rightAction: <div className="w-12 h-12 border border-white/10 bg-white/5 flex items-center justify-center font-black text-[10px] text-blue-400 italic">GOV</div> };
-    if (path === '/cycle-builder') return { title: 'Novo Ciclo', subtitle: 'Planejamento', leftAction: backBtn('/management'), rightAction: <div className="w-12 h-12 border border-white/10 bg-white/5 flex items-center justify-center font-black text-[10px] text-blue-400 italic">v1.2</div> };
+    if (path === '/assessment') return { title: 'Avaliação', subtitle: 'Intervenção Técnica', leftAction: backBtn('/management'), rightAction: <div className="w-12 h-12 border border-app bg-surface flex items-center justify-center font-black text-[10px] text-cobalt italic">GOV</div> };
+    if (path === '/cycle-builder') return { title: 'Novo Ciclo', subtitle: 'Planejamento', leftAction: backBtn('/management'), rightAction: <div className="w-12 h-12 border border-app bg-surface flex items-center justify-center font-black text-[10px] text-cobalt italic">v1.2</div> };
     if (path === '/checkin') return { title: 'Validação de Acesso', subtitle: 'Unidade Península Jardins', leftAction: backBtn('/home') };
-    if (path === '/evolution') return { title: 'Evolução', subtitle: 'Acompanhamento', leftAction: backBtn('/home') };
+    if (path.startsWith('/evolution')) return { title: 'Evolução', subtitle: 'Acompanhamento', leftAction: backBtn(-1) };
 
     return {};
   }, [location.pathname, navigate]);
@@ -139,8 +186,8 @@ const AppLayout: React.FC<{
 
 
                     {/* Active Session & Management */}
-                    <Route path="/session" element={<ActiveSession user={user} executor={user} onFinish={() => navigate('/home')} />} />
-                    <Route path="/management" element={<Management user={user} onEditProtocol={() => navigate('/protocol-edit')} onStartAssessment={(s) => { setSelectedStudent(s); navigate('/assessment'); }} onStartCycle={(s) => { setSelectedStudent(s); navigate('/cycle-builder'); }} onRegisterStaff={onRegisterStaff} onToggleRole={onToggleRole} />} />
+                    <Route path="/session/:studentId?" element={<SessionRoute executor={user} onFinish={() => navigate('/home')} />} />
+                    <Route path="/management" element={<Management user={user} onEditProtocol={() => navigate('/protocol-edit')} onStartAssessment={(s) => { setSelectedStudent(s); navigate('/assessment'); }} onStartCycle={(s) => { setSelectedStudent(s); navigate('/cycle-builder'); }} onJoinSession={(s) => navigate(`/session/${s.id}`)} onViewEvolution={(s) => navigate(`/evolution/${s.id}`)} onRegisterStaff={onRegisterStaff} onToggleRole={onToggleRole} />} />
 
                     {/* Management Sub-routes */}
                     <Route path="/protocol-edit" element={<ProtocolEditor protocol={undefined} onBack={() => navigate('/management')} onSave={async () => navigate('/management')} />} />
@@ -155,7 +202,6 @@ const AppLayout: React.FC<{
 
                     {/* Etapa 5 */}
                     <Route path="/admin-requests" element={<AdminRequests user={user} onBack={() => navigate('/home')} />} />
-                    <Route path="/evolution" element={<Evolution user={user} onBack={() => navigate('/home')} />} />
                     <Route path="/support" element={<SupportChat user={user} onBack={() => navigate('/home')} />} />
                     <Route path="/ranking" element={<Ranking user={user} onBack={() => navigate('/home')} />} />
                     <Route path="/wearables" element={<Wearables user={user} onBack={() => navigate('/home')} />} />
@@ -218,8 +264,8 @@ const AuthShell: React.FC<{ isDarkMode: boolean; toggleTheme: () => void }> = ({
     return (
       <div className="min-h-screen bg-app grain-overlay flex items-center justify-center">
         <div className="flex flex-col items-center space-y-4">
-          <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
-          <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em]">Autenticando...</p>
+          <div className="w-8 h-8 border-2 border-cobalt border-t-transparent rounded-full animate-spin" />
+          <p className="text-[10px] font-black text-app-muted uppercase tracking-[0.4em]">Autenticando...</p>
         </div>
       </div>
     );
