@@ -82,6 +82,22 @@
     --pg-accent-gradient: linear-gradient(180deg, #00b6fd 0%, #3363a2 100%);
     --pg-hero-gradient: linear-gradient(180deg, #25235b 0%, #171638 100%);
     --pg-glass-bg-main: rgba(255, 255, 255, 0.65);
+
+    /* Shadow Scale */
+    --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.05), 0 4px 12px rgba(0, 0, 0, 0.04);
+    --shadow-elevated: 0 4px 16px rgba(0, 0, 0, 0.08), 0 12px 40px rgba(0, 0, 0, 0.05);
+    --shadow-modal: 0 8px 32px rgba(0, 0, 0, 0.14), 0 24px 64px rgba(0, 0, 0, 0.10);
+    --shadow-cobalt: 0 6px 20px rgba(0, 182, 253, 0.30);
+    --shadow-emerald: 0 6px 20px rgba(16, 185, 129, 0.30);
+
+    /* Z-Index Scale */
+    --z-below: -1;
+    --z-base: 1;
+    --z-above: 10;
+    --z-sticky: 50;
+    --z-chrome: 100;
+    --z-modal: 200;
+    --z-toast: 300;
 }
 
 .dark {
@@ -99,12 +115,50 @@
     /* Dark Gradients */
     --pg-bg-gradient: linear-gradient(180deg, #020617 0%, #010409 100%);
     --pg-glass-bg-main: rgba(1, 4, 9, 0.50);
+
+    /* Dark Shadow Scale */
+    --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.30);
+    --shadow-elevated: 0 4px 16px rgba(0, 0, 0, 0.40);
+    --shadow-modal: 0 8px 32px rgba(0, 0, 0, 0.60);
 }
 
+/* ─── Reset Base ──────────────────────────────────────── */
 * {
     -webkit-tap-highlight-color: transparent;
     user-select: none;
-    cursor: crosshair;
+    cursor: default;
+}
+
+/* Interactive elements get pointer cursor */
+a,
+button,
+[role="button"],
+[role="tab"],
+[role="menuitem"],
+label[for],
+[tabindex]:not([tabindex="-1"]),
+input[type="checkbox"],
+input[type="radio"],
+select {
+    cursor: pointer;
+}
+
+/* Text content allows selection */
+p,
+span,
+li,
+td,
+th,
+h1, h2, h3, h4, h5, h6,
+blockquote {
+    user-select: text;
+}
+
+/* Input cursors */
+input,
+textarea {
+    cursor: text;
+    user-select: text;
 }
 
 body {
@@ -130,7 +184,7 @@ h6,
     color: var(--pg-text-main);
 }
 
-/* Theme-aware background utilities */
+/* ─── Semantic Theme Utilities ────────────────────────── */
 .bg-app {
     background: var(--pg-bg-main) !important;
     color: var(--pg-text-main) !important;
@@ -148,7 +202,6 @@ h6,
     border-color: var(--pg-border-main) !important;
 }
 
-/* Card and surface backgrounds */
 .bg-card {
     background: var(--pg-bg-surface);
     border: 1px solid var(--pg-border-main);
@@ -159,14 +212,56 @@ h6,
     background: var(--pg-bg-surface);
 }
 
-/* Input backgrounds */
 .bg-input {
     background: var(--pg-bg-surface);
     border: 1px solid var(--pg-border-main);
     color: var(--pg-text-main);
 }
 
+/* ─── Typography Scale ────────────────────────────────── */
+/* Micro sizes used throughout the app — standardized */
+.text-micro {
+    font-size: 8px;
+    line-height: 1.2;
+}
 
+.text-2xs {
+    font-size: 9px;
+    line-height: 1.3;
+}
+
+.text-label {
+    font-size: 10px;
+    line-height: 1.4;
+}
+
+.text-caption {
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+/* ─── Shadow Utilities ────────────────────────────────── */
+.shadow-card {
+    box-shadow: var(--shadow-card);
+}
+
+.shadow-elevated {
+    box-shadow: var(--shadow-elevated);
+}
+
+.shadow-modal {
+    box-shadow: var(--shadow-modal);
+}
+
+.shadow-cobalt {
+    box-shadow: var(--shadow-cobalt);
+}
+
+.shadow-emerald {
+    box-shadow: var(--shadow-emerald);
+}
+
+/* ─── Scrollbar ───────────────────────────────────────── */
 .no-scrollbar::-webkit-scrollbar {
     display: none;
 }
@@ -176,7 +271,7 @@ h6,
     scrollbar-width: none;
 }
 
-/* Kinetic Grain Texture Overlay */
+/* ─── Kinetic Grain Texture Overlay ──────────────────── */
 .grain-overlay::before {
     content: "";
     position: fixed;
@@ -192,51 +287,20 @@ h6,
 }
 
 @keyframes noise-move {
-    0% {
-        transform: translate(0, 0);
-    }
-
-    10% {
-        transform: translate(-1%, -1%);
-    }
-
-    20% {
-        transform: translate(-2%, 1%);
-    }
-
-    30% {
-        transform: translate(1%, -2%);
-    }
-
-    40% {
-        transform: translate(-1%, 2%);
-    }
-
-    50% {
-        transform: translate(-2%, -2%);
-    }
-
-    60% {
-        transform: translate(2%, 1%);
-    }
-
-    70% {
-        transform: translate(1%, 2%);
-    }
-
-    80% {
-        transform: translate(-2%, 1%);
-    }
-
-    90% {
-        transform: translate(1%, -1%);
-    }
-
-    100% {
-        transform: translate(0, 0);
-    }
+    0% { transform: translate(0, 0); }
+    10% { transform: translate(-1%, -1%); }
+    20% { transform: translate(-2%, 1%); }
+    30% { transform: translate(1%, -2%); }
+    40% { transform: translate(-1%, 2%); }
+    50% { transform: translate(-2%, -2%); }
+    60% { transform: translate(2%, 1%); }
+    70% { transform: translate(1%, 2%); }
+    80% { transform: translate(-2%, 1%); }
+    90% { transform: translate(1%, -1%); }
+    100% { transform: translate(0, 0); }
 }
 
+/* ─── Gradients & Glass ───────────────────────────────── */
 .blue-gradient {
     background: var(--pg-primary-gradient);
 }
@@ -244,7 +308,6 @@ h6,
 .glass-card {
     background: var(--pg-glass-bg-dark);
     backdrop-filter: none;
-    /* Minimalist matte */
     -webkit-backdrop-filter: none;
     border: 1px solid var(--pg-border-dark);
     box-shadow: none;
@@ -254,12 +317,12 @@ h6,
     box-shadow: none;
 }
 
+/* ─── Animations ──────────────────────────────────────── */
 @keyframes slideUp {
     from {
         opacity: 0;
         transform: translateY(30px) skewY(2deg);
     }
-
     to {
         opacity: 1;
         transform: translateY(0) skewY(0deg);
@@ -267,13 +330,8 @@ h6,
 }
 
 @keyframes scanline {
-    0% {
-        transform: translateY(-100%);
-    }
-
-    100% {
-        transform: translateY(100%);
-    }
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(100%); }
 }
 
 .scanline-effect {
@@ -288,33 +346,20 @@ h6,
     left: 0;
     right: 0;
     height: 100%;
-    background: linear-gradient(to bottom, transparent, rgba(37, 99, 235, 0.05), transparent);
+    background: linear-gradient(to bottom, transparent, rgba(0, 182, 253, 0.04), transparent);
     animation: scanline 4s linear infinite;
     pointer-events: none;
 }
 
 @keyframes progress {
-    0% {
-        transform: translateX(-101%);
-    }
-
-    100% {
-        transform: translateX(101%);
-    }
+    0% { transform: translateX(-101%); }
+    100% { transform: translateX(101%); }
 }
 
 @keyframes slow-pan {
-    0% {
-        transform: scale(1.0) translate(0, 0);
-    }
-
-    50% {
-        transform: scale(1.1) translate(-2%, -1%);
-    }
-
-    100% {
-        transform: scale(1.0) translate(0, 0);
-    }
+    0% { transform: scale(1.0) translate(0, 0); }
+    50% { transform: scale(1.1) translate(-2%, -1%); }
+    100% { transform: scale(1.0) translate(0, 0); }
 }
 
 .animate-slow-pan {
@@ -325,6 +370,7 @@ h6,
     animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+/* ─── Safe Area ───────────────────────────────────────── */
 .safe-pb {
     padding-bottom: env(safe-area-inset-bottom);
 }
@@ -333,18 +379,10 @@ h6,
     padding-top: env(safe-area-inset-top);
 }
 
+/* ─── Precision Background ────────────────────────────── */
 @keyframes pulse-glow {
-
-    0%,
-    100% {
-        opacity: 0.3;
-        filter: blur(40px);
-    }
-
-    50% {
-        opacity: 0.6;
-        filter: blur(60px);
-    }
+    0%, 100% { opacity: 0.3; filter: blur(40px); }
+    50% { opacity: 0.6; filter: blur(60px); }
 }
 
 .precision-bg {
@@ -360,9 +398,8 @@ h6,
     right: -20%;
     width: 100%;
     height: 100%;
-    background: radial-gradient(circle, #3B82F6 0%, transparent 70%);
+    background: radial-gradient(circle, #00b6fd 0%, transparent 70%);
     opacity: 0.02;
-    /* Extremely subtle */
     filter: blur(250px);
     animation: pulse-glow 20s ease-in-out infinite;
     z-index: 0;
@@ -375,14 +412,14 @@ h6,
     left: -10%;
     width: 80%;
     height: 80%;
-    background: radial-gradient(circle, #60A5FA 0%, transparent 70%);
+    background: radial-gradient(circle, #3363a2 0%, transparent 70%);
     opacity: 0.015;
-    /* Extremely subtle */
     filter: blur(200px);
     animation: pulse-glow 25s ease-in-out infinite reverse;
     z-index: 0;
 }
 
+/* ─── Panel & Surface Styles ──────────────────────────── */
 .glass-panel {
     background: #FFFFFF;
     backdrop-filter: none;
@@ -399,6 +436,7 @@ h6,
     box-shadow: none;
 }
 
+/* ─── Text Gradients ──────────────────────────────────── */
 .text-gradient {
     background: linear-gradient(180deg, #1E3A8A 0%, #3B82F6 100%);
     -webkit-background-clip: text;
@@ -420,14 +458,16 @@ h6,
     background-clip: text;
 }
 
+/* ─── Card Shadow ─────────────────────────────────────── */
 .card-shadow {
     box-shadow: 0 30px 60px rgba(8, 8, 56, 0.5);
 }
 
 .dark .card-shadow {
-    box-shadow: 0 30px 60px rgba(37, 99, 235, 0.4);
+    box-shadow: 0 30px 60px rgba(0, 182, 253, 0.20);
 }
 
+/* ─── Container ───────────────────────────────────────── */
 .pg-container {
     width: 100%;
     max-width: 440px;
@@ -435,7 +475,7 @@ h6,
     position: relative;
 }
 
-/* Interactive Elements - Sharp & Technical */
+/* ─── Button Precision ────────────────────────────────── */
 .btn-precision {
     position: relative;
     background: var(--pg-cobalt);
@@ -448,15 +488,15 @@ h6,
 
 .btn-precision:hover {
     transform: translateY(-2px);
-    box-shadow: none;
-    background: #1e40af;
-    /* darker state, matte */
+    box-shadow: var(--shadow-cobalt);
+    background: #0099d4;
 }
 
 .btn-precision:active {
     transform: scale(0.98);
 }
 
+/* ─── Mesh Gradient ───────────────────────────────────── */
 .mesh-gradient {
     background: var(--pg-hero-gradient);
     position: relative;
@@ -468,6 +508,6 @@ h6,
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(180deg, transparent 0%, rgba(0, 242, 255, 0.1) 100%);
+    background: linear-gradient(180deg, transparent 0%, rgba(0, 182, 253, 0.08) 100%);
     z-index: 0;
 }

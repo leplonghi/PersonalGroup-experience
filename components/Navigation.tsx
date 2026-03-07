@@ -25,13 +25,13 @@ const Navigation: React.FC<NavigationProps> = ({ role, isDarkMode }) => {
         className={`flex flex-col items-center justify-center flex-1 h-full transition-all relative ${isActive ? 'text-app' : 'text-app-muted'}`}
       >
         <div className={`transition-all duration-500 transform ${isActive ? 'scale-110 translate-y-[-4px]' : 'opacity-80'}`}>
-          <Icon className={`w-6 h-6 object-contain ${isActive ? 'text-cobalt drop-shadow-[0_0_8px_rgba(37,99,235,0.5)]' : 'text-app-muted'}`} />
+          <Icon className={`w-6 h-6 object-contain ${isActive ? 'text-cobalt drop-shadow-[0_0_8px_rgba(0,182,253,0.5)]' : 'text-app-muted'}`} />
         </div>
         <span className={`text-[11px] font-black uppercase tracking-wider mt-1 transition-all duration-300 ${isActive ? 'opacity-100 text-cobalt' : 'opacity-80'}`}>
           {label}
         </span>
         {isActive && (
-          <div className="absolute top-0 inset-x-4 h-[2px] bg-cobalt shadow-[0_0_15px_#2563EB]"></div>
+          <div className="absolute top-0 inset-x-4 h-[2px] bg-cobalt shadow-cobalt"></div>
         )}
       </button>
     );

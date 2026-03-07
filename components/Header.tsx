@@ -36,7 +36,7 @@ const Header: React.FC<HeaderProps> = ({
           {leftAction}
           {!leftAction && showLogo && (
             <div className="flex items-center group cursor-pointer">
-              <img src="/personalgroup-logo.png" alt="Personal Group Logo" className="h-10 w-auto object-contain transition-all filter drop-shadow-[0_0_8px_rgba(37,99,235,0.3)] group-hover:scale-105" />
+              <img src="/personalgroup-logo.png" alt="Personal Group Logo" className="h-10 w-auto object-contain transition-all filter drop-shadow-[0_0_8px_rgba(0,182,253,0.3)] group-hover:scale-105" />
             </div>
           )}
         </div>
