@@ -51,7 +51,7 @@ const Messages: React.FC<MessagesProps> = ({ user }) => {
 
   const getTypeStyle = (type: MessageType) => {
     switch (type) {
-      case 'INSTITUTIONAL': return 'bg-blue-500/10 text-[#191970] dark:text-blue-400 border-blue-500/20';
+      case 'INSTITUTIONAL': return 'bg-blue-500/10 text-deep-blue dark:text-blue-400 border-blue-500/20';
       case 'SEGMENTED': return 'bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20';
       case 'MOTIVATIONAL': return 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20';
     }
@@ -123,7 +123,7 @@ const Messages: React.FC<MessagesProps> = ({ user }) => {
             </p>
             <div className="mt-4 pt-4 border-t border-slate-100/30 dark:border-white/5 flex items-center justify-between">
               <p className="text-[9px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-widest">{msg.author}</p>
-              <Icons.ChevronRight className="w-4 h-4 text-[#191970] dark:text-blue-400 group-hover:translate-x-1 transition-transform" />
+              <Icons.ChevronRight className="w-4 h-4 text-deep-blue dark:text-blue-400 group-hover:translate-x-1 transition-transform" />
             </div>
           </div>
         ))}
@@ -131,8 +131,8 @@ const Messages: React.FC<MessagesProps> = ({ user }) => {
 
       {/* Message Modal Experience */}
       {selectedMsg && (
-        <div className="fixed inset-0 z-[100] bg-slate-950/40 dark:bg-[#020617]/80 backdrop-blur-xl flex items-end animate-in fade-in duration-500">
-          <div className="w-full bg-white dark:bg-[#020617] rounded-t-[48px] p-10 pb-16 border-t border-slate-200 dark:border-white/20 animate-in slide-in-from-bottom-20 duration-700 shadow-[0_-20px_50px_rgba(0,0,0,0.3)]">
+        <div className="fixed inset-0 z-[100] bg-slate-950/40 dark:bg-ocean/80 backdrop-blur-xl flex items-end animate-in fade-in duration-500">
+          <div className="w-full bg-white dark:bg-ocean rounded-t-[48px] p-10 pb-16 border-t border-slate-200 dark:border-white/20 animate-in slide-in-from-bottom-20 duration-700 shadow-2xl shadow-black/30">
             <div className="flex justify-between items-start mb-8">
               <div>
                 <span className={`text-[10px] font-black uppercase px-4 py-1.5 rounded-2xl border ${getTypeStyle(selectedMsg.type)}`}>

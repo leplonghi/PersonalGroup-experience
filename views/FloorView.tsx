@@ -22,7 +22,7 @@ const FloorView: React.FC = () => {
     const getEnergyColor = (level: string) => {
         switch (level) {
             case 'high': return 'bg-orange-400 text-orange-900 border-orange-400/50';
-            case 'medium': return 'bg-[#00b6fd] text-blue-900 border-[#00b6fd]/50';
+            case 'medium': return 'bg-cobalt text-blue-900 border-cobalt/50';
             case 'low': return 'bg-indigo-400 text-indigo-900 border-indigo-400/50';
             default: return 'bg-white/10 text-white border-white/20';
         }
@@ -47,21 +47,21 @@ const FloorView: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen bg-[#021141] text-white flex flex-col font-sans relative overflow-hidden pb-24">
+        <div className="min-h-screen bg-deep-blue text-white flex flex-col font-sans relative overflow-hidden pb-24">
             {/* Background Mesh */}
             <div className="absolute inset-0 z-0 opacity-10 pointer-events-none">
-                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#00b6fd] rounded-full blur-[150px] mix-blend-screen -translate-y-1/2 translate-x-1/3"></div>
+                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-cobalt rounded-full blur-[150px] mix-blend-screen -translate-y-1/2 translate-x-1/3"></div>
             </div>
 
             <div className="pt-12 px-6 pb-6 relative z-10">
                 <div className="flex items-center justify-between mb-8">
                     <div className="flex items-center space-x-3">
-                        <div className="w-12 h-12 bg-[#00b6fd]/10 border border-[#00b6fd]/30 rounded-2xl flex items-center justify-center">
-                            <Icons.Eye className="w-6 h-6 text-[#00b6fd]" />
+                        <div className="w-12 h-12 bg-cobalt/10 border border-cobalt/30 rounded-2xl flex items-center justify-center">
+                            <Icons.Eye className="w-6 h-6 text-cobalt" />
                         </div>
                         <div>
                             <h1 className="text-2xl font-black uppercase tracking-tight text-white leading-none">Visão da Pista</h1>
-                            <p className="text-[10px] font-bold text-[#00b6fd] uppercase tracking-[0.2em] mt-1">{checkIns.length} alunos presentes</p>
+                            <p className="text-[10px] font-bold text-cobalt uppercase tracking-[0.2em] mt-1">{checkIns.length} alunos presentes</p>
                         </div>
                     </div>
                     <button onClick={() => navigate(-1)} className="w-12 h-12 border border-white/10 bg-white/5 rounded-2xl flex items-center justify-center text-white/50 hover:text-white transition-colors">

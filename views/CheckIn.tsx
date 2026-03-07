@@ -55,10 +55,10 @@ const CheckIn: React.FC<CheckInProps> = ({ userId, userName, onSuccess, onCancel
   };
 
   return (
-    <div className="fixed inset-0 z-[200] bg-[#021141] text-white flex flex-col font-sans overflow-hidden">
+    <div className="fixed inset-0 z-[200] bg-deep-blue text-white flex flex-col font-sans overflow-hidden">
       {/* Background detail */}
       <div className="absolute inset-0 z-0 opacity-20 pointer-events-none">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-[#00b6fd] rounded-full blur-[120px] mix-blend-screen translate-x-1/2 -translate-y-1/2"></div>
+        <div className="absolute top-0 right-0 w-96 h-96 bg-cobalt rounded-full blur-[120px] mix-blend-screen translate-x-1/2 -translate-y-1/2"></div>
       </div>
 
       {/* Header */}
@@ -67,16 +67,16 @@ const CheckIn: React.FC<CheckInProps> = ({ userId, userName, onSuccess, onCancel
           <Icons.X className="w-5 h-5" />
         </button>
         <div className="flex-1 text-center pr-10">
-          <h1 className="text-[10px] font-black uppercase tracking-widest text-[#00b6fd] font-display">Check-in</h1>
+          <h1 className="text-[10px] font-black uppercase tracking-widest text-cobalt font-display">Check-in</h1>
         </div>
       </div>
 
       <main className="flex-1 px-6 flex flex-col justify-center relative z-10 pb-12 max-w-lg mx-auto w-full">
         {step === 'GPS_CHECK' && (
           <div className="flex flex-col items-center justify-center space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
-            <div className="w-40 h-40 bg-[#00b6fd]/10 rounded-[40px] flex items-center justify-center border border-[#00b6fd]/30 shadow-[0_0_40px_rgba(0,182,253,0.3)] relative">
-              <div className="absolute inset-0 border-[3px] border-[#00b6fd]/30 rounded-[40px] animate-ping opacity-50 duration-1000"></div>
-              <Icons.Target className="w-16 h-16 text-[#00b6fd]" />
+            <div className="w-40 h-40 bg-cobalt/10 rounded-[40px] flex items-center justify-center border border-cobalt/30 shadow-xl shadow-cobalt/30 relative">
+              <div className="absolute inset-0 border-[3px] border-cobalt/30 rounded-[40px] animate-ping opacity-50 duration-1000"></div>
+              <Icons.Target className="w-16 h-16 text-cobalt" />
             </div>
             <div className="text-center space-y-3">
               <h2 className="text-3xl font-black tracking-tighter uppercase leading-none">Localização</h2>
@@ -84,7 +84,7 @@ const CheckIn: React.FC<CheckInProps> = ({ userId, userName, onSuccess, onCancel
             </div>
             <button
               onClick={handleVerificarLocalizacao}
-              className="w-full h-16 bg-[#00b6fd] rounded-2xl text-white font-black text-sm uppercase tracking-widest shadow-[0_10px_30px_rgba(0,182,253,0.4)] transition-all active:scale-[0.98] mt-8 flex items-center justify-center"
+              className="w-full h-16 bg-cobalt rounded-2xl text-white font-black text-sm uppercase tracking-widest shadow-lg shadow-cobalt/40 transition-all active:scale-[0.98] mt-8 flex items-center justify-center"
             >
               <Icons.MapPin className="w-5 h-5 mr-2" />
               Verificar
@@ -94,8 +94,8 @@ const CheckIn: React.FC<CheckInProps> = ({ userId, userName, onSuccess, onCancel
 
         {step === 'LOADING' && (
           <div className="flex flex-col items-center justify-center space-y-6 animate-in fade-in duration-500">
-            <div className="w-16 h-16 border-4 border-[#00b6fd] border-t-white/10 rounded-full animate-spin"></div>
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#00b6fd] animate-pulse">Buscando sinal...</p>
+            <div className="w-16 h-16 border-4 border-cobalt border-t-white/10 rounded-full animate-spin"></div>
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-cobalt animate-pulse">Buscando sinal...</p>
           </div>
         )}
 
@@ -127,7 +127,7 @@ const CheckIn: React.FC<CheckInProps> = ({ userId, userName, onSuccess, onCancel
             <div className="grid grid-cols-1 gap-4">
               {[
                 { id: 'high', label: 'Energia Alta', icon: Icons.Activity, desc: 'Pronto para bater PR', color: 'text-orange-400', border: 'border-orange-400/50', bg: 'bg-orange-400/10' },
-                { id: 'medium', label: 'Normal', icon: Icons.Zap, desc: 'Siga a planilha', color: 'text-[#00b6fd]', border: 'border-[#00b6fd]/50', bg: 'bg-[#00b6fd]/10' },
+                { id: 'medium', label: 'Normal', icon: Icons.Zap, desc: 'Siga a planilha', color: 'text-cobalt', border: 'border-cobalt/50', bg: 'bg-cobalt/10' },
                 { id: 'low', label: 'Energia Baixa', icon: Icons.Moon, desc: 'Preciso pegar leve', color: 'text-indigo-400', border: 'border-indigo-400/50', bg: 'bg-indigo-400/10' }
               ].map((item) => (
                 <button
@@ -162,7 +162,7 @@ const CheckIn: React.FC<CheckInProps> = ({ userId, userName, onSuccess, onCancel
 
             <div className="flex-1 flex flex-col">
               <textarea
-                className="w-full flex-1 min-h-[160px] bg-white/5 border-2 border-white/10 rounded-[24px] p-6 text-white text-lg placeholder-white/20 focus:outline-none focus:border-[#00b6fd]/50 transition-colors resize-none mb-6"
+                className="w-full flex-1 min-h-[160px] bg-white/5 border-2 border-white/10 rounded-[24px] p-6 text-white text-lg placeholder-white/20 focus:outline-none focus:border-cobalt/50 transition-colors resize-none mb-6"
                 placeholder="Ex: Dor na lombar, não dormi bem..."
                 value={limitation}
                 onChange={(e) => setLimitation(e.target.value)}
@@ -177,7 +177,7 @@ const CheckIn: React.FC<CheckInProps> = ({ userId, userName, onSuccess, onCancel
                 </button>
                 <button
                   onClick={handleConfirmar}
-                  className="flex-1 h-16 bg-[#00b6fd] rounded-2xl text-white font-black text-sm uppercase tracking-[0.2em] shadow-[0_10px_30px_rgba(0,182,253,0.4)] transition-all active:scale-[0.98] flex items-center justify-center"
+                  className="flex-1 h-16 bg-cobalt rounded-2xl text-white font-black text-sm uppercase tracking-[0.2em] shadow-lg shadow-cobalt/40 transition-all active:scale-[0.98] flex items-center justify-center"
                 >
                   Concluir
                 </button>
@@ -188,8 +188,8 @@ const CheckIn: React.FC<CheckInProps> = ({ userId, userName, onSuccess, onCancel
 
         {step === 'CONFIRMING' && (
           <div className="flex flex-col items-center justify-center space-y-6 animate-in fade-in duration-500">
-            <div className="w-16 h-16 border-4 border-[#00b6fd] border-t-transparent rounded-full animate-spin"></div>
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#00b6fd] animate-pulse">Registrando...</p>
+            <div className="w-16 h-16 border-4 border-cobalt border-t-transparent rounded-full animate-spin"></div>
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-cobalt animate-pulse">Registrando...</p>
           </div>
         )}
 

@@ -49,9 +49,9 @@ export default function LiveSessionStudent() {
 
     if (!sessionData) {
         return (
-            <div className="min-h-screen bg-gradient-to-b from-[#021141] to-[#0a1628] flex flex-col items-center justify-center p-6 text-center">
+            <div className="min-h-screen bg-gradient-to-b from-deep-blue to-ocean flex flex-col items-center justify-center p-6 text-center">
                 <div className="w-20 h-20 bg-blue-500/10 rounded-full flex items-center justify-center mb-8 animate-pulse border border-blue-500/20">
-                    <span className="text-4xl filter drop-shadow-[0_0_10px_rgba(0,182,253,0.5)]">🏋️</span>
+                    <span className="text-4xl filter drop-shadow-md shadow-cobalt/50">🏋️</span>
                 </div>
                 <h2 className="text-2xl font-black text-white mb-3">Aguardando sessão</h2>
                 <p className="text-slate-400 text-lg leading-relaxed max-w-[280px]">Seu trainer vai iniciar em breve. Prepare seu equipamento!</p>
@@ -70,7 +70,7 @@ export default function LiveSessionStudent() {
     const progresso = totalSets > 0 ? (doneSets / totalSets) * 100 : 0;
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-[#021141] to-[#0a1628] text-white p-4 relative overflow-hidden">
+        <div className="min-h-screen bg-gradient-to-b from-deep-blue to-ocean text-white p-4 relative overflow-hidden">
             {/* Mensagem motivacional no topo aparecendo */}
             {message && (
                 <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-sm bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-bold py-4 px-6 rounded-xl shadow-lg shadow-blue-500/30 text-center animate-in slide-in-from-top-4 fade-in duration-300">
@@ -91,14 +91,14 @@ export default function LiveSessionStudent() {
             </div>
 
             {/* Progress */}
-            <div className="mb-10 bg-[#1e2a4a]/30 p-4 rounded-xl border border-slate-700/50">
+            <div className="mb-10 bg-ocean/30 p-4 rounded-xl border border-slate-700/50">
                 <div className="flex justify-between items-end mb-3">
                     <span className="text-slate-300 font-medium">Progresso do Treino</span>
-                    <span className="text-xl font-bold text-[#00b6fd]">{doneSets} <span className="text-sm text-slate-500 font-normal">/ {totalSets} sets</span></span>
+                    <span className="text-xl font-bold text-cobalt">{doneSets} <span className="text-sm text-slate-500 font-normal">/ {totalSets} sets</span></span>
                 </div>
                 <div className="h-4 w-full bg-slate-800/80 rounded-full overflow-hidden border border-slate-700">
                     <div
-                        className="h-full bg-gradient-to-r from-[#00b6fd] to-blue-400 transition-all duration-700 ease-out shadow-[0_0_10px_rgba(0,182,253,0.5)]"
+                        className="h-full bg-gradient-to-r from-cobalt to-blue-400 transition-all duration-700 ease-out shadow-md shadow-cobalt/50"
                         style={{ width: `${progresso}%` }}
                     />
                 </div>
@@ -133,7 +133,7 @@ export default function LiveSessionStudent() {
                                     return (
                                         <div
                                             key={setIdx}
-                                            className={`h-2.5 flex-1 rounded-full transition-colors duration-500 ease-in-out ${isDone ? 'bg-[#00b6fd] shadow-[0_0_8px_rgba(0,182,253,0.6)]' : 'bg-slate-700/70'
+                                            className={`h-2.5 flex-1 rounded-full transition-colors duration-500 ease-in-out ${isDone ? 'bg-cobalt shadow-md shadow-cobalt/60' : 'bg-slate-700/70'
                                                 }`}
                                         />
                                     );
@@ -146,10 +146,10 @@ export default function LiveSessionStudent() {
                                     {ex.sets?.map((set: any, sIdx: number) => (
                                         <div
                                             key={sIdx}
-                                            className="bg-[#1e2a4a] px-3 py-2 rounded-lg whitespace-nowrap text-sm flex items-center space-x-2 border border-slate-700/50"
+                                            className="bg-ocean px-3 py-2 rounded-lg whitespace-nowrap text-sm flex items-center space-x-2 border border-slate-700/50"
                                         >
                                             <span className="text-slate-400">Set {sIdx + 1}:</span>
-                                            <span className="font-bold text-[#00b6fd] text-base">{set.carga}kg</span>
+                                            <span className="font-bold text-cobalt text-base">{set.carga}kg</span>
                                         </div>
                                     ))}
                                 </div>

@@ -68,18 +68,18 @@ const StudentBriefing: React.FC<{ trainer: User }> = ({ trainer }) => {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-[#021141] flex items-center justify-center">
-                <div className="w-10 h-10 border-2 border-[#00b6fd] border-t-transparent rounded-full animate-spin"></div>
+            <div className="min-h-screen bg-deep-blue flex items-center justify-center">
+                <div className="w-10 h-10 border-2 border-cobalt border-t-transparent rounded-full animate-spin"></div>
             </div>
         );
     }
 
     if (!student) {
         return (
-            <div className="min-h-screen bg-[#021141] text-white flex flex-col items-center justify-center">
+            <div className="min-h-screen bg-deep-blue text-white flex flex-col items-center justify-center">
                 <Icons.AlertTriangle className="w-12 h-12 text-red-500 mb-4" />
                 <h2 className="text-xl font-bold">Aluno não encontrado</h2>
-                <button onClick={() => navigate(-1)} className="mt-6 text-[#00b6fd] uppercase font-bold text-sm tracking-widest">Voltar</button>
+                <button onClick={() => navigate(-1)} className="mt-6 text-cobalt uppercase font-bold text-sm tracking-widest">Voltar</button>
             </div>
         );
     }
@@ -87,7 +87,7 @@ const StudentBriefing: React.FC<{ trainer: User }> = ({ trainer }) => {
     const checkInNote = student.painLimitations || 'Relatou leve dor lombar ontem.'; // Mock or real data if existing
 
     return (
-        <div className="min-h-screen bg-[#021141] text-white flex flex-col font-sans pb-32">
+        <div className="min-h-screen bg-deep-blue text-white flex flex-col font-sans pb-32">
             {/* Header Profile Area */}
             <div className="pt-12 px-6 pb-8 bg-white/5 border-b border-white/10 relative">
                 <button onClick={() => navigate(-1)} className="absolute top-12 left-6 w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center hover:bg-white/20 transition-all text-white">
@@ -101,22 +101,22 @@ const StudentBriefing: React.FC<{ trainer: User }> = ({ trainer }) => {
                             alt="Avatar"
                         />
                         {student.healthStatus === 'WARNING' && (
-                            <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-amber-500 border-4 border-[#021141] flex items-center justify-center shadow-lg">
+                            <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-amber-500 border-4 border-deep-blue flex items-center justify-center shadow-lg">
                                 <Icons.AlertTriangle className="w-3 h-3 text-white" />
                             </div>
                         )}
                     </div>
                     <h1 className="text-2xl font-black tracking-tight text-white mb-1">{student.name}</h1>
-                    <p className="text-[10px] font-bold text-[#00b6fd] uppercase tracking-[0.2em]">{student.objectives?.join(' • ') || 'GANHO DE MASSA'}</p>
+                    <p className="text-[10px] font-bold text-cobalt uppercase tracking-[0.2em]">{student.objectives?.join(' • ') || 'GANHO DE MASSA'}</p>
                 </div>
             </div>
 
             <main className="flex-1 px-6 pt-6 space-y-6 max-w-lg mx-auto w-full">
                 {/* Alerts & Energy */}
                 <div className="grid grid-cols-2 gap-3">
-                    <div className="p-4 rounded-2xl bg-[#00b6fd]/10 border border-[#00b6fd]/30 flex flex-col items-center text-center">
-                        <Icons.Zap className="w-6 h-6 text-[#00b6fd] mb-2" />
-                        <span className="text-[9px] font-black uppercase tracking-widest text-[#00b6fd]/70 mb-1">Energia Hoje</span>
+                    <div className="p-4 rounded-2xl bg-cobalt/10 border border-cobalt/30 flex flex-col items-center text-center">
+                        <Icons.Zap className="w-6 h-6 text-cobalt mb-2" />
+                        <span className="text-[9px] font-black uppercase tracking-widest text-cobalt/70 mb-1">Energia Hoje</span>
                         <span className="text-sm font-bold text-white">Normal</span>
                     </div>
                     {student.healthStatus !== 'CRITICAL' && (
@@ -144,8 +144,8 @@ const StudentBriefing: React.FC<{ trainer: User }> = ({ trainer }) => {
                                 </div>
                             </div>
                             <div className="space-y-3">
-                                <span className="text-[9px] font-black text-[#00b6fd] uppercase tracking-widest">Feedback do Trainer</span>
-                                <p className="text-sm text-white/80 leading-relaxed italic border-l-2 border-[#00b6fd]/50 pl-3 py-1">
+                                <span className="text-[9px] font-black text-cobalt uppercase tracking-widest">Feedback do Trainer</span>
+                                <p className="text-sm text-white/80 leading-relaxed italic border-l-2 border-cobalt/50 pl-3 py-1">
                                     "{lastSession.notaTrainer || 'Ótima execução. Progrediu carga no supino e fez boa falha na última série.'}"
                                 </p>
                             </div>
@@ -176,7 +176,7 @@ const StudentBriefing: React.FC<{ trainer: User }> = ({ trainer }) => {
 
                         {/* Inline Add Note */}
                         {addingNote ? (
-                            <div className="p-4 rounded-xl border border-[#00b6fd]/50 bg-[#00b6fd]/10 mt-4 animate-in fade-in zoom-in duration-300">
+                            <div className="p-4 rounded-xl border border-cobalt/50 bg-cobalt/10 mt-4 animate-in fade-in zoom-in duration-300">
                                 <textarea
                                     className="w-full min-h-[80px] bg-transparent border-0 text-white text-sm placeholder-white/40 focus:outline-none resize-none"
                                     placeholder="Escreva um aviso sobre foco, lesões ou dieta..."
@@ -186,7 +186,7 @@ const StudentBriefing: React.FC<{ trainer: User }> = ({ trainer }) => {
                                 />
                                 <div className="flex justify-end space-x-2 mt-2 pt-2 border-t border-white/10">
                                     <button onClick={() => setAddingNote(false)} className="px-4 py-2 text-[10px] font-bold text-white/50 uppercase tracking-widest hover:text-white">Cancelar</button>
-                                    <button onClick={handleSaveNote} className="px-4 py-2 bg-[#00b6fd] text-white rounded-lg text-[10px] font-black uppercase tracking-widest">Salvar</button>
+                                    <button onClick={handleSaveNote} className="px-4 py-2 bg-cobalt text-white rounded-lg text-[10px] font-black uppercase tracking-widest">Salvar</button>
                                 </div>
                             </div>
                         ) : null}
@@ -195,7 +195,7 @@ const StudentBriefing: React.FC<{ trainer: User }> = ({ trainer }) => {
             </main>
 
             {/* Fixed Bottom Bar */}
-            <div className="fixed bottom-0 left-0 right-0 p-6 glass-panel border-t border-white/10 z-[100] safe-pb bg-[#021141]/90 backdrop-blur-xl">
+            <div className="fixed bottom-0 left-0 right-0 p-6 glass-panel border-t border-white/10 z-[100] safe-pb bg-deep-blue/90 backdrop-blur-xl">
                 <div className="max-w-lg mx-auto flex gap-3">
                     <button
                         onClick={() => setAddingNote(true)}
@@ -207,7 +207,7 @@ const StudentBriefing: React.FC<{ trainer: User }> = ({ trainer }) => {
 
                     <button
                         onClick={handleStartSession}
-                        className="flex-1 h-14 bg-[#00b6fd] rounded-2xl flex items-center justify-center text-white font-black text-sm uppercase tracking-[0.2em] shadow-[0_10px_30px_rgba(0,182,253,0.3)] transition-all active:scale-[0.98]"
+                        className="flex-1 h-14 bg-cobalt rounded-2xl flex items-center justify-center text-white font-black text-sm uppercase tracking-[0.2em] shadow-lg shadow-cobalt/30 transition-all active:scale-[0.98]"
                     >
                         <Icons.Play className="w-5 h-5 mr-2" />
                         Iniciar Sessão
