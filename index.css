@@ -161,6 +161,28 @@ textarea {
     user-select: text;
 }
 
+/* ─── Accessibility: Focus Visible ───────────────────── */
+/* Keyboard nav ring — only shown on keyboard focus, not click */
+:focus-visible {
+    outline: 2px solid var(--pg-cobalt);
+    outline-offset: 3px;
+    border-radius: 6px;
+}
+
+/* Minimum touch target: 44×44px (WCAG 2.5.5) */
+button,
+a,
+[role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+}
+
+/* Override for compact UI elements that are intentionally small */
+.touch-compact {
+    min-height: revert;
+    min-width: revert;
+}
+
 body {
     font-family: var(--font-sans);
     background: var(--pg-bg-main);
