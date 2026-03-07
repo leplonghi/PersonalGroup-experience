@@ -62,7 +62,7 @@ const Profile: React.FC<ProfileProps> = ({ user, onLogout, onUpdateUser, onGoTim
 
   // Safe defaults for new fields
   const userPlan = user.plan || { type: 'PLATINUM', name: 'Platinum Flex', renewalDate: '15/05/2026', status: 'ACTIVE', price: 'R$ 489,00' };
-  const userGamification = user.gamification || { level: 12, points: 2450, club: 'IRON' };
+  const userGamification = user.gamification || { level: 12, points: 2450, lounge: 'IRON' };
   const guestPasses = { available: user.guestPassesAvailable ?? 1, used: user.guestPassesUsed || [] };
 
   return (

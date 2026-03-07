@@ -9,6 +9,7 @@ const RegisterFlow = lazy(() => import('./views/RegisterFlow'));
 const EditProfile = lazy(() => import('./views/EditProfile'));
 const Home = lazy(() => import('./views/Home'));
 const Agenda = lazy(() => import('./views/Agenda'));
+const Lounge = lazy(() => import('./views/Lounge'));
 const StudentHub = lazy(() => import('./views/StudentHub'));
 const ActiveSession = lazy(() => import('./views/ActiveSession'));
 const Wellness = lazy(() => import('./views/Wellness'));
@@ -19,7 +20,7 @@ const CycleBuilder = lazy(() => import('./views/CycleBuilder'));
 const Messages = lazy(() => import('./views/Messages'));
 const Timeline = lazy(() => import('./views/Timeline'));
 const CheckIn = lazy(() => import('./views/CheckIn'));
-const Club = lazy(() => import('./views/Club'));
+
 const FrequencyDashboard = lazy(() => import('./views/FrequencyDashboard'));
 const PersonalDay = lazy(() => import('./views/PersonalDay'));
 const AdminRequests = lazy(() => import('./views/AdminRequests'));
@@ -135,7 +136,7 @@ const AppLayout: React.FC<{
                 {user ? (
                   <>
                     <Route path="/home" element={<Home user={user} onStartSession={() => navigate('/session')} />} />
-                    <Route path="/club" element={<Club user={user} onBack={() => navigate('/home')} />} />
+                    <Route path="/lounge" element={<Lounge user={user} onBack={() => navigate('/home')} />} />
                     <Route path="/agenda" element={<Agenda />} />
                     <Route path="/messages" element={<Messages user={user} />} />
                     <Route path="/timeline" element={<Timeline user={user} onBack={() => navigate('/home')} />} />

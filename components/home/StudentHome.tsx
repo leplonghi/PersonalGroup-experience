@@ -55,7 +55,7 @@ export const StudentHome: React.FC<StudentHomeProps> = ({
                         <h1 className="text-4xl font-black tracking-tight leading-none text-app uppercase">
                             {user.name.split(' ')[0]}<span className="text-cobalt">.</span>
                         </h1>
-                        <button onClick={() => navigate('/club')} className="text-xs font-bold text-app-muted uppercase tracking-[0.15em] mt-2 flex items-center hover:text-cobalt transition-colors group/status text-left">
+                        <button onClick={() => navigate('/lounge')} className="text-xs font-bold text-app-muted uppercase tracking-[0.15em] mt-2 flex items-center hover:text-cobalt transition-colors group/status text-left">
                             <span className="w-1.5 h-1.5 bg-green-500 rounded-full mr-2 shadow-[0_0_8px_#22C55E] group-hover/status:animate-ping"></span>
                             Unidade: Península
                         </button>

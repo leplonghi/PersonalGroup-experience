@@ -4,12 +4,12 @@ import Card from '../components/Card';
 import { Icons } from '../constants';
 import { User } from '../types';
 
-interface ClubProps {
+interface LoungeProps {
     user: User;
     onBack: () => void;
 }
 
-const Club: React.FC<ClubProps> = ({ user, onBack }) => {
+const Lounge: React.FC<LoungeProps> = ({ user, onBack }) => {
     const amenities = [
         { name: 'Valet', icon: Icons.Car },
         { name: 'Toalhas', icon: Icons.Leaf },
@@ -171,4 +171,4 @@ const Club: React.FC<ClubProps> = ({ user, onBack }) => {
     );
 };
 
-export default Club;
+export default Lounge;
