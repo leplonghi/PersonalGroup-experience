@@ -24,13 +24,18 @@ export default defineConfig(({ mode }) => {
       }
     },
     build: {
+      target: 'esnext',
+      minify: 'esbuild',
+      cssCodeSplit: true,
+      chunkSizeWarningLimit: 800,
       rollupOptions: {
         output: {
           manualChunks: {
             'vendor-react': ['react', 'react-dom', 'react-router-dom'],
-            'vendor-firebase': ['firebase/app', 'firebase/auth', 'firebase/firestore', 'firebase/storage'],
+            'vendor-firebase-core': ['firebase/app', 'firebase/auth'],
+            'vendor-firebase-db': ['firebase/firestore', 'firebase/storage'],
             'vendor-charts': ['recharts'],
-            'vendor-qr': ['html5-qrcode']
+            'vendor-icons': ['lucide-react']
           }
         }
       }

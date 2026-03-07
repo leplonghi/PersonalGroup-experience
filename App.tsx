@@ -93,6 +93,8 @@ const EvolutionRoute: React.FC<{ viewer: User }> = ({ viewer }) => {
 };
 
 // Layout wraper to handle Header and Navigation visibility
+import { useHeaderConfig } from './hooks/useHeaderConfig'; // Note: Adjust import to be top-level if preferred, but it works here or at top
+
 const AppLayout: React.FC<{
   user: User | null;
   onLogout: () => void;
@@ -107,56 +109,9 @@ const AppLayout: React.FC<{
   const [selectedStudent, setSelectedStudent] = useState<User | null>(null);
 
   const showNav = useMemo(() => !!user && location.pathname !== '/login', [user, location.pathname]);
-
-  // Logic to determine if Header should be shown
   const showHeader = useMemo(() => !!user && location.pathname !== '/login', [user, location.pathname]);
 
-  // Theme toggle is now handled directly in Header component
-
-  // Header Props Logic based on Route
-  const headerProps = useMemo(() => {
-    const backBtn = (path: string | number) => (
-      <button
-        onClick={() => navigate(path as any)}
-        className="w-12 h-12 border border-app bg-surface text-app flex items-center justify-center active:scale-95 transition-all outline-none rounded-xl"
-      >
-        <Icons.ChevronRight className="w-5 h-5 rotate-180" />
-      </button>
-    );
-
-    const bellBtn = (
-      <button className="w-12 h-12 border border-app bg-surface text-app flex items-center justify-center relative active:scale-95 transition-all outline-none rounded-xl">
-        <Icons.Bell className="w-5 h-5" />
-        <div className="absolute top-3.5 right-3.5 w-1.5 h-1.5 bg-red-600 shadow-[0_0_10px_#DC2626]"></div>
-      </button>
-    );
-
-    const path = location.pathname;
-
-    if (path === '/home') return {};
-    if (path === '/agenda') return { title: 'Abril 2026', subtitle: 'Agenda de Treinos' };
-    if (path === '/messages') return { title: 'Mensagens', subtitle: 'Central de Avisos', rightAction: bellBtn };
-    if (path === '/timeline') return { title: 'Minha Jornada', subtitle: 'Histórico de Performance', leftAction: backBtn('/home') };
-    if (path === '/wellness') return { title: 'Wellness Centre', subtitle: 'Recuperação Biomecânica', leftAction: backBtn('/home') };
-    if (path === '/club') return { title: 'Ecossistema', subtitle: 'Personal Experience', leftAction: backBtn('/home') };
-    // Profile now has its own header in StudentHub
-    if (path === '/profile') return { title: 'Meu Perfil', subtitle: 'Minha Conta', leftAction: backBtn('/home') };
-    if (path === '/session') return {
-      title: 'Sessão Ativa', // Dynamic title logic can be restored with context or query params if needed
-      subtitle: 'Em Execução',
-      leftAction: <div className="w-2 h-2 bg-blue-500 shadow-[0_0_15px_#3B82F6] animate-pulse ml-4"></div>
-    };
-    if (path === '/management') return { title: <>Gestão de <span className="text-blue-400">Pista</span></>, subtitle: 'Painel do Professor', rightAction: bellBtn };
-    if (path === '/protocol-edit') return { title: 'Editar Treino', subtitle: 'Detalhes Técnicos', leftAction: backBtn('/management') };
-    if (path === '/assessment') return { title: 'Avaliação', subtitle: 'Intervenção Técnica', leftAction: backBtn('/management'), rightAction: <div className="w-12 h-12 border border-app bg-surface flex items-center justify-center font-black text-[10px] text-cobalt italic">GOV</div> };
-    if (path === '/cycle-builder') return { title: 'Novo Ciclo', subtitle: 'Planejamento', leftAction: backBtn('/management'), rightAction: <div className="w-12 h-12 border border-app bg-surface flex items-center justify-center font-black text-[10px] text-cobalt italic">v1.2</div> };
-    if (path === '/checkin') return { title: 'Validação de Acesso', subtitle: 'Unidade Península Jardins', leftAction: backBtn('/home') };
-    if (path === '/floor-view') return { title: 'Pista', subtitle: 'Visão Geral', leftAction: backBtn('/management') };
-    if (path.startsWith('/student-briefing')) return { title: 'Prontuário', subtitle: 'Aluno', leftAction: backBtn('/floor-view') };
-    if (path.startsWith('/evolution')) return { title: 'Evolução', subtitle: 'Acompanhamento', leftAction: backBtn(-1) };
-
-    return {};
-  }, [location.pathname, navigate]);
+  const headerProps = useHeaderConfig();
 
   return (
     <div className="min-h-screen flex flex-col relative transition-colors duration-500 font-sans bg-app">

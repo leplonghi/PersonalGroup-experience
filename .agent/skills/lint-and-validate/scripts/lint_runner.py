@@ -77,14 +77,20 @@ def run_linter(linter: dict, cwd: Path) -> dict:
     }
     
     try:
+        cmd = linter["cmd"]
+        # Use shell=True and string command on Windows to find npx
+        if sys.platform == "win32" and isinstance(cmd, list):
+            cmd = " ".join(cmd)
+            
         proc = subprocess.run(
-            linter["cmd"],
+            cmd,
             cwd=str(cwd),
             capture_output=True,
             text=True,
             encoding='utf-8',
             errors='replace',
-            timeout=120
+            timeout=120,
+            shell=True if sys.platform == "win32" else False
         )
         
         result["output"] = proc.stdout[:2000] if proc.stdout else ""

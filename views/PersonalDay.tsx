@@ -50,8 +50,8 @@ const PersonalDay: React.FC<PersonalDayProps> = ({ user, onBack, onComplete }) =
                         key={star}
                         onClick={() => setRatings(prev => ({ ...prev, [questionId]: star }))}
                         className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all ${star <= current
-                                ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/30 scale-110'
-                                : 'bg-white/5 text-slate-600 border border-white/10 hover:bg-white/10'
+                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/30 scale-110'
+                            : 'bg-white/5 text-slate-600 border border-white/10 hover:bg-white/10'
                             }`}
                     >
                         <span className="text-sm font-black">{star}</span>
@@ -114,7 +114,7 @@ const PersonalDay: React.FC<PersonalDayProps> = ({ user, onBack, onComplete }) =
                     <Icons.ChevronLeft className="w-5 h-5 text-slate-400" />
                 </button>
                 <div className="text-center">
-                    <h1 className="text-lg font-black text-white uppercase tracking-widest">PersonalDay</h1>
+                    <h2 className="text-lg font-black text-white uppercase tracking-widest">PersonalDay</h2>
                     <p className="text-[9px] text-blue-400 font-bold uppercase tracking-[0.4em] mt-0.5">Questionário de Satisfação</p>
                 </div>
                 <div className="w-10" />

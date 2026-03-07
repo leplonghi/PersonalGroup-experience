@@ -3,8 +3,12 @@ import React, { useState, useEffect } from 'react';
 import { Protocol, UserRole, User } from '../types';
 import Card from '../components/Card';
 import { Icons } from '../constants';
-import { getProtocols, getStudents, getEvolutionEntries, getStaff } from '../firebase';
+import { getProtocols, getStudents, getStaff } from '../firebase';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
+import { StudentDetailView } from '../components/management/StudentDetailView';
+import { StudentRow } from '../components/management/StudentRow';
+import { StaffRegistrationModal } from '../components/management/StaffRegistrationModal';
+import { StaffDetailView } from '../components/management/StaffDetailView';
 
 interface ManagementProps {
   user: User;
@@ -105,7 +109,7 @@ const Management: React.FC<ManagementProps> = ({ user, onEditProtocol, onStartAs
                     <img
                       src={student.avatar || student.photoUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${student.id}`}
                       className="w-full h-full rounded-full object-cover"
-                      alt=""
+                      alt="Avatar"
                     />
                   </div>
                   <div className="absolute bottom-0 right-0 w-4 h-4 bg-emerald-500 border-2 border-white dark:border-midnight rounded-full"></div>
@@ -188,7 +192,7 @@ const Management: React.FC<ManagementProps> = ({ user, onEditProtocol, onStartAs
                   onClick={() => setSelectedStudentForDetail(student)}
                 >
                   <div className={`w-14 h-14 border-2 p-1 flex items-center justify-center overflow-hidden rounded-full ${student.isCheckedIn ? 'border-emerald-500' : 'border-slate-200 dark:border-white/10'}`}>
-                    <img src={student.avatar || student.photoUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${student.id}`} className="w-full h-full object-cover rounded-full" alt="" />
+                    <img src={student.avatar || student.photoUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${student.id}`} className="w-full h-full object-cover rounded-full" alt="Student avatar" />
                   </div>
                   <div>
                     <div className="flex items-center space-x-2">
@@ -366,7 +370,7 @@ const Management: React.FC<ManagementProps> = ({ user, onEditProtocol, onStartAs
                   className="flex items-center justify-between p-6 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/5 transition-all"
                 >
                   <div className="flex items-center space-x-5 cursor-pointer" onClick={() => setSelectedStaff(staff)}>
-                    <img src={staff.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${staff.id}`} className="w-14 h-14 rounded-full" alt="" />
+                    <img src={staff.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${staff.id}`} className="w-14 h-14 rounded-full" alt="Staff avatar" />
                     <div>
                       <h4 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-tight">{staff.name}</h4>
                       <p className="text-[9px] font-bold text-blue-600 uppercase tracking-widest mt-1">
@@ -460,308 +464,6 @@ const Management: React.FC<ManagementProps> = ({ user, onEditProtocol, onStartAs
           onViewEvolution={onViewEvolution}
         />
       )}
-    </div>
-  );
-};
-
-// --- SUB-COMPONENT: Student Detail View ---
-const StudentDetailView: React.FC<{
-  currentUser: User;
-  student: User;
-  onClose: () => void;
-  onStartAssessment: (student: User) => void;
-  onStartCycle: (student: User) => void;
-  onJoinSession: (student: User) => void;
-  onViewEvolution: (student: User) => void;
-}> = ({ currentUser, student, onClose, onStartAssessment, onStartCycle, onJoinSession, onViewEvolution }) => {
-  const [evolutionData, setEvolutionData] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const entries = await getEvolutionEntries(student.id);
-        setEvolutionData(entries.reverse()); // Chronological for charts
-      } catch (error) {
-        console.error("Error fetching evolution:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, [student.id]);
-
-  return (
-    <div className="fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm flex items-end justify-center animate-in fade-in duration-300">
-      <div className="w-full max-w-md bg-white dark:bg-midnight rounded-t-[40px] shadow-2xl overflow-hidden animate-in slide-in-from-bottom-10 duration-500 flex flex-col max-h-[95vh]">
-        <div className="p-8 relative overflow-y-auto no-scrollbar">
-          <button onClick={onClose} className="absolute top-8 right-8 text-slate-400 hover:text-white transition-colors z-20">
-            <Icons.X className="w-6 h-6" />
-          </button>
-
-          <div className="flex flex-col items-center text-center mt-4">
-            <div className={`w-24 h-24 rounded-full border-4 p-1 mb-6 ${student.isCheckedIn ? 'border-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.3)]' : 'border-slate-200 dark:border-white/10'}`}>
-              <img src={student.avatar || student.photoUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${student.id}`} className="w-full h-full rounded-full" alt="" />
-            </div>
-            <h3 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tighter leading-none">{student.name}</h3>
-            <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] mt-3">{student.role}</p>
-            {student.isCheckedIn && (
-              <div className="mt-4 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
-                <p className="text-[9px] font-black text-emerald-500 uppercase tracking-widest">Ativo no Studio</p>
-              </div>
-            )}
-          </div>
-
-          <div className="grid grid-cols-2 gap-4 mt-10">
-            <div className="bg-slate-50 dark:bg-white/5 p-6 rounded-3xl border border-slate-100 dark:border-white/5">
-              <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-2">Status Saúde</p>
-              <div className="flex items-center space-x-2">
-                <span className={`w-2 h-2 rounded-full ${student.healthStatus === 'NORMAL' ? 'bg-emerald-500' : 'bg-amber-500'}`}></span>
-                <p className="text-sm font-bold text-slate-900 dark:text-white uppercase italic">{student.healthStatus || 'NORMAL'}</p>
-              </div>
-            </div>
-            <div className="bg-slate-50 dark:bg-white/5 p-6 rounded-3xl border border-slate-100 dark:border-white/5">
-              <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-2">Frequência</p>
-              <p className="text-sm font-bold text-slate-900 dark:text-white uppercase italic">3 / Semana</p>
-            </div>
-          </div>
-
-          {student.isCheckedIn && (
-            <div className="mt-8">
-              <button
-                onClick={() => { onClose(); onJoinSession(student); }}
-                className="w-full h-16 bg-blue-600 text-white font-black text-[10px] uppercase tracking-[0.4em] rounded-2xl flex items-center justify-center space-x-4 shadow-lg shadow-blue-600/20 active:scale-95 transition-all"
-              >
-                <Icons.Play className="w-4 h-4" />
-                <span>Intervir / Acompanhar Sessão</span>
-              </button>
-            </div>
-          )}
-
-          {currentUser.role !== UserRole.PERSONAL ? (
-            <div className="mt-8 space-y-4">
-              <button
-                onClick={() => { onClose(); onStartAssessment(student); }}
-                className="w-full h-16 bg-blue-600 text-white font-black text-[10px] uppercase tracking-[0.4em] rounded-2xl flex items-center justify-center space-x-4 shadow-lg active:scale-95 transition-all"
-              >
-                <Icons.TrendingUp className="w-4 h-4" />
-                <span>Nova Avaliação / Biometria</span>
-              </button>
-              <button
-                onClick={() => { onClose(); onViewEvolution(student); }}
-                className="w-full h-16 bg-surface border border-app text-app font-black text-[10px] uppercase tracking-[0.4em] rounded-2xl flex items-center justify-center space-x-4 active:scale-95 transition-all"
-              >
-                <Icons.TrendingUp className="w-4 h-4" />
-                <span>Ver Evolução Completa</span>
-              </button>
-              <button
-                onClick={() => { onClose(); onStartCycle(student); }}
-                className="w-full h-16 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white font-black text-[10px] uppercase tracking-[0.4em] rounded-2xl flex items-center justify-center space-x-4 active:scale-95 transition-all"
-              >
-                <Icons.Shield className="w-4 h-4" />
-                <span>Ajustar Ciclo de Treino</span>
-              </button>
-            </div>
-          ) : (
-            <div className="mt-10 space-y-8">
-              <header className="border-l-4 border-amber-500 pl-4">
-                <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mb-1">Acompanhamento</h4>
-                <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest">Execução do Dia</h3>
-              </header>
-
-              <div className="space-y-4">
-                {(student.currentCycle?.blocks?.[0]?.exercises || []).map((ex, idx) => (
-                  <div key={idx} className="bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5 p-5 flex items-center justify-between group">
-                    <div className="flex-1">
-                      <h4 className="text-[10px] font-bold text-slate-900 dark:text-white uppercase tracking-widest">{ex.name}</h4>
-                      <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mt-1">Série: {ex.recommendedSets}x{ex.recommendedReps}</p>
-                    </div>
-                    <button className="w-10 h-10 rounded-full border border-slate-200 dark:border-white/10 flex items-center justify-center text-slate-400 group-hover:border-amber-500 group-hover:text-amber-500 transition-all">
-                      <Icons.Check className="w-4 h-4" />
-                    </button>
-                  </div>
-                ))}
-                {!student.currentCycle && (
-                  <div className="py-10 text-center">
-                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Nenhuma série prescrita.</p>
-                  </div>
-                )}
-              </div>
-
-              <button
-                onClick={() => alert('Atendimento Finalizado')}
-                className="w-full h-16 bg-amber-500 text-white font-black text-[10px] uppercase tracking-[0.4em] rounded-2xl flex items-center justify-center space-x-4 shadow-lg active:scale-95 transition-all"
-              >
-                <Icons.Check className="w-4 h-4" />
-                <span>Encerrar Sessão</span>
-              </button>
-            </div>
-          )}
-        </div>
-        <div className="h-12 shrink-0"></div>
-      </div>
-    </div>
-  );
-};
-
-// --- SUB-COMPONENT: Student Row ---
-const StudentRow: React.FC<{
-  student: User;
-  onSelect: (u: User) => void;
-  onStartAssessment: (u: User) => void;
-  onStartCycle: (u: User) => void;
-}> = ({ student, onSelect, onStartAssessment, onStartCycle }) => {
-  const isPersonalDay = student.lastAssessmentDate &&
-    (new Date().getTime() - new Date(student.lastAssessmentDate).getTime()) / (1000 * 60 * 60 * 24) >= 45;
-
-  return (
-    <div
-      className={`flex items-center justify-between p-6 border transition-all hover:bg-white dark:hover:bg-white/5 ${isPersonalDay ? 'border-amber-500/50 bg-amber-500/5' : 'border-slate-200 dark:border-white/5 bg-white dark:bg-ocean/30'}`}
-    >
-      <div className="flex items-center space-x-5 cursor-pointer flex-1" onClick={() => onSelect(student)}>
-        <div className={`w-14 h-14 border-2 p-1 flex items-center justify-center overflow-hidden rounded-full ${student.isCheckedIn ? 'border-emerald-500' : 'border-slate-200 dark:border-white/10'}`}>
-          <img src={student.avatar || student.photoUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${student.id}`} className="w-full h-full object-cover rounded-full" alt="" />
-        </div>
-        <div>
-          <div className="flex items-center space-x-2">
-            <p className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-tight leading-none">{student.name}</p>
-            {isPersonalDay && (
-              <span className="text-[8px] font-black bg-amber-500 text-white px-1.5 py-0.5 rounded-sm animate-pulse whitespace-nowrap">PERSONAL DAY</span>
-            )}
-          </div>
-          <p className="text-[9px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-widest mt-2 flex items-center">
-            <span className={`w-1.5 h-1.5 rounded-full mr-2 ${student.isCheckedIn ? 'bg-emerald-500' : 'bg-slate-500 opacity-30'}`}></span>
-            {student.isCheckedIn ? 'Treinando Agora' : 'Offline'} • {student.currentCycle ? student.currentCycle.name : 'Sem ciclo'}
-          </p>
-        </div>
-      </div>
-      <div className="flex space-x-2">
-        <button onClick={() => onStartAssessment(student)} className="w-10 h-10 flex items-center justify-center border border-slate-200 dark:border-white/10 active:scale-95 text-cyan-500" title="Avaliação">
-          <Icons.TrendingUp className="w-4 h-4" />
-        </button>
-        <button onClick={() => onStartCycle(student)} className="w-10 h-10 flex items-center justify-center border border-slate-200 dark:border-white/10 active:scale-95 text-blue-500" title="Treino">
-          <Icons.Shield className="w-4 h-4" />
-        </button>
-      </div>
-    </div>
-  );
-};
-
-// --- SUB-COMPONENT: Staff Registration Modal ---
-const StaffRegistrationModal: React.FC<{ onClose: () => void; onSubmit: (data: any) => Promise<void> }> = ({ onClose, onSubmit }) => {
-  const [formData, setFormData] = useState({ name: '', email: '', specialty: '' });
-  const [loading, setLoading] = useState(false);
-
-  return (
-    <div className="fixed inset-0 z-[300] bg-black/80 backdrop-blur-xl flex items-center justify-center p-6">
-      <div className="w-full max-w-md bg-white dark:bg-midnight p-10 space-y-8 animate-in zoom-in duration-300">
-        <header className="border-l-4 border-blue-600 pl-6">
-          <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] mb-2">RH Exclusive</h4>
-          <h3 className="text-2xl font-black text-slate-900 dark:text-white uppercase italic tracking-tighter">Registrar Professor</h3>
-        </header>
-
-        <div className="space-y-6">
-          <div className="space-y-2">
-            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Nome Completo</label>
-            <input
-              type="text"
-              value={formData.name}
-              onChange={e => setFormData({ ...formData, name: e.target.value })}
-              className="w-full bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 px-6 py-4 text-sm font-bold text-slate-900 dark:text-white uppercase tracking-widest focus:outline-none focus:border-blue-600"
-              placeholder="Ex: Carlos Silva"
-            />
-          </div>
-          <div className="space-y-2">
-            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">E-mail Corporativo</label>
-            <input
-              type="email"
-              value={formData.email}
-              onChange={e => setFormData({ ...formData, email: e.target.value })}
-              className="w-full bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 px-6 py-4 text-sm font-bold text-slate-900 dark:text-white lowercase tracking-widest focus:outline-none focus:border-blue-600"
-              placeholder="personal@pg.com"
-            />
-          </div>
-          <div className="space-y-2">
-            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Especialidade Principal</label>
-            <select
-              value={formData.specialty}
-              onChange={e => setFormData({ ...formData, specialty: e.target.value })}
-              className="w-full bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 px-6 py-4 text-sm font-bold text-slate-900 dark:text-white uppercase tracking-widest focus:outline-none focus:border-blue-600 appearance-none"
-            >
-              <option value="">Selecione...</option>
-              <option value="MUSCULAÇÃO">Musculação</option>
-              <option value="CARDIO">Cardiovascular</option>
-              <option value="FUNCIONAL">Funcional</option>
-              <option value="MOBILIDADE">Mobilidade</option>
-            </select>
-          </div>
-        </div>
-
-        <div className="flex space-x-4 pt-4">
-          <button onClick={onClose} className="flex-1 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest border border-slate-200 dark:border-white/5 hover:bg-slate-50 dark:hover:bg-white/5 transition-all">Cancelar</button>
-          <button
-            disabled={!formData.name || !formData.email || loading}
-            onClick={async () => {
-              setLoading(true);
-              await onSubmit({ ...formData, role: UserRole.PERSONAL });
-              setLoading(false);
-            }}
-            className="flex-1 py-5 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest shadow-[0_0_20px_rgba(37,99,235,0.3)] disabled:opacity-50"
-          >
-            {loading ? 'Processando...' : 'Confirmar'}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// --- SUB-COMPONENT: Staff Detail View (Chef Management) ---
-const StaffDetailView: React.FC<{ staff: User; onClose: () => void; onUpdate: (data: any) => void }> = ({ staff, onClose, onUpdate }) => {
-  return (
-    <div className="fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm flex items-end justify-center">
-      <div className="w-full max-w-md bg-white dark:bg-midnight rounded-t-[40px] p-10 shadow-2xl overflow-y-auto max-h-[90vh]">
-        <div className="flex justify-between items-start mb-10">
-          <div className="flex items-center space-x-6">
-            <img src={staff.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${staff.id}`} className="w-20 h-20 rounded-full border-2 border-blue-600 p-1" alt="" />
-            <div>
-              <h3 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tighter leading-none">{staff.name}</h3>
-              <p className="text-[10px] font-black text-blue-500 uppercase tracking-[0.4em] mt-3">Personal Flex</p>
-            </div>
-          </div>
-          <button onClick={onClose} className="text-slate-400"><Icons.X className="w-6 h-6" /></button>
-        </div>
-
-        {/* FLEX CAPABILITIES SECTION */}
-        <section className="space-y-8">
-          <header className="border-l-4 border-blue-600 pl-4">
-            <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mb-1">Sistema Flex</h4>
-            <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest">Capacidades Técnicas</h3>
-          </header>
-
-          <div className="space-y-6">
-            {['Anatomia Palpactória', 'Biomecânica Aplicada', 'Prescrição Clínica', 'Engajamento Exclusive'].map(cap => (
-              <div key={cap} className="bg-slate-50 dark:bg-white/5 p-6 border border-slate-100 dark:border-white/5">
-                <div className="flex justify-between items-center mb-4">
-                  <span className="text-[10px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-widest">{cap}</span>
-                  <span className="text-xs font-black text-blue-600 italic">Level 4</span>
-                </div>
-                <div className="flex space-x-2">
-                  {[1, 2, 3, 4, 5].map(lvl => (
-                    <div key={lvl} className={`flex-1 h-1.5 ${lvl <= 4 ? 'bg-blue-600' : 'bg-slate-200 dark:bg-white/10'}`}></div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <button className="w-full py-5 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-[0.4em] hover:bg-slate-50 dark:hover:bg-white/10 transition-all">
-            Calibrar Professor
-          </button>
-        </section>
-
-        <div className="h-20"></div>
-      </div>
     </div>
   );
 };
