@@ -28,56 +28,71 @@ export const PRESET_AVATARS = [
 
 export const BRAND = {
   name: 'Personal Group',
-  tagline: 'Mais que uma academia, uma experiência a cada treino',
+  tagline: 'Wellness Experience - Cuide do corpo, relaxe a mente e viva o bem-estar.',
   founded: 2010,
   location: {
-    address: 'Av. Jackson Képler Lago s/n',
-    neighborhood: "Península - Ponta D'areia",
+    address: 'Av. Nina Rodrigues, esq. com Rua dos Jasmins',
+    neighborhood: "Península",
     city: 'São Luís',
-    state: 'Maranhão'
+    state: 'MA'
   },
   contact: {
     whatsapp: '98991332316',
+    supervision: '98992113821',
+    financial: '98992278745',
     email: 'recepcao@personalgroup.com.br'
   },
   hours: {
-    weekdays: '6h às 22h',
-    saturday: '7h às 13h',
-    sunday: '8h às 13h'
+    weekdays: '05:30 às 22:00',
+    saturday: '07:00 às 13:00',
+    sunday: '08:00 às 13:00'
   },
-  area: '900m²',
-  methodology: 'Sistema Flex'
+  area: 'Boutique Gym Concept',
+  methodology: 'Sistema Flex Exclusive',
+  essence: {
+    mission: 'Proporcionar melhora efetiva na saúde, condicionamento físico e qualidade de vida de acordo com as possibilidades, necessidades e expectativas individuais.',
+    vision: 'Ser reconhecida como referência regional de saúde, bem-estar, inovação metodológica e capacitação profissional.',
+    values: ['Ética', 'Valor Humano', 'Desenvolvimento de Colaboradores', 'Comprometimento com o bem-estar físico e psicológico']
+  }
 };
 
 export const WELLNESS_SERVICES_DATA = [
   {
-    id: 'massagem',
-    name: 'Massagem Relaxante',
-    description: 'Relaxamento muscular pós-treino',
-    duration: '50min',
+    id: 'aromaterapia',
+    name: 'Aromaterapia doTerra',
+    description: 'Experiência sensorial com óleos essenciais exclusivos',
+    duration: '30min',
     icon: 'Leaf',
     type: 'WELLNESS'
   },
   {
-    id: 'fisioterapia',
-    name: 'Fisioterapia',
-    description: 'Recuperação e prevenção de lesões',
+    id: 'miofascial',
+    name: 'Liberação Miofascial',
+    description: 'Recuperação muscular profunda e alívio de tensões',
     duration: '45min',
-    icon: 'Shield',
+    icon: 'Activity',
+    type: 'WELLNESS'
+  },
+  {
+    id: 'massagem',
+    name: 'Wellness Massage',
+    description: 'Massagem exclusiva Personal Group para relaxamento total',
+    duration: '50min',
+    icon: 'Heart',
     type: 'WELLNESS'
   },
   {
     id: 'nutricao',
     name: 'Consultoria Nutricional',
-    description: 'Planejamento alimentar personalizado',
+    description: 'Planejamento alimentar focado em performance e saúde',
     duration: '60min',
     icon: 'Droplet',
     type: 'WELLNESS'
   },
   {
     id: 'avaliacao',
-    name: 'Avaliação Física',
-    description: 'Análise corporal completa',
+    name: 'Avaliação Flex',
+    description: 'Análise metodológica exclusiva do Sistema Flex',
     duration: '45min',
     icon: 'ClipboardCheck',
     type: 'WELLNESS'
@@ -114,6 +129,36 @@ export const CLASS_SERVICES_DATA = [
     type: 'CLASS',
     instructor: 'João P.',
     capacity: 20
+  },
+  { 
+    id: 'c1', 
+    name: 'Hipertrofia Funcional', 
+    description: 'Foco em força e definição muscular.', 
+    duration: '50 min', 
+    icon: 'Dumbbell', 
+    type: 'CLASS', 
+    capacity: 15, 
+    instructor: 'Prof. Ricardo' 
+  },
+  { 
+    id: 'c2', 
+    name: 'Yoga Alinhamento', 
+    description: 'Postura, respiração e equilíbrio.', 
+    duration: '60 min', 
+    icon: 'Yoga', 
+    type: 'CLASS', 
+    capacity: 12, 
+    instructor: 'Lorena Meireles' 
+  },
+  { 
+    id: 'c3', 
+    name: 'Natação Técnica', 
+    description: 'Aperfeiçoamento dos estilos.', 
+    duration: '45 min', 
+    icon: 'Swimming', 
+    type: 'CLASS', 
+    capacity: 6, 
+    instructor: 'Felipe Neves' 
   }
 ];
 
@@ -208,19 +253,9 @@ export const Icons = {
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
     </svg>
   ),
-  Sun: ({ className }: { className?: string }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-    </svg>
-  ),
-  Moon: ({ className }: { className?: string }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-    </svg>
-  ),
   Save: ({ className }: { className?: string }) => (
     <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 0-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
     </svg>
   ),
   Trash: ({ className }: { className?: string }) => (
@@ -412,5 +447,48 @@ export const Icons = {
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8V12" />
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 16H12.01" />
     </svg>
+  ),
+  ArrowUp: ({ className }: { className?: string }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+    </svg>
+  ),
+  ArrowDown: ({ className }: { className?: string }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+    </svg>
+  ),
+  Heart: ({ className }: { className?: string }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+    </svg>
+  ),
+  ShieldCheck: ({ className }: { className?: string }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+    </svg>
+  ),
+  Sun: ({ className }: { className?: string }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+    </svg>
+  ),
+  Moon: ({ className }: { className?: string }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+    </svg>
+  ),
+  Power: ({ className }: { className?: string }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M18.36 6.64a9 9 0 1 1-12.73 0" />
+      <line x1="12" y1="2" x2="12" y2="12" />
+    </svg>
   )
 };
+
+
+export const TRAINING_SESSIONS_DATA = [
+  { id: 't1', date: '2026-01-16', time: '08:00', title: 'Treino A - Inferiores', instructor: 'Vitor Hugo (Trainer)', location: 'Setor 1 - Musculação' },
+  { id: 't2', date: '2026-01-18', time: '17:00', title: 'Treino B - Superiores', instructor: 'Vitor Hugo (Trainer)', location: 'Setor 2 - Funcional' },
+];

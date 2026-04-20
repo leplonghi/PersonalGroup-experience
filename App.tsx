@@ -2,17 +2,23 @@ import React, { useState, useCallback, useMemo, useEffect, lazy, Suspense } from
 import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { User, UserRole, Protocol, Assessment, TrainingCycle, HealthStatus } from './types';
 import { useAuth } from './hooks/useAuth';
+import Navigation from './components/Navigation';
+import Header from './components/Header';
+import { useHeaderConfig } from './hooks/useHeaderConfig';
+import { saveProtocol, saveAssessment, startNewCycle, createUserDoc, toggleUserRole, getUserById } from './firebase';
+import { Icons } from './constants.tsx';
 
 // Lazy loading views for performance
 const Login = lazy(() => import('./views/Login'));
+const Landing = lazy(() => import('./views/Landing'));
 const RegisterFlow = lazy(() => import('./views/RegisterFlow'));
 const EditProfile = lazy(() => import('./views/EditProfile'));
+const Profile = lazy(() => import('./views/Profile'));
 const Home = lazy(() => import('./views/Home'));
 const Agenda = lazy(() => import('./views/Agenda'));
 const Lounge = lazy(() => import('./views/Lounge'));
 const StudentHub = lazy(() => import('./views/StudentHub'));
 const ActiveSession = lazy(() => import('./views/ActiveSession'));
-const Wellness = lazy(() => import('./views/Wellness'));
 const Management = lazy(() => import('./views/Management'));
 const ProtocolEditor = lazy(() => import('./views/ProtocolEditor'));
 const AssessmentFlow = lazy(() => import('./views/AssessmentFlow'));
@@ -20,6 +26,8 @@ const CycleBuilder = lazy(() => import('./views/CycleBuilder'));
 const Messages = lazy(() => import('./views/Messages'));
 const Timeline = lazy(() => import('./views/Timeline'));
 const CheckIn = lazy(() => import('./views/CheckIn'));
+const TrainingHub = lazy(() => import('./views/TrainingHub'));
+const ExperienceHub = lazy(() => import('./views/ExperienceHub'));
 
 const FrequencyDashboard = lazy(() => import('./views/FrequencyDashboard'));
 const PersonalDay = lazy(() => import('./views/PersonalDay'));
@@ -31,6 +39,8 @@ const Wearables = lazy(() => import('./views/Wearables'));
 const FloorView = lazy(() => import('./views/FloorView'));
 const StudentBriefing = lazy(() => import('./views/StudentBriefing'));
 const Onboarding = lazy(() => import('./views/Onboarding'));
+const HealthPortfolio = lazy(() => import('./views/HealthPortfolio'));
+
 // Shared Loader
 export const PageLoader = () => (
   <div className="flex-1 min-h-[50vh] flex flex-col items-center justify-center p-8 space-y-4">
@@ -38,10 +48,6 @@ export const PageLoader = () => (
     <p className="text-[10px] font-black text-app-muted uppercase tracking-widest">Carregando...</p>
   </div>
 );
-import Navigation from './components/Navigation';
-import Header from './components/Header';
-import { saveProtocol, saveAssessment, startNewCycle, createUserDoc, toggleUserRole, getUserById } from './firebase';
-import { Icons } from './constants.tsx';
 
 // Session Route Wrapper to handle student selection for staff
 const SessionRoute: React.FC<{ executor: User; onFinish: () => void }> = ({ executor, onFinish }) => {
@@ -93,7 +99,6 @@ const EvolutionRoute: React.FC<{ viewer: User }> = ({ viewer }) => {
 };
 
 // Layout wraper to handle Header and Navigation visibility
-import { useHeaderConfig } from './hooks/useHeaderConfig'; // Note: Adjust import to be top-level if preferred, but it works here or at top
 
 const AppLayout: React.FC<{
   user: User | null;
@@ -114,7 +119,7 @@ const AppLayout: React.FC<{
   const headerProps = useHeaderConfig();
 
   return (
-    <div className="min-h-screen flex flex-col relative transition-colors duration-500 font-sans bg-app">
+    <div className="h-screen flex flex-col relative transition-colors duration-500 font-sans bg-app">
       {showHeader && (
         <Header
           {...headerProps}
@@ -122,60 +127,65 @@ const AppLayout: React.FC<{
           isDarkMode={isDarkMode}
           onToggleTheme={toggleTheme}
           onGoProfile={() => navigate('/profile')}
+          onLogout={onLogout}
         />
       )}
 
-      <main className={`flex-1 overflow-y-auto no-scrollbar transition-all duration-300 ${showHeader ? 'pt-20' : ''} ${showNav ? 'pb-24' : ''}`}>
+      <main className={`flex-1 overflow-y-auto no-scrollbar transition-all duration-300 ${(showHeader && !['/home', '/training', '/experience'].includes(location.pathname)) ? 'pt-[calc(3.5rem+env(safe-area-inset-top))]' : ''} ${showNav ? 'pb-[calc(3.5rem+env(safe-area-inset-bottom))]' : ''}`}>
         <div className="max-w-[480px] md:max-w-2xl lg:max-w-4xl mx-auto px-0 pt-0">
           <div key={location.pathname} className="animate-slide-up">
             <Suspense fallback={<PageLoader />}>
               <Routes>
+                <Route path="/" element={user ? <Navigate to="/home" /> : <Landing onLoginClick={() => navigate('/login')} />} />
                 <Route path="/login" element={user ? <Navigate to="/home" /> : <Login onLogin={async () => { }} isDarkMode={isDarkMode} onToggleTheme={toggleTheme} />} />
+                <Route path="/register" element={user ? <Navigate to="/home" /> : <RegisterFlow onRegister={async () => { }} onBack={() => navigate('/login')} />} />
 
                 {/* Protected Routes */}
                 {user ? (
                   <>
-                    <Route path="/home" element={<Home user={user} onStartSession={() => navigate('/session')} />} />
-                    <Route path="/lounge" element={<Lounge user={user} onBack={() => navigate('/home')} />} />
-                    <Route path="/agenda" element={<Agenda />} />
-                    <Route path="/messages" element={<Messages user={user} />} />
-                    <Route path="/timeline" element={<Timeline user={user} onBack={() => navigate('/home')} />} />
-                    <Route path="/wellness" element={<Wellness user={user} onBack={() => navigate('/home')} />} />
-                    <Route path="/profile" element={user.role === UserRole.ALUNO ? <StudentHub user={user} onLogout={onLogout} onNavigateTo={(page) => navigate(`/${page}`)} /> : <EditProfile user={user} onBack={() => navigate('/home')} onUpdated={(u) => { onUpdateUser(u); navigate('/home'); }} />} />
-                    <Route path="/onboarding" element={<Onboarding user={user} onComplete={() => navigate('/home')} />} />
+                    <Route path="home" element={<Home user={user} onStartSession={() => navigate('/session')} />} />
+                     <Route path="training" element={<TrainingHub user={user} onStartSession={() => navigate('/session')} />} />
+                    <Route path="experience" element={<ExperienceHub user={user} onBack={() => navigate('/home')} />} />
+                    <Route path="lounge" element={<Lounge user={user} onBack={() => navigate('/home')} />} />
+                    <Route path="agenda" element={<Agenda user={user} onBack={() => navigate('/home')} />} />
+                    <Route path="messages" element={<Messages user={user} />} />
+                    <Route path="timeline" element={<Timeline user={user} onBack={() => navigate('/home')} />} />
+                    <Route path="profile" element={<Profile user={user} onLogout={onLogout} onUpdateUser={onUpdateUser} onGoTimeline={() => navigate('/timeline')} onBack={() => navigate('/home')} />} />
+                    <Route path="onboarding" element={<Onboarding user={user} onComplete={() => navigate('/home')} />} />
 
                     {/* Active Session & Management */}
-                    <Route path="/session/:studentId?" element={<SessionRoute executor={user} onFinish={() => navigate('/home')} />} />
-                    <Route path="/live-session/:sessionId" element={<SessionRoute executor={user} onFinish={() => navigate('/home')} />} />
-                    <Route path="/session-live" element={<SessionRoute executor={user} onFinish={() => navigate('/home')} />} />
-                    <Route path="/floor-view" element={<FloorView />} />
-                    <Route path="/student-briefing/:uid" element={<StudentBriefing trainer={user} />} />
-                    <Route path="/management" element={user.role !== UserRole.ALUNO ? <Management user={user} onEditProtocol={() => navigate('/protocol-edit')} onStartAssessment={(s) => { setSelectedStudent(s); navigate(`/assessment/${s.id}`); }} onStartCycle={(s) => { setSelectedStudent(s); navigate(`/cycle-builder/${s.id}`); }} onJoinSession={(s) => navigate(`/session/${s.id}`)} onViewEvolution={(s) => navigate(`/evolution/${s.id}`)} onRegisterStaff={onRegisterStaff} onToggleRole={onToggleRole} /> : <Navigate to="/home" />} />
+                    <Route path="session/:studentId?" element={<SessionRoute executor={user} onFinish={() => navigate('/home')} />} />
+                    <Route path="live-session/:sessionId" element={<SessionRoute executor={user} onFinish={() => navigate('/home')} />} />
+                    <Route path="session-live" element={<SessionRoute executor={user} onFinish={() => navigate('/home')} />} />
+                    <Route path="floor-view" element={<FloorView />} />
+                    <Route path="student-briefing/:uid" element={<StudentBriefing trainer={user} />} />
+                    <Route path="management" element={user.role !== UserRole.ALUNO ? <Management user={user} onEditProtocol={() => navigate('/protocol-edit')} onStartAssessment={(s) => { setSelectedStudent(s); navigate(`/assessment/${s.id}`); }} onStartCycle={(s) => { setSelectedStudent(s); navigate(`/cycle-builder/${s.id}`); }} onJoinSession={(s) => navigate(`/session/${s.id}`)} onViewEvolution={(s) => navigate(`/evolution/${s.id}`)} onRegisterStaff={onRegisterStaff} onToggleRole={onToggleRole} /> : <Navigate to="/home" />} />
 
                     {/* Management Sub-routes */}
-                    <Route path="/protocol-edit" element={<ProtocolEditor protocol={undefined} onBack={() => navigate('/management')} onSave={async () => navigate('/management')} />} />
-                    <Route path="/assessment/:studentId?" element={user.role !== UserRole.ALUNO ? <AssessmentFlow student={selectedStudent} chefe={user} onBack={() => navigate('/management')} onFinish={async (assessment, newStatus) => { await saveAssessment(assessment, newStatus); navigate('/management'); }} /> : <Navigate to="/home" />} />
-                    <Route path="/cycle-builder/:studentId?" element={user.role !== UserRole.ALUNO ? <CycleBuilder student={selectedStudent} onBack={() => navigate('/management')} onConfirm={async (cycle) => { if (selectedStudent) { await startNewCycle(selectedStudent.id, cycle); setSelectedStudent(null); navigate('/management'); } }} /> : <Navigate to="/home" />} />
+                    <Route path="protocol-edit" element={<ProtocolEditor protocol={undefined} onBack={() => navigate('/management')} onSave={async () => navigate('/management')} />} />
+                    <Route path="assessment/:studentId?" element={user.role !== UserRole.ALUNO ? <AssessmentFlow student={selectedStudent} chefe={user} onBack={() => navigate('/management')} onFinish={async (assessment, newStatus) => { await saveAssessment(assessment, newStatus); navigate('/management'); }} /> : <Navigate to="/home" />} />
+                    <Route path="cycle-builder/:studentId?" element={user.role !== UserRole.ALUNO ? <CycleBuilder student={selectedStudent} onBack={() => navigate('/management')} onConfirm={async (cycle) => { if (selectedStudent) { await startNewCycle(selectedStudent.id, cycle); setSelectedStudent(null); navigate('/management'); } }} /> : <Navigate to="/home" />} />
 
                     {/* Evolution / Results */}
-                    <Route path="/evolution/:studentId?" element={<EvolutionRoute viewer={user} />} />
+                    <Route path="evolution/:studentId?" element={<EvolutionRoute viewer={user} />} />
+                    <Route path="health-portfolio" element={<HealthPortfolio user={user} />} />
 
                     {/* Frequency Dashboard */}
-                    <Route path="/frequency" element={<FrequencyDashboard user={user} onBack={() => navigate('/home')} />} />
+                    <Route path="frequency" element={<FrequencyDashboard user={user} onBack={() => navigate('/home')} />} />
 
                     {/* PersonalDay */}
-                    <Route path="/personal-day" element={<PersonalDay user={user} onBack={() => navigate('/home')} onComplete={() => navigate('/home')} />} />
+                    <Route path="personal-day" element={<PersonalDay user={user} onBack={() => navigate('/home')} onComplete={() => navigate('/home')} />} />
 
                     {/* Etapa 5 */}
-                    <Route path="/admin-requests" element={<AdminRequests user={user} onBack={() => navigate('/home')} />} />
-                    <Route path="/support" element={<SupportChat user={user} onBack={() => navigate('/home')} />} />
-                    <Route path="/ranking" element={<Ranking user={user} onBack={() => navigate('/home')} />} />
-                    <Route path="/wearables" element={<Wearables user={user} onBack={() => navigate('/home')} />} />
+                    <Route path="admin-requests" element={<AdminRequests user={user} onBack={() => navigate('/home')} />} />
+                    <Route path="support" element={<SupportChat user={user} onBack={() => navigate('/home')} />} />
+                    <Route path="ranking" element={<Ranking user={user} onBack={() => navigate('/home')} />} />
+                    <Route path="wearables" element={<Wearables user={user} onBack={() => navigate('/home')} />} />
 
                     <Route path="*" element={<Navigate to="/home" />} />
                   </>
                 ) : (
-                  <Route path="*" element={<Navigate to="/login" />} />
+                  <Route path="*" element={<Navigate to="/" />} />
                 )}
               </Routes>
             </Suspense>

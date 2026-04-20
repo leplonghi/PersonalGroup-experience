@@ -47,14 +47,14 @@ const FloorView: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen bg-deep-blue text-white flex flex-col font-sans relative overflow-hidden pb-24">
+        <div className="bg-deep-blue text-white flex flex-col font-sans relative overflow-hidden pb-20">
             {/* Background Mesh */}
             <div className="absolute inset-0 z-0 opacity-10 pointer-events-none">
                 <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-cobalt rounded-full blur-[150px] mix-blend-screen -translate-y-1/2 translate-x-1/3"></div>
             </div>
 
-            <div className="pt-12 px-6 pb-6 relative z-10">
-                <div className="flex items-center justify-between mb-8">
+            <div className="pt-6 px-6 pb-4 relative z-10">
+                <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center space-x-3">
                         <div className="w-12 h-12 bg-cobalt/10 border border-cobalt/30 rounded-2xl flex items-center justify-center">
                             <Icons.Eye className="w-6 h-6 text-cobalt" />
@@ -84,27 +84,27 @@ const FloorView: React.FC = () => {
                         ) : (
                             aguardando.map((aluno) => (
                                 <div key={aluno.id} className="p-5 border-2 border-amber-400/20 bg-amber-400/5 rounded-[24px] flex flex-col transition-all hover:bg-amber-400/10 active:scale-[0.98]">
-                                    <div className="flex items-start space-x-4">
+                                    <div className="flex items-start space-x-3">
                                         <img
                                             src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${aluno.uid}`}
-                                            className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 object-cover shrink-0"
+                                            className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 object-cover shrink-0"
                                             alt="Avatar"
                                         />
-                                        <div className="flex-1 min-w-0 pt-1">
-                                            <div className="flex items-center space-x-2 mb-1">
-                                                <h3 className="text-lg font-bold text-white truncate">{aluno.userName || `Aluno ${aluno.uid.slice(0, 4)}`}</h3>
+                                        <div className="flex-1 min-w-0 pt-0.5">
+                                            <div className="flex items-center space-x-2 mb-0.5">
+                                                <h3 className="text-base font-bold text-white truncate">{aluno.userName || `Aluno ${aluno.uid.slice(0, 4)}`}</h3>
                                             </div>
-                                            <div className="flex flex-wrap gap-2 mt-2">
+                                            <div className="flex flex-wrap gap-1.5 mt-1">
                                                 {aluno.energiaLevel && (
-                                                    <span className={`px-2 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider flex items-center border ${getEnergyColor(aluno.energiaLevel)}`}>
+                                                    <span className={`px-1.5 py-0.5 rounded-md text-[8px] font-black uppercase tracking-wider flex items-center border ${getEnergyColor(aluno.energiaLevel)}`}>
                                                         {getEnergyIcon(aluno.energiaLevel)}
                                                         {getEnergyLabel(aluno.energiaLevel)}
                                                     </span>
                                                 )}
                                                 {aluno.limitacao && (
-                                                    <span className="px-2 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider bg-red-500/20 text-red-400 border border-red-500/30 flex items-center">
-                                                        <Icons.AlertTriangle className="w-3 h-3 mr-1" />
-                                                        Limitação Relatada
+                                                    <span className="px-1.5 py-0.5 rounded-md text-[8px] font-black uppercase tracking-wider bg-red-500/20 text-red-400 border border-red-500/30 flex items-center">
+                                                        <Icons.AlertTriangle className="w-2.5 h-2.5 mr-1" />
+                                                        Limitação
                                                     </span>
                                                 )}
                                             </div>
@@ -137,13 +137,13 @@ const FloorView: React.FC = () => {
                             </div>
                         ) : (
                             emSessao.map((aluno) => (
-                                <div key={aluno.id} className="p-4 border border-emerald-500/30 bg-emerald-500/5 rounded-2xl flex items-center space-x-4">
-                                    <div className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center text-emerald-400 shrink-0">
-                                        <Icons.Check className="w-5 h-5" />
+                                <div key={aluno.id} className="p-3 border border-emerald-500/30 bg-emerald-500/5 rounded-xl flex items-center space-x-3">
+                                    <div className="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center text-emerald-400 shrink-0">
+                                        <Icons.Check className="w-4 h-4" />
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <h3 className="text-sm font-bold text-white truncate">{aluno.userName || `Aluno ${aluno.uid.slice(0, 4)}`}</h3>
-                                        <p className="text-[10px] text-emerald-400/70 uppercase tracking-widest font-bold mt-0.5">Com {aluno.trainerNome || 'Trainer'}</p>
+                                        <h3 className="text-xs font-bold text-white truncate">{aluno.userName || `Aluno ${aluno.uid.slice(0, 4)}`}</h3>
+                                        <p className="text-[9px] text-emerald-400/70 uppercase tracking-widest font-bold mt-0.5">Com {aluno.trainerNome || 'Trainer'}</p>
                                     </div>
                                 </div>
                             ))

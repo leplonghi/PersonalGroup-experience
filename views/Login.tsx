@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { UserRole } from '../types';
 import { Icons } from '../constants';
 import { TEST_ACCOUNTS, seedTestUsers, loginAsTestUser, createTestUser, type TestAccount } from '../seedTestUsers';
+import Logo from '../components/ui/Logo';
 
 interface LoginProps {
   /** Called with email+password for real Firebase Auth */
@@ -63,7 +64,7 @@ const Login: React.FC<LoginProps> = ({ onLogin, onGoogleLogin, onRegister, isDar
   };
 
   return (
-    <div className="min-h-screen w-full flex flex-col items-center justify-center relative overflow-hidden p-6">
+    <div className="min-h-svh w-full flex flex-col items-center justify-center relative overflow-hidden p-6">
       {/* Background Image & Overlays - Cinematic Movement */}
       <div className="absolute inset-0 z-0 select-none pointer-events-none overflow-hidden bg-black">
         <div
@@ -85,7 +86,7 @@ const Login: React.FC<LoginProps> = ({ onLogin, onGoogleLogin, onRegister, isDar
         <div className="text-center space-y-6 animate-in fade-in zoom-in duration-1000">
           <div className="flex justify-center p-2 relative group">
             <div className="absolute inset-0 bg-blue-500/20 blur-[50px] rounded-full"></div>
-            <img src="/logo.png" className="h-24 w-auto object-contain filter drop-shadow-[0_0_15px_rgba(0,182,253,0.5)] relative z-10 transition-transform duration-500 group-hover:scale-105" alt="PersonalGroup logo" />
+            <Logo variant="login" className="relative z-10" />
           </div>
           <div className="space-y-3">
             <h1 className="text-2xl font-black text-white uppercase tracking-tight leading-none drop-shadow-xl">

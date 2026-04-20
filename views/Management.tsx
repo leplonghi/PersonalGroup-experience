@@ -9,6 +9,9 @@ import { StudentDetailView } from '../components/management/StudentDetailView';
 import { StudentRow } from '../components/management/StudentRow';
 import { StaffRegistrationModal } from '../components/management/StaffRegistrationModal';
 import { StaffDetailView } from '../components/management/StaffDetailView';
+import { getStudentsPaginated } from '../services/userService';
+import { useActionQueue } from '../hooks/useActionQueue';
+import { logAdminAction } from '../services/adminService';
 
 interface ManagementProps {
   user: User;
@@ -33,6 +36,9 @@ const Management: React.FC<ManagementProps> = ({ user, onEditProtocol, onStartAs
   const [staffList, setStaffList] = useState<User[]>([]);
   const [showStaffReg, setShowStaffReg] = useState(false);
   const [selectedStaff, setSelectedStaff] = useState<User | null>(null);
+  const [lastVisible, setLastVisible] = useState<any>(null);
+  const [hasMore, setHasMore] = useState(true);
+  const { isOffline, queue, addToQueue, processQueue } = useActionQueue();
 
   const filteredStudents = students.filter(s =>
     s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -42,14 +48,17 @@ const Management: React.FC<ManagementProps> = ({ user, onEditProtocol, onStartAs
   const [selectedStudentForDetail, setSelectedStudentForDetail] = useState<User | null>(null);
 
   const fetchData = async () => {
+    setIsLoading(true);
     try {
-      const [protocolsData, studentsData, staffData] = await Promise.all([
+      const [protocolsData, studentsRes, staffData] = await Promise.all([
         getProtocols(),
-        getStudents(),
+        getStudentsPaginated(),
         getStaff()
       ]);
       setProtocols(protocolsData);
-      setStudents(studentsData);
+      setStudents(studentsRes.students);
+      setLastVisible(studentsRes.lastVisible);
+      setHasMore(studentsRes.students.length === 50);
       setStaffList(staffData);
     } catch (e) {
       console.error(e);
@@ -58,23 +67,56 @@ const Management: React.FC<ManagementProps> = ({ user, onEditProtocol, onStartAs
     }
   };
 
+  const loadMoreStudents = async () => {
+    if (!lastVisible || !hasMore) return;
+    const res = await getStudentsPaginated(lastVisible);
+    setStudents(prev => [...prev, ...res.students]);
+    setLastVisible(res.lastVisible);
+    setHasMore(res.students.length === 50);
+  };
+
   useEffect(() => {
     fetchData();
   }, []);
 
   const handleToggleRole = async (userId: string, currentRole: UserRole) => {
+    const staffMember = staffList.find(s => s.id === userId);
+    if (!staffMember) return;
+
+    if (isOffline) {
+      addToQueue({
+        userId,
+        action: 'TOGGLE_ROLE',
+        payload: { userId, currentRole }
+      });
+      // Optimistic Update
+      setStaffList(prev => prev.map(s => s.id === userId ? { ...s, status: 'SYNC_PENDING' } : s));
+      return;
+    }
+
     try {
       await onToggleRole(userId, currentRole);
-      await fetchData(); // Refresh list
+      await logAdminAction(user.id, userId, 'ROLE_TOGGLE', `Cargo de ${staffMember.name} alterado pelo administrador.`);
+      await fetchData(); 
     } catch (e) {
       console.error('Error toggling role:', e);
     }
   };
 
+  useEffect(() => {
+    if (!isOffline && queue.length > 0) {
+      processQueue(async (item) => {
+        if (item.action === 'TOGGLE_ROLE') {
+          await onToggleRole(item.payload.userId, item.payload.currentRole);
+        }
+      }).then(() => fetchData());
+    }
+  }, [isOffline, queue]);
+
   const onlineStudents = students.filter(s => s.isCheckedIn);
 
   const renderDashboardChefe = () => (
-    <div className="space-y-12 animate-in fade-in duration-700 p-8 pt-10">
+    <div className="space-y-8 animate-in fade-in duration-700 p-6 pt-6">
       {/* LIVE GYM STATUS - THE "PRESENCE" HUD */}
       <section className="space-y-6">
         <div className="flex justify-between items-end px-2">
@@ -97,7 +139,7 @@ const Management: React.FC<ManagementProps> = ({ user, onEditProtocol, onStartAs
               <button
                 key={student.id}
                 onClick={() => setSelectedStudentForDetail(student)}
-                className="min-w-[100px] flex flex-col items-center group space-y-3"
+                className="min-w-[90px] flex flex-col items-center group space-y-2"
               >
                 <div className="relative">
                   <div className="w-16 h-16 rounded-full border-2 border-emerald-500 p-1 group-hover:scale-105 transition-transform">
@@ -122,8 +164,8 @@ const Management: React.FC<ManagementProps> = ({ user, onEditProtocol, onStartAs
       </section>
 
       {/* TOP STATS CARDS - OBSIDIAN HUD */}
-      <div className="grid grid-cols-2 gap-6">
-        <div className="bg-white border border-slate-200 dark:bg-white/5 dark:border-white/5 p-8 h-48 flex flex-col justify-between relative overflow-hidden group">
+      <div className="grid grid-cols-2 gap-4">
+        <div className="bg-white border border-slate-200 dark:bg-white/5 dark:border-white/5 p-6 h-40 flex flex-col justify-between relative overflow-hidden group">
           <div className="flex items-center space-x-3">
             <div className="w-2 h-2 bg-cyan-400 shadow-[0_0_10px_#22D3EE]"></div>
             <span className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Pendências</span>
@@ -136,7 +178,7 @@ const Management: React.FC<ManagementProps> = ({ user, onEditProtocol, onStartAs
           </p>
         </div>
 
-        <div className="bg-white border border-slate-200 dark:bg-white/5 dark:border-white/5 p-8 h-48 flex flex-col justify-between relative overflow-hidden group">
+        <div className="bg-white border border-slate-200 dark:bg-white/5 dark:border-white/5 p-6 h-40 flex flex-col justify-between relative overflow-hidden group">
           <div className="flex items-center space-x-3">
             <div className="w-2 h-2 bg-blue-600 shadow-[0_0_10px_#2563EB]"></div>
             <span className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Gerência</span>
@@ -291,9 +333,17 @@ const Management: React.FC<ManagementProps> = ({ user, onEditProtocol, onStartAs
   return (
     <div className="min-h-screen bg-app flex flex-col transition-colors duration-500 grain-overlay relative pb-32">
       <div className="precision-bg absolute inset-0 z-0 opacity-40"></div>
-      <div className="relative z-10 no-scrollbar overflow-y-auto pt-4">
+      <div className="relative z-10 pt-0">
+        {isOffline && (
+          <div className="mx-8 mb-4 p-3 bg-amber-500/20 border border-amber-500/50 flex items-center space-x-3">
+            <Icons.AlertTriangle className="w-4 h-4 text-amber-500" />
+            <span className="text-[10px] font-black uppercase tracking-widest text-amber-500">
+              Modo Offline: {queue.length} ações pendentes de sincronização
+            </span>
+          </div>
+        )}
         {/* NAV TABS */}
-        <div className="flex space-x-8 px-8 mb-8 border-b border-slate-200 dark:border-white/5 overflow-x-auto no-scrollbar">
+        <div className="flex space-x-6 px-6 mb-4 border-b border-slate-200 dark:border-white/5 overflow-x-auto no-scrollbar">
           {['DASHBOARD', 'ALUNOS', 'EQUIPE', 'PROTOCOLOS']
             .filter(tab => {
               if (user.role === UserRole.PERSONAL) {
@@ -315,8 +365,8 @@ const Management: React.FC<ManagementProps> = ({ user, onEditProtocol, onStartAs
 
         {activeTab === 'DASHBOARD' && renderDashboardChefe()}
         {activeTab === 'ALUNOS' && (
-          <div className="p-8 space-y-6">
-            <header className="border-l-4 border-emerald-500 pl-4 mb-8">
+          <div className="p-6 space-y-4">
+            <header className="border-l-4 border-emerald-500 pl-4 mb-6">
               <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.3em] mb-1">Base de Dados</h4>
               <h3 className="text-xl font-bold text-slate-900 dark:text-white uppercase tracking-tight">Todos os Alunos</h3>
             </header>
@@ -336,6 +386,15 @@ const Management: React.FC<ManagementProps> = ({ user, onEditProtocol, onStartAs
               {filteredStudents.map(student => (
                 <StudentRow key={student.id} currentUser={user} student={student} onSelect={setSelectedStudentForDetail} onStartAssessment={onStartAssessment} onStartCycle={onStartCycle} />
               ))}
+              
+              {hasMore && (
+                <button
+                  onClick={loadMoreStudents}
+                  className="w-full py-4 border border-dashed border-slate-200 dark:border-white/10 text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 hover:text-blue-600 transition-colors"
+                >
+                  Carregar Mais Alunos
+                </button>
+              )}
             </div>
           </div>
         )}
@@ -371,9 +430,19 @@ const Management: React.FC<ManagementProps> = ({ user, onEditProtocol, onStartAs
                     className="flex items-center justify-between p-6 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/5 transition-all"
                   >
                     <div className="flex items-center space-x-5 cursor-pointer" onClick={() => setSelectedStaff(staff)}>
-                      <img src={staff.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${staff.id}`} className="w-14 h-14 rounded-full" alt="Staff avatar" />
+                      <div className="relative">
+                        <img src={staff.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${staff.id}`} className="w-14 h-14 rounded-full" alt="Staff avatar" />
+                        {staff.status === 'SYNC_PENDING' && (
+                          <div className="absolute inset-0 bg-midnight/60 flex items-center justify-center rounded-full">
+                            <Icons.Refresh className="w-5 h-5 text-blue-500 animate-spin" />
+                          </div>
+                        )}
+                      </div>
                       <div>
-                        <h4 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-tight">{staff.name}</h4>
+                        <h4 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-tight">
+                          {staff.name}
+                          {staff.status === 'SYNC_PENDING' && <span className="ml-2 text-[8px] text-blue-500">SYNCING</span>}
+                        </h4>
                         <p className="text-[9px] font-bold text-blue-600 uppercase tracking-widest mt-1">
                           {staff.role === UserRole.CHEFE ? 'Chefe de Pista' : 'Personal Flex'}
                         </p>

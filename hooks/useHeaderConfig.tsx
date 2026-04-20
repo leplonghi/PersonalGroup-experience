@@ -31,7 +31,7 @@ export const useHeaderConfig = () => {
         if (path === '/messages') return { title: 'Mensagens', subtitle: 'Central de Avisos', rightAction: bellBtn };
         if (path === '/timeline') return { title: 'Minha Jornada', subtitle: 'Histórico de Performance', leftAction: backBtn('/home') };
         if (path === '/wellness') return { title: 'Wellness Centre', subtitle: 'Recuperação Biomecânica', leftAction: backBtn('/home') };
-        if (path === '/club') return { title: 'Ecossistema', subtitle: 'Personal Experience', leftAction: backBtn('/home') };
+        if (path === '/club') return { title: 'Ecossistema', subtitle: 'Exclusividade', leftAction: backBtn('/home') };
         if (path === '/profile') return { title: 'Meu Perfil', subtitle: 'Minha Conta', leftAction: backBtn('/home') };
         if (path === '/session') return {
             title: 'Sessão Ativa',
@@ -43,7 +43,7 @@ export const useHeaderConfig = () => {
         if (path === '/protocol-edit') return { title: 'Editar Treino', subtitle: 'Detalhes Técnicos', leftAction: backBtn('/management') };
         if (path === '/assessment') return { title: 'Avaliação', subtitle: 'Intervenção Técnica', leftAction: backBtn('/management'), rightAction: <div className="w-12 h-12 border border-app bg-surface flex items-center justify-center font-black text-[10px] text-cobalt italic rounded-xl">GOV</div> };
         if (path === '/cycle-builder') return { title: 'Novo Ciclo', subtitle: 'Planejamento', leftAction: backBtn('/management'), rightAction: <div className="w-12 h-12 border border-app bg-surface flex items-center justify-center font-black text-[10px] text-cobalt italic rounded-xl">v1.2</div> };
-        if (path === '/checkin') return { title: 'Validação de Acesso', subtitle: 'Unidade Península Jardins', leftAction: backBtn('/home') };
+        if (path === '/checkin') return { title: 'Validação de Acesso', subtitle: 'Check-in Ativo', leftAction: backBtn('/home') };
         if (path === '/floor-view') return { title: 'Pista', subtitle: 'Visão Geral', leftAction: backBtn('/management') };
         if (path.startsWith('/student-briefing')) return { title: 'Prontuário', subtitle: 'Aluno', leftAction: backBtn('/floor-view') };
         if (path.startsWith('/evolution')) return { title: 'Evolução', subtitle: 'Acompanhamento', leftAction: backBtn(-1) };

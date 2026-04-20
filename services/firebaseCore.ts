@@ -34,9 +34,10 @@ export const avaliacoesCol = collection(db, "avaliacoes");
 export const wellnessCol = collection(db, "wellness");
 export const mensagensCol = collection(db, "mensagens");
 export const timelineCol = collection(db, "timeline");
-export const checkInsCol = collection(db, "checkins");
+export const checkInsCol = collection(db, "check_ins");
 export const evolutionCol = collection(db, "evolution");
 export const adminRequestsCol = collection(db, "admin_requests");
 export const gymConfigCol = collection(db, "config");
+export const adminLogsCol = collection(db, "admin_logs");
 // Live session state (staff-synced, used by ActiveSession component)
 export const liveSessionsCol = collection(db, "active_sessions");

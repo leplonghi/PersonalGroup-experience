@@ -1,313 +1,304 @@
-import React, { useState, useEffect } from 'react';
-import { Icons } from '../constants';
-import { GymConfig } from '../types';
-import { getGymConfig, isGymOpen } from '../firebase';
 
-type SessionType = 'TREINO' | 'AVALIACAO' | 'WELLNESS' | 'LIVRE';
+import React, { useState } from 'react';
+import Card from '../components/Card';
+import { User, WellnessService, UnifiedAgendaItem } from '../types';
+import { Icons, WELLNESS_SERVICES_DATA, CLASS_SERVICES_DATA, TRAINING_SESSIONS_DATA } from '../constants';
+import { bookWellness } from '../firebase';
 
-interface AgendaSession {
-  time: string;
-  label: string;
-  type: SessionType;
-  status: string;
-  duration?: string;
-  instructor?: string;
-  location?: string;
+interface AgendaProps {
+  user: User;
+  onBack: () => void;
 }
 
-const Agenda: React.FC = () => {
-  const [selectedDay, setSelectedDay] = useState(16);
-  const [currentMonth, setCurrentMonth] = useState(0); // January 2026
-  const [gymConfig, setGymConfig] = useState<GymConfig | null>(null);
-  const [gymStatus, setGymStatus] = useState<{ open: boolean; closeAt?: string; reason?: string }>({ open: true });
+const Agenda: React.FC<AgendaProps> = ({ user, onBack }) => {
+  const [activeTab, setActiveTab] = useState<'WELLNESS' | 'CLASSES' | 'SESSIONS'>('WELLNESS');
+  const [selectedService, setSelectedService] = useState<WellnessService | null>(null);
+  const [selectedDate, setSelectedDate] = useState<string>('16');
+  const [selectedTime, setSelectedTime] = useState<string | null>(null);
+  const [step, setStep] = useState<'SERVICES' | 'SCHEDULE' | 'CONFIRM'>('SERVICES');
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  useEffect(() => {
-    getGymConfig().then(cfg => {
-      setGymConfig(cfg);
-      setGymStatus(isGymOpen(cfg));
-    });
-  }, []);
+  // Data for the current tab
+  const services = activeTab === 'WELLNESS' ? WELLNESS_SERVICES_DATA : CLASS_SERVICES_DATA;
 
-  const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
-  const weekDayHeaders = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
-
-  // Generate calendar days for current month
-  const generateMonthDays = () => {
-    const daysInMonth = 31; // January
-    const firstDayOfMonth = 3; // Wednesday (0 = Sunday)
-    const days = [];
-
-    for (let i = 0; i < firstDayOfMonth; i++) {
-      days.push({ day: null, isCurrentMonth: false });
-    }
-
-    for (let i = 1; i <= daysInMonth; i++) {
-      days.push({
-        day: i,
-        isCurrentMonth: true,
-        isToday: i === 16,
-        isSelected: i === selectedDay,
-        isPast: i < 16,
-        hasEvents: [7, 9, 11, 15, 16, 18].includes(i)
-      });
-    }
-
-    return days;
-  };
-
-  const sessions: AgendaSession[] = [];
-
-  const timeSlots = [
-    '06:00', '07:00', '08:00', '09:00', '10:00', '11:00',
-    '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00',
-    '19:00', '20:00'
+  const dates = [
+    { label: 'SEG', day: '15', available: true },
+    { label: 'TER', day: '16', available: true, active: true },
+    { label: 'QUA', day: '17', available: true },
+    { label: 'QUI', day: '18', available: true },
+    { label: 'SEX', day: '19', available: true },
   ];
 
-  // Check if a time slot is within gym operating hours for the selected day
-  const isTimeSlotOpen = (time: string) => {
-    if (!gymConfig) return true;
-    const dow = new Date(2026, currentMonth, selectedDay).getDay();
-    let hours = gymConfig.hours.weekdays;
-    if (dow === 6) hours = gymConfig.hours.saturday;
-    else if (dow === 0) hours = gymConfig.hours.sunday;
-    return time >= hours.open && time < hours.close;
-  };
+  const timeSlots = activeTab === 'WELLNESS'
+    ? ['08:00', '09:00', '10:00', '14:00', '15:00', '16:00', '17:00', '18:30']
+    : ['07:00', '12:00', '18:00', '19:00', '20:00'];
 
-  const getSessionForTime = (time: string) => {
-    return sessions.find(s => s.time.startsWith(time.split(':')[0]));
-  };
+  const sessionsUsed = user.wellnessSessionsUsed || 0;
+  const sessionsLeft = Math.max(0, 2 - sessionsUsed);
+  const quotaExceeded = sessionsUsed >= 2;
 
-  const getIconForType = (type: SessionType) => {
-    switch (type) {
-      case 'TREINO': return Icons.Dumbbell;
-      case 'AVALIACAO': return Icons.Activity;
-      case 'WELLNESS': return Icons.Leaf;
-      case 'LIVRE': return Icons.Plus;
-      default: return Icons.Calendar;
+  const handleBooking = async () => {
+    if (!selectedService || !selectedTime || (activeTab === 'WELLNESS' && quotaExceeded)) return;
+    setIsProcessing(true);
+    try {
+      await bookWellness(user.id, selectedService.id, selectedService.name, `2026-01-${selectedDate}`, selectedTime);
+      setStep('CONFIRM');
+    } catch (err: any) {
+      alert(err?.message || 'Erro ao reservar.');
     }
+    setIsProcessing(false);
   };
 
-  const getStyleForType = (type: SessionType) => {
-    switch (type) {
-      case 'TREINO': return 'bg-gradient-to-r from-blue-600 to-blue-500 border-l-4 border-blue-700';
-      case 'AVALIACAO': return 'bg-gradient-to-r from-cyan-600 to-cyan-500 border-l-4 border-cyan-700';
-      case 'WELLNESS': return 'bg-gradient-to-r from-emerald-500 to-emerald-400 border-l-4 border-emerald-600';
-      case 'LIVRE': return 'bg-white dark:bg-white/5 border-l-4 border-dashed border-blue-300 dark:border-white/20';
-      default: return 'bg-slate-100 dark:bg-white/5 border-l-4 border-slate-300';
-    }
-  };
+  const renderTabs = () => (
+    <div className="flex p-1 bg-slate-100 dark:bg-white/5 rounded-xl border border-slate-200 dark:border-white/10 mb-4">
+      <button
+        onClick={() => { setActiveTab('WELLNESS'); setStep('SERVICES'); }}
+        className={`flex-1 py-3 text-[9px] font-bold uppercase tracking-[0.2em] rounded-lg transition-all ${activeTab === 'WELLNESS' ? 'bg-white dark:bg-white/10 text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'}`}
+      >
+        Spa & Recovery
+      </button>
+      <button
+        onClick={() => { setActiveTab('CLASSES'); setStep('SERVICES'); }}
+        className={`flex-1 py-3 text-[9px] font-bold uppercase tracking-[0.2em] rounded-lg transition-all ${activeTab === 'CLASSES' ? 'bg-white dark:bg-white/10 text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'}`}
+      >
+        Aulas
+      </button>
+      <button
+        onClick={() => setActiveTab('SESSIONS')}
+        className={`flex-1 py-3 text-[9px] font-bold uppercase tracking-[0.2em] rounded-lg transition-all ${activeTab === 'SESSIONS' ? 'bg-white dark:bg-white/10 text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'}`}
+      >
+        Meus Treinos
+      </button>
+    </div>
+  );
 
-  const monthDays = generateMonthDays();
+  const renderServices = () => (
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="px-1 border-l-4 border-blue-600 pl-4">
+        <h3 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight uppercase">
+          {activeTab === 'WELLNESS' ? 'Selecionar Serviço' : 'Escolher Modalidade'}
+        </h3>
+        <p className="text-[9px] font-bold text-blue-500 uppercase tracking-[0.3em] mt-2 leading-none">
+          {activeTab === 'WELLNESS' ? 'Recuperação e Bem-estar' : 'Treinos em Grupo'}
+        </p>
+      </div>
 
-  return (
-    <div className="min-h-screen bg-app flex flex-col md:flex-row transition-colors duration-500 overflow-hidden">
-      <div className="precision-bg absolute inset-0 z-0 opacity-40"></div>
+      <div className="grid grid-cols-1 gap-4">
+        {services.map(service => {
+          const IconComponent = Icons[service.icon as keyof typeof Icons] || Icons.Leaf;
+          const isClass = activeTab === 'CLASSES';
 
-      {/* Google Calendar Style Sidebar - Desktop only */}
-      <aside className="hidden md:block w-64 flex-shrink-0 bg-white dark:bg-white/5 border-r border-slate-200 dark:border-white/10 relative z-10 p-4 overflow-y-auto font-display">
-        {/* Mini Calendar */}
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-black text-blue-950 dark:text-white uppercase">
-              {monthNames[currentMonth]}
-            </h3>
-            <div className="flex gap-1">
-              <button
-                onClick={() => setCurrentMonth(m => m - 1)}
-                className="w-7 h-7 rounded-full hover:bg-blue-50 dark:hover:bg-white/10 flex items-center justify-center transition-all"
-              >
-                <Icons.ChevronLeft className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-              </button>
-              <button
-                onClick={() => setCurrentMonth(m => m + 1)}
-                className="w-7 h-7 rounded-full hover:bg-blue-50 dark:hover:bg-white/10 flex items-center justify-center transition-all"
-              >
-                <Icons.ChevronRight className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-              </button>
-            </div>
-          </div>
-
-          {/* Compact Week Headers */}
-          <div className="grid grid-cols-7 gap-1 mb-2">
-            {weekDayHeaders.map((day, idx) => (
-              <div key={idx} className="text-center">
-                <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400">
-                  {day}
-                </span>
-              </div>
-            ))}
-          </div>
-
-          {/* Compact Calendar Grid */}
-          <div className="grid grid-cols-7 gap-1">
-            {monthDays.map((dayInfo, idx) => (
-              <button
-                key={idx}
-                onClick={() => dayInfo.day && setSelectedDay(dayInfo.day)}
-                disabled={!dayInfo.isCurrentMonth || dayInfo.isPast}
-                className={`aspect-square rounded-full text-[11px] font-semibold transition-all relative flex items-center justify-center ${!dayInfo.isCurrentMonth
-                  ? 'text-transparent cursor-default'
-                  : dayInfo.isSelected
-                    ? 'bg-blue-600 text-white'
-                    : dayInfo.isToday
-                      ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-900 dark:text-blue-300 font-bold'
-                      : dayInfo.isPast
-                        ? 'text-slate-400 dark:text-slate-600 cursor-not-allowed'
-                        : 'text-blue-900 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-white/10'
-                  }`}
-              >
-                {dayInfo.day}
-                {dayInfo.hasEvents && dayInfo.isCurrentMonth && !dayInfo.isSelected && (
-                  <div className="absolute bottom-0.5 w-1 h-1 rounded-full bg-blue-500"></div>
-                )}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Quick Links */}
-        <div className="space-y-1">
-          <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2 px-2">
-            Meus Calendários
-          </div>
-          <button className="w-full px-3 py-2 rounded-lg text-left text-sm font-semibold text-blue-900 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-white/10 transition-all flex items-center gap-2">
-            <div className="w-3 h-3 rounded-sm bg-blue-600"></div>
-            Treinos
-          </button>
-          <button className="w-full px-3 py-2 rounded-lg text-left text-sm font-semibold text-blue-900 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-white/10 transition-all flex items-center gap-2">
-            <div className="w-3 h-3 rounded-sm bg-emerald-500"></div>
-            Wellness
-          </button>
-          <button className="w-full px-3 py-2 rounded-lg text-left text-sm font-semibold text-blue-900 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-white/10 transition-all flex items-center gap-2">
-            <div className="w-3 h-3 rounded-sm bg-cyan-600"></div>
-            Avaliações
-          </button>
-        </div>
-      </aside>
-
-      {/* Top Bar / Header */}
-      <header className="px-6 py-4 border-b border-slate-200 dark:border-white/10 bg-white/50 dark:bg-white/5 backdrop-blur-sm z-20">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-4">
-            <h2 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight">
-              {monthNames[currentMonth]}
-            </h2>
-            {/* Gym Status Indicator */}
-            <div className={`flex items-center space-x-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${gymStatus.open ? 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400' : 'bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400'}`}>
-              <div className={`w-1.5 h-1.5 rounded-full ${gymStatus.open ? 'bg-green-500 shadow-[0_0_6px_#22C55E]' : 'bg-red-500 shadow-[0_0_6px_#EF4444]'}`} />
-              <span>{gymStatus.open ? `Aberto` : 'Fechado'}</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Mobile Week Strip - Visible only on small screens */}
-        <div className="md:hidden flex overflow-x-auto no-scrollbar gap-2 pb-2">
-          {monthDays.filter(d => d.isCurrentMonth).slice(selectedDay - 3, selectedDay + 4).map((dayInfo, idx) => (
-            <button
-              key={idx}
-              onClick={() => dayInfo.day && setSelectedDay(dayInfo.day)}
-              className={`flex-shrink-0 w-14 h-16 rounded-2xl flex flex-col items-center justify-center transition-all ${dayInfo.isSelected
-                ? 'bg-blue-600 text-white shadow-lg scale-105'
-                : 'bg-white/5 border border-white/5 text-slate-500'
-                }`}
+          return (
+            <div
+              key={service.id}
+              onClick={() => { setSelectedService(service as unknown as WellnessService); setStep('SCHEDULE'); }}
+              className="glass-panel p-4 group relative overflow-hidden active:scale-[0.99] transition-all border-white/5 cursor-pointer"
             >
-              <span className="text-[10px] font-black uppercase tracking-widest mb-1">{weekDayHeaders[(idx + 3) % 7]}</span>
-              <span className="text-lg font-black">{dayInfo.day}</span>
-            </button>
-          ))}
-        </div>
+              <div className="flex items-center space-x-6 relative z-10">
+                <div className={`w-14 h-14 border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 flex items-center justify-center shadow-xl group-hover:border-blue-600 transition-all ${isClass ? 'text-orange-500' : 'text-blue-500'}`}>
+                  <IconComponent className="w-7 h-7" />
+                </div>
+                <div className="flex-1">
+                  <h4 className="text-base font-bold text-slate-900 dark:text-white tracking-tight uppercase">{service.name}</h4>
+                  <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-1 mb-2">{service.description}</p>
 
-        <div className="hidden md:flex justify-between items-center">
-          <h3 className="text-sm font-bold text-slate-500 uppercase tracking-widest">
-            {new Date(2026, currentMonth, selectedDay).toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })}
-          </h3>
-          <button className="px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-black uppercase tracking-widest hover:bg-blue-500 transition-all shadow-lg">
-            Agendar Treino
-          </button>
+                  <div className="flex items-center space-x-4">
+                    <div className="flex items-center text-[9px] font-bold text-slate-500 uppercase tracking-widest leading-none">
+                      <Icons.Clock className="w-3 h-3 mr-2" /> {service.duration}
+                    </div>
+                    {isClass && (service as any).capacity && (
+                      <div className="flex items-center text-[9px] font-bold text-orange-500 uppercase tracking-widest leading-none">
+                        <Icons.Users className="w-3 h-3 mr-2" /> { (service as any).instructor }
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+              <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-20 transition-opacity">
+                <Icons.ChevronRight className="w-12 h-12" />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+
+  const renderPersonalSessions = () => (
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="px-1 border-l-4 border-blue-600 pl-4">
+        <h3 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight uppercase">Minha Agenda</h3>
+        <p className="text-[9px] font-bold text-blue-500 uppercase tracking-[0.3em] mt-2 leading-none">Sessões Programadas com Trainer</p>
+      </div>
+
+      <div className="space-y-4">
+        {TRAINING_SESSIONS_DATA.map(session => (
+          <div key={session.id} className="glass-panel p-4 border-white/10 relative overflow-hidden group">
+            <div className="flex items-start justify-between relative z-10">
+              <div className="flex-1">
+                <div className="flex items-center space-x-3 mb-4">
+                  <div className="px-3 py-1 bg-blue-600/10 border border-blue-600/20 text-blue-600 text-[9px] font-black uppercase tracking-widest rounded-full">
+                    Sessão Confirmada
+                  </div>
+                </div>
+                <h4 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight uppercase mb-2">{session.title}</h4>
+                <div className="grid grid-cols-2 gap-4 mt-6">
+                  <div className="flex items-center text-[10px] font-bold text-slate-500 uppercase tracking-widest leading-none">
+                    <Icons.Calendar className="w-4 h-4 mr-3 text-blue-600" /> {session.date}
+                  </div>
+                  <div className="flex items-center text-[10px] font-bold text-slate-500 uppercase tracking-widest leading-none">
+                    <Icons.Clock className="w-4 h-4 mr-3 text-blue-600" /> {session.time}
+                  </div>
+                </div>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-6 flex items-center">
+                  <Icons.User className="w-3 h-3 mr-2 text-slate-300" /> {session.instructor}
+                </p>
+              </div>
+              <div className="w-12 h-12 border border-slate-200 dark:border-white/10 flex items-center justify-center bg-slate-50 dark:bg-white/5 shadow-inner">
+                <Icons.Target className="w-6 h-6 text-slate-400" />
+              </div>
+            </div>
+            {/* Design detail */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-600/5 blur-3xl rounded-full translate-x-12 -translate-y-12"></div>
+          </div>
+        ))}
+
+        <button className="w-full py-5 border-2 border-dashed border-slate-200 dark:border-white/10 rounded-2xl flex flex-col items-center justify-center space-y-2 group hover:border-blue-600/50 transition-all active:scale-[0.98]">
+           <Icons.Plus className="w-5 h-5 text-slate-300 group-hover:text-blue-600 transition-colors" />
+           <span className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.3em] group-hover:text-slate-600 dark:group-hover:text-white transition-colors">Solicitar Nova Sessão</span>
+        </button>
+      </div>
+    </div>
+  );
+
+  const renderSchedule = () => (
+    <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-700">
+      <header className="flex items-center space-x-4">
+        <button onClick={() => setStep('SERVICES')} className="w-12 h-12 border border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-900 dark:text-white active:scale-95 transition-all">
+          <Icons.ChevronRight className="w-5 h-5 rotate-180" />
+        </button>
+        <div>
+          <h3 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight uppercase leading-none">{selectedService?.name}</h3>
+          <p className="text-[9px] font-bold text-blue-600 dark:text-blue-500 uppercase tracking-[0.3em] mt-3 leading-none">Agendar Sessão</p>
         </div>
       </header>
 
-      {/* Timeline View */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="relative">
-          {timeSlots.map((time, idx) => {
-            const session = getSessionForTime(time);
-            const Icon = session ? getIconForType(session.type) : Icons.Clock;
-            const slotOpen = isTimeSlotOpen(time);
-
-            return (
-              <div
-                key={idx}
-                className={`grid grid-cols-[5rem_1fr] border-t border-slate-200/50 dark:border-white/5 transition-opacity ${slotOpen ? '' : 'opacity-30'}`}
-                style={{ minHeight: '4rem' }}
-              >
-                {/* Time Label */}
-                <div className="pt-2 pr-4 text-right">
-                  <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
-                    {time}
-                  </span>
-                </div>
-
-                {/* Event Area */}
-                <div className="py-2 pr-6 relative">
-                  {session ? (
-                    <div className={`
-                        rounded-lg p-3 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md
-                        ${getStyleForType(session.type)}
-                      `}>
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <div className={`p-1 rounded ${session.type === 'LIVRE'
-                              ? 'bg-blue-100 dark:bg-white/10 text-blue-600'
-                              : 'bg-white/20 text-slate-900 dark:text-white'
-                              }`}>
-                              <Icon className="w-3 h-3" />
-                            </div>
-                            <h4 className={`text-sm font-bold truncate ${session.type === 'LIVRE'
-                              ? 'text-blue-950 dark:text-slate-300'
-                              : 'text-slate-900 dark:text-white'
-                              }`}>
-                              {session.label}
-                            </h4>
-                          </div>
-                          {session.instructor && (
-                            <p className={`text-[10px] font-semibold truncate ${session.type === 'LIVRE'
-                              ? 'text-blue-700 dark:text-blue-400'
-                              : 'text-slate-800 dark:text-white/80'
-                              }`}>
-                              {session.time} • {session.instructor} • {session.location}
-                            </p>
-                          )}
-                        </div>
-                        {session.type !== 'LIVRE' && (
-                          <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase whitespace-nowrap ${session.status === 'Concluído'
-                            ? 'bg-emerald-500/30 text-slate-900 dark:text-white' :
-                            session.status === 'Confirmado'
-                              ? 'bg-white/20 text-slate-900 dark:text-white' :
-                              'bg-amber-500/30 text-amber-900 dark:text-amber-50'
-                            }`}>
-                            {session.status}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="h-full"></div>
-                  )}
-                </div>
-              </div>
-            );
-          })}
+      <section className="space-y-6">
+        <div className="flex items-baseline justify-between px-1">
+          <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.3em]">Escolha do Período</h4>
+          <span className="text-[8px] font-bold text-blue-600 uppercase tracking-widest">Janeiro 2026</span>
         </div>
+        <div className="flex space-x-3 overflow-x-auto no-scrollbar pb-4 snap-x">
+          {dates.map(d => (
+            <button
+              key={d.day}
+              onClick={() => setSelectedDate(d.day)}
+              className={`snap-center min-w-[64px] h-20 flex flex-col items-center justify-center rounded-2xl border transition-all duration-300 relative group overflow-hidden ${selectedDate === d.day
+                ? 'bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-600/30 scale-105'
+                : 'bg-white border-slate-200 text-slate-500 dark:bg-white/5 dark:text-slate-400 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/10'
+                }`}
+            >
+              {selectedDate === d.day && (
+                <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent opacity-30"></div>
+              )}
+              <span className={`text-[9px] font-bold tracking-widest mb-1 uppercase ${selectedDate === d.day ? 'text-blue-100' : 'opacity-60'}`}>{d.label}</span>
+              <span className="text-xl font-black tracking-tight relative z-10 leading-none">{d.day}</span>
+            </button>
+          ))}
+        </div>
+      </section>
 
-        {/* Current time indicator */}
-        <div className="absolute left-20 right-6 pointer-events-none" style={{ top: '35%' }}>
-          <div className="flex items-center">
-            <div className="w-3 h-3 rounded-full bg-red-500 border-2 border-white dark:border-midnight shadow-lg z-10"></div>
-            <div className="flex-1 h-0.5 bg-red-500"></div>
+      <section className="space-y-6">
+        <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.3em] px-1">Horários Disponíveis</h4>
+        <div className="grid grid-cols-4 gap-3">
+          {timeSlots.map(time => (
+            <button
+              key={time}
+              onClick={() => setSelectedTime(time)}
+              className={`py-4 rounded-xl border text-[10px] font-bold transition-all relative overflow-hidden ${selectedTime === time
+                ? 'bg-blue-600 border-blue-500 text-white shadow-md shadow-blue-500/30 scale-[1.02]'
+                : 'bg-white border-slate-200 text-slate-600 dark:bg-white/5 dark:text-slate-400 dark:border-white/10 hover:border-blue-400/50'
+                }`}
+            >
+              <span className="relative z-10">{time}</span>
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <div className="pt-10">
+        <button
+          disabled={!selectedTime || isProcessing}
+          onClick={handleBooking}
+          className={`w-full h-16 font-black text-[11px] uppercase tracking-[0.6em] transition-all relative overflow-hidden group ${selectedTime && !isProcessing
+            ? 'bg-blue-600 text-white active:scale-[0.98]'
+            : 'bg-slate-100 dark:bg-white/5 text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-white/5 cursor-not-allowed'
+            }`}
+        >
+          {isProcessing ? (
+            <div className="w-6 h-6 border-2 border-white/30 border-t-white animate-spin"></div>
+          ) : (
+            <div className="flex items-center justify-center space-x-4 relative z-10">
+              <Icons.Calendar className="w-5 h-5" />
+              <span>Confirmar Reserva</span>
+            </div>
+          )}
+        </button>
+      </div>
+    </div>
+  );
+
+  const renderConfirm = () => (
+    <div className="flex flex-col items-center justify-center py-20 text-center animate-in zoom-in-95 fade-in duration-1000">
+      <div className="w-32 h-32 border-4 border-blue-600 bg-white/5 flex items-center justify-center mb-12 shadow-[0_0_50px_rgba(37,99,235,0.3)] relative">
+        <div className="absolute inset-0 border border-blue-600/50 animate-ping opacity-20"></div>
+        <Icons.Shield className="w-14 h-14 text-blue-600" />
+      </div>
+      <h3 className="text-5xl font-bold text-slate-900 dark:text-white tracking-tight leading-none mb-10 uppercase">Reserva<br /><span className="text-blue-600">Consolidada</span></h3>
+      <div className="glass-panel p-10 w-full max-w-[340px] mb-16 border-white/10">
+        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.3em] mb-6 leading-none">Voucher de Identidade</p>
+        <h4 className="text-lg font-bold text-slate-900 dark:text-white leading-tight mb-4 uppercase">{selectedService?.name}</h4>
+        <div className="flex items-center justify-center space-x-4 mt-6 text-blue-500">
+          <Icons.Calendar className="w-5 h-5" />
+          <p className="text-sm font-bold uppercase tracking-[0.2em]">DIA {selectedDate} • {selectedTime}</p>
+        </div>
+      </div>
+      <button onClick={onBack} className="w-full max-w-[300px] h-20 bg-blue-600 text-white font-black text-[11px] uppercase tracking-[0.6em] transition-all hover:bg-blue-500 active:scale-[0.98] shadow-2xl">
+        Concluir Operação
+      </button>
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen bg-app flex flex-col transition-colors duration-500 grain-overlay relative px-6">
+      <div className="precision-bg absolute inset-0 z-0 opacity-40"></div>
+      <div className="flex-1 pb-40 pt-0 relative z-10 no-scrollbar overflow-y-auto">
+        {step !== 'CONFIRM' && renderTabs()}
+
+        {/* Status Quota for Wellness */}
+        {step === 'SERVICES' && activeTab === 'WELLNESS' && (
+          <div className="glass-panel p-4 border-white/10 mb-4">
+            <div className="flex justify-between items-center mb-4">
+              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-[0.3em]">Créditos Disponíveis</span>
+              <Icons.Leaf className="w-6 h-6 text-blue-600" />
+            </div>
+            <div className="flex items-baseline space-x-3">
+              <span className={`text-5xl font-bold tracking-tight ${quotaExceeded ? 'text-red-400' : 'text-slate-900 dark:text-white'}`}>0{sessionsLeft}</span>
+              <span className="text-lg font-bold text-slate-700 tracking-tight">/ 02 DISPONÍVEIS</span>
+            </div>
+            {quotaExceeded && (
+              <p className="text-[9px] font-bold text-red-400 uppercase tracking-widest mt-4">Cota mensal atingida — Bloqueado até próximo mês</p>
+            )}
+            <div className="w-full h-1 bg-white/10 mt-10 relative">
+               <div className={`h-full ${quotaExceeded ? 'bg-red-500' : 'bg-blue-600'} transition-all duration-1000`} style={{ width: `${(sessionsUsed / 2) * 100}%` }}></div>
+            </div>
           </div>
-        </div>
+        )}
+
+        {step === 'SERVICES' && activeTab !== 'SESSIONS' && renderServices()}
+        {step === 'SERVICES' && activeTab === 'SESSIONS' && renderPersonalSessions()}
+        {step === 'SCHEDULE' && renderSchedule()}
+        {step === 'CONFIRM' && renderConfirm()}
       </div>
     </div>
   );

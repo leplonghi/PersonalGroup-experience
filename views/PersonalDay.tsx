@@ -63,7 +63,7 @@ const PersonalDay: React.FC<PersonalDayProps> = ({ user, onBack, onComplete }) =
 
     if (step === 'intro') {
         return (
-            <div className="min-h-screen bg-app flex flex-col items-center justify-center p-8 space-y-8">
+            <div className="w-full bg-app flex flex-col items-center justify-center p-8 space-y-8 pt-0">
                 <div className="text-center space-y-4">
                     <div className="text-6xl">🎉</div>
                     <h1 className="text-2xl font-black text-white uppercase tracking-widest">PersonalDay</h1>
@@ -93,7 +93,7 @@ const PersonalDay: React.FC<PersonalDayProps> = ({ user, onBack, onComplete }) =
 
     if (step === 'done') {
         return (
-            <div className="min-h-screen bg-app flex flex-col items-center justify-center p-8 space-y-6">
+            <div className="w-full bg-app flex flex-col items-center justify-center p-8 space-y-6 pt-0">
                 <div className="w-20 h-20 rounded-full bg-green-600/20 flex items-center justify-center">
                     <Icons.Check className="w-10 h-10 text-green-400" />
                 </div>
@@ -107,7 +107,7 @@ const PersonalDay: React.FC<PersonalDayProps> = ({ user, onBack, onComplete }) =
     }
 
     return (
-        <div className="min-h-screen bg-app p-6 pb-32 space-y-6">
+        <div className="w-full bg-app px-6 pt-0 pb-32 space-y-6">
             {/* Header */}
             <div className="flex items-center justify-between">
                 <button onClick={onBack} className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-all">

@@ -26,7 +26,14 @@ const PlanStatusBanner: React.FC<PlanStatusBannerProps> = ({ user }) => {
     if (!isExpired && !isUrgent && !isWarning) return null;
 
     const config = isExpired
-        ? { bg: 'from-red-600/20 to-red-900/10', border: 'border-red-500/30', text: 'text-red-800 dark:text-red-400', icon: 'text-red-400', label: 'Plano Expirado', detail: 'Renove para continuar treinando.' }
+        ? { 
+            bg: 'from-red-600/20 to-red-900/10', 
+            border: 'border-red-500/30', 
+            text: 'text-red-800 dark:text-red-400', 
+            icon: 'text-red-400', 
+            label: 'Seu protocolo te espera', 
+            detail: 'Fale conosco na recepção para ajustarmos tudo para sua volta.' 
+          }
         : isUrgent
             ? { bg: 'from-amber-600/20 to-amber-900/10', border: 'border-amber-500/30', text: 'text-amber-800 dark:text-amber-300', icon: 'text-amber-400', label: `${daysLeft} dia${daysLeft > 1 ? 's' : ''} restante${daysLeft > 1 ? 's' : ''}`, detail: 'Fale na recepção para renovar.' }
             : { bg: 'from-blue-600/10 to-blue-900/5', border: 'border-blue-500/20', text: 'text-blue-800 dark:text-blue-300', icon: 'text-blue-400', label: `${daysLeft} dias restantes`, detail: 'Plano vence em breve.' };

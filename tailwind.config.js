@@ -30,10 +30,9 @@ export default {
                 'ice-highlight': '#F1F5F9',
             },
             fontFamily: {
-                // All aligned with actual Google Font loaded: Montserrat
-                sans: ['Montserrat', 'sans-serif'],
-                display: ['Montserrat', 'sans-serif'],
-                sport: ['Montserrat', 'sans-serif'],
+                sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                display: ['"Plus Jakarta Sans"', 'sans-serif'],
+                sport: ['"Plus Jakarta Sans"', 'sans-serif'],
             },
             borderRadius: {
                 'pg-sharp': '0px',

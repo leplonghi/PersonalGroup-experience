@@ -94,9 +94,9 @@ const RegisterFlow: React.FC<RegisterFlowProps> = ({ onRegister, onBack, isDarkM
             <div className="precision-bg absolute inset-0 z-0 opacity-30" />
 
             {/* Header */}
-            <div className="relative z-10 flex items-center justify-between px-8 pt-14 pb-6">
-                <button onClick={onBack} className="w-10 h-10 border border-white/10 bg-white/5 flex items-center justify-center">
-                    <Icons.ChevronRight className="w-4 h-4 rotate-180 text-white" />
+            <div className="relative z-10 flex items-center justify-between px-6 pt-10 pb-4">
+                <button onClick={onBack} className="w-8 h-8 border border-white/10 bg-white/5 flex items-center justify-center">
+                    <Icons.ChevronRight className="w-3 h-3 rotate-180 text-white" />
                 </button>
                 <div className="flex items-center space-x-2">
                     {[1, 2, 3, 4].map(s => (
@@ -105,13 +105,13 @@ const RegisterFlow: React.FC<RegisterFlowProps> = ({ onRegister, onBack, isDarkM
                 </div>
             </div>
 
-            <div className="relative z-10 flex-1 px-8 pb-32 space-y-8 overflow-y-auto no-scrollbar">
+            <div className="relative z-10 flex-1 px-6 pb-24 space-y-6 overflow-y-auto no-scrollbar">
                 {/* Step 1 — Credentials */}
                 {step === 1 && (
                     <div className="space-y-8 animate-in slide-in-from-right-4 duration-500">
                         <header className="border-l-4 border-blue-600 pl-5">
                             <p className="text-[10px] font-black text-blue-500 uppercase tracking-[0.4em] mb-1">Passo 1 de 4</p>
-                            <h2 className="text-3xl font-black text-slate-900 dark:text-white uppercase italic tracking-tighter">Acesso</h2>
+                            <h2 className="text-2xl font-black text-slate-900 dark:text-white uppercase italic tracking-tighter">Acesso</h2>
                         </header>
                         <div className="space-y-4">
                             <div>
@@ -135,7 +135,7 @@ const RegisterFlow: React.FC<RegisterFlowProps> = ({ onRegister, onBack, isDarkM
                     <div className="space-y-8 animate-in slide-in-from-right-4 duration-500">
                         <header className="border-l-4 border-blue-600 pl-5">
                             <p className="text-[10px] font-black text-blue-500 uppercase tracking-[0.4em] mb-1">Passo 2 de 4</p>
-                            <h2 className="text-3xl font-black text-slate-900 dark:text-white uppercase italic tracking-tighter">Seus Dados</h2>
+                            <h2 className="text-2xl font-black text-slate-900 dark:text-white uppercase italic tracking-tighter">Seus Dados</h2>
                         </header>
                         <div className="space-y-4">
                             <div>

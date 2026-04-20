@@ -11,7 +11,7 @@ interface PersonalHomeProps {
 export const PersonalHome: React.FC<PersonalHomeProps> = ({ user }) => {
     const navigate = useNavigate();
     return (
-        <div className="animate-in fade-in duration-1000 space-y-8 px-6 pb-24 pt-10">
+        <div className="animate-in fade-in duration-1000 space-y-8 px-6 pb-24 pt-[calc(4.5rem+env(safe-area-inset-top))]">
             <header className="space-y-2">
                 <p className="text-[10px] font-bold text-blue-500 uppercase tracking-[0.4em] leading-none opacity-50">Área do Treinador</p>
                 <h2 className="text-4xl font-display font-medium tracking-tight uppercase text-deep-blue dark:text-white">Prof. {user.name.replace(/^Prof\.\s*/i, '').split(' ')[0]}<span className="text-cobalt">.</span></h2>
@@ -110,7 +110,7 @@ export const PersonalHome: React.FC<PersonalHomeProps> = ({ user }) => {
                                         {idx === 0 && <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-[0_0_8px_#22C55E]"></div>}
                                     </div>
                                     <p className="text-[9px] font-bold text-blue-400 uppercase tracking-[0.2em] mt-2 leading-none">
-                                        {idx === 0 ? 'STATUS: TREINANDO // UNIDADE A1' : 'STATUS: AGUARDANDO // UNIDADE A1'}
+                                        {idx === 0 ? 'STATUS: TREINANDO' : 'STATUS: AGUARDANDO'}
                                     </p>
                                 </div>
                             </div>

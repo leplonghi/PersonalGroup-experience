@@ -88,7 +88,7 @@ const FrequencyDashboard: React.FC<FrequencyDashboardProps> = ({ user, onBack })
     const maxBar = bars.reduce((m, b) => Math.max(m, b.max), 1);
 
     return (
-        <div className="min-h-screen bg-app p-6 pb-32 space-y-6">
+        <div className="w-full bg-app px-6 pt-0 pb-32 space-y-6">
             {/* Header */}
             <div className="flex items-center justify-between">
                 <button onClick={onBack} className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-all">

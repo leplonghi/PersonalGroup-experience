@@ -158,8 +158,8 @@ const Onboarding: React.FC<OnboardingProps> = ({ user, onComplete }) => {
                     <div className="animate-in fade-in slide-in-from-right-8 duration-700 space-y-6">
                         <div className="space-y-3">
                             <h2 className="text-3xl font-display font-medium tracking-tight text-app uppercase leading-none">
-                                Qual a sua<br />
-                                <span className="text-cobalt">Missão?</span>
+                                Qual o seu<br />
+                                <span className="text-cobalt">Objetivo?</span>
                             </h2>
                             <p className="text-sm font-bold text-app-muted mb-1">Nosso Sistema Flex é guiado por métricas. Escolha seu objetivo principal.</p>
                             <p className="text-[10px] font-bold text-cobalt uppercase tracking-widest animate-pulse flex items-center"><Icons.ArrowRight className="w-3 h-3 mr-1 inline" /> Toque em uma opção para avançar</p>
@@ -190,8 +190,8 @@ const Onboarding: React.FC<OnboardingProps> = ({ user, onComplete }) => {
                     <div className="animate-in fade-in slide-in-from-right-8 duration-700 space-y-6">
                         <div className="space-y-3">
                             <h2 className="text-3xl font-display font-medium tracking-tight text-app uppercase leading-none">
-                                E a sua<br />
-                                <span className="text-cobalt">Bagagem?</span>
+                                Qual a sua<br />
+                                <span className="text-cobalt">Experiência?</span>
                             </h2>
                             <p className="text-sm font-bold text-app-muted mb-1">Como você avalia sua experiência com treinamento físico?</p>
                             <p className="text-[10px] font-bold text-cobalt uppercase tracking-widest animate-pulse flex items-center"><Icons.ArrowRight className="w-3 h-3 mr-1 inline" /> Toque em uma opção para avançar</p>
@@ -224,8 +224,8 @@ const Onboarding: React.FC<OnboardingProps> = ({ user, onComplete }) => {
                     <div className="animate-in fade-in slide-in-from-right-8 duration-700 space-y-6">
                         <div className="space-y-3">
                             <h2 className="text-3xl font-display font-medium tracking-tight text-app uppercase leading-none">
-                                Ritual na<br />
-                                <span className="text-cobalt">Península.</span>
+                                Sua<br />
+                                <span className="text-cobalt">Frequência.</span>
                             </h2>
                             <p className="text-sm font-bold text-app-muted mb-1">Quantos dias na semana sua agenda permite foco total?</p>
                             <p className="text-[10px] font-bold text-cobalt uppercase tracking-widest animate-pulse flex items-center"><Icons.ArrowRight className="w-3 h-3 mr-1 inline" /> Toque em uma opção para avançar</p>
@@ -248,8 +248,8 @@ const Onboarding: React.FC<OnboardingProps> = ({ user, onComplete }) => {
                     <div className="animate-in fade-in slide-in-from-right-8 duration-700 space-y-6">
                         <div className="space-y-3">
                             <h2 className="text-3xl font-display font-medium tracking-tight text-app uppercase leading-none">
-                                A Sua<br />
-                                <span className="text-cobalt">Vibe Musical.</span>
+                                Estilo<br />
+                                <span className="text-cobalt">Musical.</span>
                             </h2>
                             <p className="text-sm font-bold text-app-muted mb-1">Nossos horários são curados. Qual estilo te leva além da falha?</p>
                             <p className="text-[10px] font-bold text-cobalt uppercase tracking-widest animate-pulse flex items-center"><Icons.ArrowRight className="w-3 h-3 mr-1 inline" /> Toque em uma opção para avançar</p>

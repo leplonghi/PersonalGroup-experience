@@ -1,158 +1,18 @@
-rules_version = '2';
+rules_version='2'
 
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // --- Helper Functions ---
-
-    function isAuth() {
-      return request.auth != null;
-    }
-
-    function isOwner(uid) {
-      return isAuth() && request.auth.uid == uid;
-    }
-
-    function getRole() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
-    }
-
-    function isPersonal() {
-      return isAuth() && getRole() in ['PERSONAL', 'CHEFE', 'ADMIN'];
-    }
-
-    function isChefe() {
-      return isAuth() && getRole() in ['CHEFE', 'ADMIN'];
-    }
-
-    function isAdmin() {
-      return isAuth() && getRole() == 'ADMIN';
-    }
-
-    // --- Users ---
-    match /users/{userId} {
-      allow get: if isOwner(userId) || isPersonal();
-      allow list: if isPersonal();
-      allow create: if isAuth() && request.auth.uid == userId;
-      allow update: if isOwner(userId) || isChefe();
-      allow delete: if isAdmin();
-    }
-
-    // --- Sessions (Sessoes) ---
-    match /sessoes/{sessionId} {
-      allow read: if isAuth() && (
-        resource.data.userId == request.auth.uid || isPersonal()
-      );
-      allow create: if isAuth();
-      allow update, delete: if isChefe();
-    }
-
-    // --- Protocols (Protocolos) ---
-    match /protocolos/{protocolId} {
-      allow read: if isAuth();
-      allow create, update: if isChefe();
-      allow delete: if isAdmin();
-    }
-
-    // --- Training Cycles (Ciclos) ---
-    match /ciclos/{cycleId} {
-      allow read: if isAuth() && (
-        resource.data.userId == request.auth.uid || isPersonal()
-      );
-      allow create, update: if isChefe() || (isAuth() && request.auth.uid == resource.data.userId);
-      allow delete: if isChefe();
-    }
-
-    // --- Assessments (Avaliacoes) ---
-    match /avaliacoes/{assessmentId} {
-      allow read: if isAuth() && (
-        resource.data.studentId == request.auth.uid || isPersonal()
-      );
-      allow create, update: if isChefe();
-      allow delete: if isAdmin();
-    }
-
-    // --- Wellness Bookings ---
-    match /wellness/{bookingId} {
-      allow read: if isAuth() && (
-        resource.data.userId == request.auth.uid || isPersonal()
-      );
-      allow create: if isAuth();
-      allow update: if isAuth() && (resource.data.userId == request.auth.uid || isPersonal());
-      allow delete: if isChefe();
-    }
-
-    // --- Messages (Mensagens) ---
-    match /mensagens/{messageId} {
-      allow read: if isAuth() && (
-        resource.data.userId in [request.auth.uid, 'PUBLIC'] || isPersonal()
-      );
-      allow create: if isPersonal();
-      allow update: if isAuth() && resource.data.userId == request.auth.uid;
-      allow delete: if isChefe();
-    }
-
-    // --- Timeline ---
-    match /timeline/{entryId} {
-      allow read: if isAuth() && (
-        resource.data.userId == request.auth.uid || isPersonal()
-      );
-      allow create: if isAuth();
-      allow delete: if isAdmin();
-    }
-
-    // --- Check-ins ---
-    match /checkins/{checkinId} {
-      allow read: if isAuth() && (
-        resource.data.userId == request.auth.uid || isPersonal()
-      );
-      allow create: if isAuth();
-      allow delete: if isAdmin();
-    }
-
-    // --- Gym Config ---
-    match /config/{docId} {
-      allow read: if isAuth();
-      allow write: if isAdmin();
-    }
-
-    // --- Wellness Slots (real-time availability) ---
-    match /wellness_slots/{slotId} {
-      allow read: if isAuth();
-      allow write: if isAdmin();
-    }
-
-    // --- Admin Requests ---
-    match /admin_requests/{requestId} {
-      allow read: if isAuth() && (
-        resource.data.userId == request.auth.uid || isChefe()
-      );
-      allow create: if isAuth();
-      allow update: if isChefe();
-      allow delete: if isAdmin();
-    }
-
-    // --- Chats ---
-    match /chats/{chatId} {
-      allow read, write: if isAuth() && (
-        request.auth.uid in resource.data.participants || isPersonal()
-      );
-
-      match /messages/{messageId} {
-        allow read: if isAuth();
-        allow create: if isAuth();
-        allow delete: if isAdmin();
-      }
-    }
-
-    // --- Evolution (Minha Evolução) ---
-    match /evolution/{entryId} {
-      allow read: if isAuth() && (
-        resource.data.userId == request.auth.uid || isPersonal()
-      );
-      allow create: if isAuth();
-      allow update: if isAuth() && resource.data.userId == request.auth.uid;
-      allow delete: if isAuth() && (resource.data.userId == request.auth.uid || isChefe());
+    match /{document=**} {
+      // This rule allows anyone with your database reference to view, edit,
+      // and delete all data in your database. It is useful for getting
+      // started, but it is configured to expire after 30 days because it
+      // leaves your app open to attackers. At that time, all client
+      // requests to your database will be denied.
+      //
+      // Make sure to write security rules for your app before that time, or
+      // else all client requests to your database will be denied until you
+      // update your rules.
+      allow read, write: if request.time < timestamp.date(2026, 5, 17);
     }
   }
 }

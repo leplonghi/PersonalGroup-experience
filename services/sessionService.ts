@@ -243,7 +243,7 @@ export const performCheckIn = async (userId: string, gymId: string) => {
             referenceId: gymId,
             timestamp: serverTimestamp(),
             message: "Check-in Confirmado",
-            details: "Unidade Península Jardins"
+            details: "Personal Group Experience"
         });
 
         return true;
@@ -268,6 +268,18 @@ export const startLiveSession = async (studentId: string, personalId: string, pe
         logs: [],
         lastUpdate: serverTimestamp()
     });
+
+    // --- Sync with Floor View ---
+    const dateStr = new Date().toISOString().split('T')[0];
+    const checkInRef = doc(checkInsCol, `${studentId}_${dateStr}`);
+    try {
+        await updateDoc(checkInRef, {
+            emSessao: true,
+            trainerNome: personalName
+        });
+    } catch (e) {
+        console.warn("Check-in doc not found for today. Skipping floor view sync.", e);
+    }
 };
 
 export const updateLiveSession = async (studentId: string, data: Partial<LiveSession>): Promise<void> => {
@@ -295,6 +307,18 @@ export const endLiveSession = async (studentId: string): Promise<void> => {
         status: 'FINISHED',
         lastUpdate: serverTimestamp()
     });
+
+    // --- Sync with Floor View (Clear) ---
+    const dateStr = new Date().toISOString().split('T')[0];
+    const checkInRef = doc(checkInsCol, `${studentId}_${dateStr}`);
+    try {
+        await updateDoc(checkInRef, {
+            emSessao: false,
+            trainerNome: null
+        });
+    } catch (e) {
+        console.warn("Check-in doc not found for today. Skipping floor view sync removal.", e);
+    }
 };
 
 export const getLastTrainerSession = async (studentId: string) => {

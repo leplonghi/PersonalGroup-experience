@@ -1,9 +1,15 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { Icons } from '../constants';
 import { RPEValue, SessionLog, User, Protocol, LiveSession } from '../types';
 import { INITIAL_EXERCISES } from '../data/exercises';
-import { getProtocolById, subscribeToLiveSession, updateLiveSession, startLiveSession, endLiveSession } from '../firebase';
+import { 
+  getProtocolById, 
+  subscribeToLiveSession, 
+  updateLiveSession, 
+  startLiveSession, 
+  endLiveSession, 
+  logSession 
+} from '../firebase';
 
 interface ActiveSessionProps {
   user: User;
@@ -216,11 +222,21 @@ const ActiveSession: React.FC<ActiveSessionProps> = ({ user, executor, onFinish 
   };
 
   const handleFinishSession = async () => {
-    if (isStaff) {
-      await endLiveSession(user.id);
+    if (!user) return;
+    try {
+      if (isStaff) {
+        // Save the logs permanently
+        if (activeSession && user.currentCycle) {
+          await logSession(user.id, user.currentCycle.id, activeSession.logs);
+        }
+        await endLiveSession(user.id);
+      }
+      clearSessionStorage();
+      onFinish();
+    } catch (error) {
+      console.error("Erro ao finalizar sessão:", error);
+      alert("Erro ao finalizar sessão. Tente novamente.");
     }
-    clearSessionStorage();
-    onFinish();
   };
 
   const getRPEColor = (val: number) => {
@@ -234,14 +250,14 @@ const ActiveSession: React.FC<ActiveSessionProps> = ({ user, executor, onFinish 
       <div className="precision-bg absolute inset-0 z-0 opacity-40"></div>
 
       {/* 2. MAIN SCROLLABLE CONTENT */}
-      <main className="flex-1 px-6 pt-4 pb-48 relative z-10 w-full max-w-lg mx-auto overflow-y-auto no-scrollbar">
+      <main className="flex-1 px-4 pt-0 pb-48 relative z-10 w-full max-w-lg mx-auto overflow-y-auto no-scrollbar">
         {isLoading ? (
           <div className="h-full flex flex-col items-center justify-center space-y-4 pt-20">
             <div className="w-12 h-12 border-4 border-cobalt border-t-transparent rounded-full animate-spin"></div>
             <p className="text-xs font-black text-app-muted uppercase tracking-[0.4em]">Carregando seu plano...</p>
           </div>
         ) : (
-          <div className="space-y-8">
+          <div className="space-y-4">
             {/* MOTIVATIONAL BANNER / SYNC STATUS */}
             <div className={`rounded-2xl p-4 flex items-center space-x-4 animate-pulse-slow ${!hasControl ? 'bg-emerald-600/10 border-emerald-500/20' : 'bg-blue-600/10 border-blue-500/20'}`}>
               <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${!hasControl ? 'bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.4)]' : 'bg-blue-600 shadow-[0_0_15px_rgba(37,99,235,0.4)]'}`}>
@@ -293,7 +309,7 @@ const ActiveSession: React.FC<ActiveSessionProps> = ({ user, executor, onFinish 
                   <img src={currentExercise.image || 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1470&auto=format&fit=crop'} className="w-full h-full object-cover grayscale-[20%] opacity-90 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-105 transition-all duration-[10s]" alt={currentExercise.name} />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-20"></div>
 
-                  <div className="absolute inset-0 p-8 z-30 flex flex-col justify-end">
+                  <div className="absolute inset-0 p-6 z-30 flex flex-col justify-end">
                     <div className="flex justify-between items-end">
                       <div className="flex-1 min-w-0 pr-4">
                         <span className="text-[9px] font-black text-blue-400 uppercase tracking-[0.3em] mb-1 block">Exercício {currentExerciseIdx + 1} de {exercises.length}</span>
@@ -341,7 +357,7 @@ const ActiveSession: React.FC<ActiveSessionProps> = ({ user, executor, onFinish 
             </div>
 
             {/* PERFORMANCE CONTROLS - OBSIDIAN HUD */}
-            <div className="glass-panel p-8 space-y-16 border-app rounded-sm bg-surface/50">
+            <div className="glass-panel p-6 space-y-8 border-app rounded-sm bg-surface/50">
 
               {/* TRACKING MODE TOGGLE */}
               <div className={`flex border border-app bg-surface/80 rounded-lg overflow-hidden p-1 ${!hasControl ? 'opacity-50 pointer-events-none' : ''}`}>
@@ -361,9 +377,9 @@ const ActiveSession: React.FC<ActiveSessionProps> = ({ user, executor, onFinish 
                 </button>
               </div>
 
-              <div className="space-y-16">
+              <div className="space-y-8">
                 {/* CARGA (KG) */}
-                <div className="space-y-8">
+                <div className="space-y-4">
                   <div className="flex justify-between items-end px-2">
                     <div className="flex flex-col">
                       <span className="text-xs font-bold text-app uppercase tracking-widest leading-none mb-2">Peso</span>
@@ -372,15 +388,15 @@ const ActiveSession: React.FC<ActiveSessionProps> = ({ user, executor, onFinish 
                       </span>
                     </div>
                     <div className="flex items-baseline space-x-2">
-                      <h4 className="text-7xl font-bold text-app tracking-tighter tabular-nums leading-none font-display">{weight}</h4>
-                      <span className="text-lg font-bold text-cobalt uppercase">KG</span>
+                      <h4 className="text-6xl font-bold text-app tracking-tighter tabular-nums leading-none font-display">{weight}</h4>
+                      <span className="text-sm font-bold text-cobalt uppercase">KG</span>
                     </div>
                   </div>
                   <div className={`flex items-center space-x-4 ${!hasControl ? 'opacity-50 pointer-events-none' : ''}`}>
                     <button
                       aria-label="Diminuir peso"
                       onClick={() => { triggerHaptic(5); setWeight(w => Math.max(0, w - 5)); }}
-                      className="w-16 h-16 border border-app bg-surface hover:bg-app rounded-xl flex items-center justify-center text-app font-medium text-3xl active:scale-95 transition-all">
+                      className="w-14 h-14 border border-app bg-surface hover:bg-app rounded-xl flex items-center justify-center text-app font-medium text-2xl active:scale-95 transition-all">
                       −
                     </button>
                     <div className="flex-1 px-2">
@@ -395,14 +411,14 @@ const ActiveSession: React.FC<ActiveSessionProps> = ({ user, executor, onFinish 
                     <button
                       aria-label="Aumentar peso"
                       onClick={() => { triggerHaptic(5); setWeight(w => w + 5); }}
-                      className="w-16 h-16 border border-app bg-surface hover:bg-app rounded-xl flex items-center justify-center text-app font-medium text-3xl active:scale-95 transition-all">
+                      className="w-14 h-14 border border-app bg-surface hover:bg-app rounded-xl flex items-center justify-center text-app font-medium text-2xl active:scale-95 transition-all">
                       +
                     </button>
                   </div>
                 </div>
 
                 {/* VOLUME */}
-                <div className="space-y-8">
+                <div className="space-y-4">
                   <div className="flex justify-between items-end px-2">
                     <div className="flex flex-col">
                       <span className="text-xs font-bold text-app uppercase tracking-widest leading-none mb-2">
@@ -411,15 +427,15 @@ const ActiveSession: React.FC<ActiveSessionProps> = ({ user, executor, onFinish 
                       <span className="text-xs font-bold text-cobalt uppercase tracking-wider leading-none">Total</span>
                     </div>
                     <div className="flex items-baseline space-x-2">
-                      <h4 className="text-7xl font-bold text-app tracking-tighter tabular-nums leading-none font-display">{volumeValue}</h4>
-                      <span className="text-lg font-bold text-cobalt uppercase">{trackingMode === 'REPS' ? 'Reps' : 'Segs'}</span>
+                      <h4 className="text-6xl font-bold text-app tracking-tighter tabular-nums leading-none font-display">{volumeValue}</h4>
+                      <span className="text-sm font-bold text-cobalt uppercase">{trackingMode === 'REPS' ? 'Reps' : 'Segs'}</span>
                     </div>
                   </div>
                   <div className={`flex items-center space-x-4 ${!hasControl ? 'opacity-50 pointer-events-none' : ''}`}>
                     <button
                       aria-label="Diminuir volume"
                       onClick={() => { triggerHaptic(5); setVolumeValue(v => Math.max(1, v - 1)); }}
-                      className="w-16 h-16 border border-app bg-surface hover:bg-app rounded-xl flex items-center justify-center text-app font-medium text-3xl active:scale-95 transition-all">
+                      className="w-14 h-14 border border-app bg-surface hover:bg-app rounded-xl flex items-center justify-center text-app font-medium text-2xl active:scale-95 transition-all">
                       −
                     </button>
                     <div className="flex-1 px-2">
@@ -434,20 +450,20 @@ const ActiveSession: React.FC<ActiveSessionProps> = ({ user, executor, onFinish 
                     <button
                       aria-label="Aumentar volume"
                       onClick={() => { triggerHaptic(5); setVolumeValue(v => v + 1); }}
-                      className="w-16 h-16 border border-app bg-surface hover:bg-app rounded-xl flex items-center justify-center text-app font-medium text-3xl active:scale-95 transition-all">
+                      className="w-14 h-14 border border-app bg-surface hover:bg-app rounded-xl flex items-center justify-center text-app font-medium text-2xl active:scale-95 transition-all">
                       +
                     </button>
                   </div>
                 </div>
 
                 {/* RPE SLIDER */}
-                <div className="pt-12 border-t border-app">
-                  <div className="flex justify-between items-center mb-10">
+                <div className="pt-8 border-t border-app">
+                  <div className="flex justify-between items-center mb-6">
                     <div className="flex flex-col">
                       <span className="text-xs font-bold text-app uppercase tracking-widest leading-none mb-2">Esforço</span>
                       <span className="text-xs font-bold text-cobalt uppercase tracking-wider leading-none">Nível (1-10)</span>
                     </div>
-                    <span className={`text-6xl font-bold tracking-tight tabular-nums font-display ${getRPEColor(rpe)}`}>{rpe}</span>
+                    <span className={`text-4xl font-bold tracking-tight tabular-nums font-display ${getRPEColor(rpe)}`}>{rpe}</span>
                   </div>
                   <input
                     type="range" min="1" max="10"
@@ -475,13 +491,13 @@ const ActiveSession: React.FC<ActiveSessionProps> = ({ user, executor, onFinish 
       </main>
 
       {/* 3. STICKY FOOTER */}
-      <footer className="fixed bottom-24 left-0 right-0 p-6 glass-panel border-t border-app z-[100] shadow-2xl safe-pb backdrop-blur-xl bg-surface/80">
+      <footer className="fixed bottom-24 left-0 right-0 p-4 glass-panel border-t border-app z-[100] shadow-2xl safe-pb backdrop-blur-xl bg-surface/80">
         <div className="max-w-lg mx-auto flex gap-3">
           {hasControl ? (
             <>
               <button
                 onClick={handleLogSet}
-                className="flex-[3] h-16 bg-blue-600 text-white font-black text-sm uppercase tracking-[0.2em] transition-all relative overflow-hidden group/finish shadow-[0_10px_30px_rgba(37,99,235,0.4)] rounded-2xl active:scale-[0.98]"
+                className="flex-[3] h-14 bg-blue-600 text-white font-black text-sm uppercase tracking-[0.2em] transition-all relative overflow-hidden group/finish shadow-[0_10px_30px_rgba(37,99,235,0.4)] rounded-2xl active:scale-[0.98]"
               >
                 <div className="flex items-center justify-center space-x-4 relative z-10 italic">
                   <span>{currentSet === currentExercise.sets ? 'Próximo Exercício' : 'Finalizar Série'}</span>
@@ -490,14 +506,14 @@ const ActiveSession: React.FC<ActiveSessionProps> = ({ user, executor, onFinish 
               </button>
               <button
                 onClick={handleReportIssue}
-                className="flex-1 h-16 bg-surface border border-app text-red-500 font-black text-[10px] uppercase tracking-widest flex flex-col items-center justify-center rounded-2xl hover:bg-red-500/10 transition-all active:scale-95"
+                className="flex-1 h-14 bg-surface border border-app text-red-500 font-black text-[10px] uppercase tracking-widest flex flex-col items-center justify-center rounded-2xl hover:bg-red-500/10 transition-all active:scale-95"
               >
                 <Icons.ExclamationCircle className="w-5 h-5 mb-1" />
                 <span>Pular</span>
               </button>
             </>
           ) : (
-            <div className="flex-1 h-16 bg-surface border border-app flex items-center justify-center rounded-2xl">
+            <div className="flex-1 h-14 bg-surface border border-app flex items-center justify-center rounded-2xl">
               <span className="text-xs font-black text-app-muted uppercase tracking-widest animate-pulse">
                 Aguardando comando do professor...
               </span>

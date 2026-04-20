@@ -102,7 +102,7 @@ const Timeline: React.FC<TimelineProps> = ({ user, onBack }) => {
     <div className="min-h-screen bg-app flex flex-col transition-colors duration-500 overflow-x-hidden relative">
       <div className="precision-bg absolute inset-0 z-0 opacity-40"></div>
 
-      <main className="flex-1 px-8 pt-4 pb-32 max-w-md mx-auto w-full relative z-10">
+      <main className="flex-1 px-6 pt-0 pb-32 max-w-md mx-auto w-full relative z-10">
 
         {isLoading ? (
           <div className="flex flex-col items-center justify-center h-[40vh] space-y-8 animate-pulse">

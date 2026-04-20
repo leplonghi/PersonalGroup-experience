@@ -27,37 +27,49 @@ export const StudentHome: React.FC<StudentHomeProps> = ({
 }) => {
     const navigate = useNavigate();
     const [lastRecap, setLastRecap] = useState<any>(null);
+    const [isReturning, setIsReturning] = useState(false);
 
     useEffect(() => {
         getLastTrainerSession(user.id).then(session => {
             if (session) {
-                const rpe = (session as any).rpeGeral;
-                const nota = (session as any).notaTrainer;
+                const s = session as any;
+                const rpe = s.rpeGeral;
+                const nota = s.notaTrainer;
                 setLastRecap({
                     title: rpe >= 8 ? 'Treino Destruído!' : 'Treino Concluído!',
                     message: nota || 'Continue assim, você está evoluindo!',
                     date: 'Recente',
                     rpe: rpe || 7
                 });
+
+                // Check if last session was long ago (> 15 days)
+                if (s.endTime) {
+                    const lastDate = s.endTime.toDate ? s.endTime.toDate() : new Date(s.endTime);
+                    const now = new Date();
+                    const diffDays = Math.ceil((now.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24));
+                    if (diffDays > 15) {
+                        setIsReturning(true);
+                    }
+                }
             }
         }).catch(() => { /* sem sessão anterior, recap fica null */ });
     }, [user.id]);
     return (
-        <div className="animate-in fade-in duration-1000 space-y-8 px-6 pb-24 pt-6">
+        <div className="animate-in fade-in duration-1000 space-y-5 px-5 pb-24 pt-4">
 
             {/* 1. PREMIUM HEADER */}
             <div className="flex flex-col space-y-0.5 pt-2">
                 <div className="flex justify-between items-start">
                     <div className="flex flex-col">
                         <span className="text-xs font-black text-app-muted uppercase tracking-[0.2em] mb-2">
-                            Olá, bom te ver
+                            {isReturning ? 'Sentimos sua falta! Que bom vê-lo' : 'Olá, bom te ver'}
                         </span>
-                        <h1 className="text-4xl font-black tracking-tight leading-none text-app uppercase">
+                         <h1 className="text-3xl font-black tracking-tight leading-none text-app uppercase">
                             {user.name.split(' ')[0]}<span className="text-cobalt">.</span>
                         </h1>
                         <button onClick={() => navigate('/lounge')} className="text-xs font-bold text-app-muted uppercase tracking-[0.15em] mt-2 flex items-center hover:text-cobalt transition-colors group/status text-left">
                             <span className="w-1.5 h-1.5 bg-green-500 rounded-full mr-2 shadow-[0_0_8px_#22C55E] group-hover/status:animate-ping"></span>
-                            Unidade: Península
+                            <p className="text-[10px] font-black text-blue-500 uppercase tracking-[0.3em]">Status: Membro Ativo</p>
                         </button>
                     </div>
                 </div>
@@ -71,12 +83,12 @@ export const StudentHome: React.FC<StudentHomeProps> = ({
                         if (navigator.vibrate) navigator.vibrate(50);
                         navigate('/checkin');
                     }}
-                    className="p-8 group border-l-4 border-l-cobalt hover:border-l-sky transition-all active:scale-[0.99] rounded-2xl bg-white relative overflow-hidden shadow-xl shadow-blue-900/5 dark:shadow-none cursor-pointer"
+                    className="p-6 group border-l-4 border-l-cobalt hover:border-l-sky transition-all active:scale-[0.99] rounded-2xl bg-white relative overflow-hidden shadow-xl shadow-blue-900/5 dark:shadow-none cursor-pointer"
                 >
                     <div className="absolute inset-0 bg-gradient-to-r from-blue-50 to-transparent opacity-50 pointer-events-none"></div>
                     <div className="flex justify-between items-center relative z-10 pointer-events-none">
                         <div className="space-y-3 flex-1 pr-4">
-                            <h4 className="text-xs font-black tracking-widest text-blue-900 uppercase">Acesso ao Studio</h4>
+                            <h4 className="text-xs font-black tracking-widest text-blue-900 uppercase">Acesso ao Experience</h4>
                             <div className="flex items-center space-x-4">
                                 <div className="w-12 h-12 flex-shrink-0 bg-slate-900 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform shadow-[0_0_15px_rgba(0,0,0,0.5)]">
                                     <Icons.QRCode className="w-6 h-6 text-white" />
@@ -93,7 +105,7 @@ export const StudentHome: React.FC<StudentHomeProps> = ({
                     </div>
                 </Card>
             ) : (
-                <div className="glass-panel border-green-500/20 p-6 flex justify-between items-center group overflow-hidden relative bg-green-50/50">
+                <div className="glass-panel border-green-500/20 p-4 flex justify-between items-center group overflow-hidden relative bg-green-50/50">
                     <div className="absolute top-0 right-0 w-24 h-24 bg-green-500/10 blur-3xl rounded-full"></div>
                     <div className="flex items-center space-x-5 z-10">
                         <div className="w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center">
@@ -101,7 +113,7 @@ export const StudentHome: React.FC<StudentHomeProps> = ({
                         </div>
                         <div className="space-y-1">
                             <p className="text-[10px] font-black text-green-800 uppercase tracking-widest">Check-in Confirmado</p>
-                            <p className="text-lg font-bold tracking-tight uppercase text-slate-950">Studio Península</p>
+                            <p className="text-lg font-bold tracking-tight uppercase text-slate-950">Personal Group Experience</p>
                         </div>
                     </div>
                     <div className="text-right z-10">
@@ -130,7 +142,7 @@ export const StudentHome: React.FC<StudentHomeProps> = ({
                         </div>
 
                         <div>
-                            <h4 className="text-2xl font-black text-white uppercase tracking-tight leading-none mb-2">
+                             <h4 className="text-xl font-black text-white uppercase tracking-tight leading-none mb-2">
                                 {lastRecap.title} 💥
                             </h4>
                             <p className="text-[11px] font-bold text-blue-100 leading-relaxed max-w-[90%]">
@@ -166,8 +178,8 @@ export const StudentHome: React.FC<StudentHomeProps> = ({
                     <div className="w-9 h-9 rounded-full bg-amber-600/10 flex items-center justify-center">
                         <Icons.FileText className="w-4 h-4 text-amber-500" />
                     </div>
-                    <p className="text-[11px] font-black text-app uppercase tracking-[0.1em] group-hover:text-amber-600 transition-colors">Administrativo</p>
-                    <p className="text-[10px] text-app-muted font-bold uppercase tracking-widest">Solicitações</p>
+                     <p className="text-[11px] font-black text-app uppercase tracking-[0.1em] group-hover:text-amber-600 transition-colors">Administrativo</p>
+                    <p className="text-[9px] text-app-muted font-bold uppercase tracking-widest">Solicitações</p>
                 </button>
                 <button
                     onClick={() => navigate('/support')}
@@ -176,8 +188,8 @@ export const StudentHome: React.FC<StudentHomeProps> = ({
                     <div className="w-9 h-9 rounded-full bg-green-600/10 flex items-center justify-center">
                         <Icons.Message className="w-4 h-4 text-green-500" />
                     </div>
-                    <p className="text-[11px] font-black text-app uppercase tracking-[0.1em] group-hover:text-green-600 transition-colors">Suporte</p>
-                    <p className="text-[10px] text-app-muted font-bold uppercase tracking-widest">Central de Ajuda</p>
+                     <p className="text-[11px] font-black text-app uppercase tracking-[0.1em] group-hover:text-green-600 transition-colors">Suporte</p>
+                    <p className="text-[9px] text-app-muted font-bold uppercase tracking-widest">Central de Ajuda</p>
                 </button>
             </div>
 
@@ -188,15 +200,15 @@ export const StudentHome: React.FC<StudentHomeProps> = ({
                         Sua Evolução
                     </h4>
                     <button
-                        onClick={() => navigate('/evolution')}
+                        onClick={() => navigate('/health-portfolio')}
                         className="text-[10px] font-black text-cobalt uppercase tracking-widest hover:underline"
                     >
-                        Ver Histórico
+                        Gerenciar Saúde
                     </button>
                 </div>
-                <Card
+                 <Card
                     variant="flat"
-                    className="p-6 bg-gradient-to-br from-cobalt to-sky text-white border-none rounded-2xl shadow-lg relative overflow-hidden group hover:scale-[1.01] transition-all"
+                    className="p-5 bg-gradient-to-br from-cobalt to-sky text-white border-none rounded-2xl shadow-lg relative overflow-hidden group hover:scale-[1.01] transition-all"
                 >
                     <div className="absolute top-0 right-0 p-4 opacity-20 transform translate-x-4 -translate-y-4">
                         <Icons.TrendingUp className="w-24 h-24" />
@@ -210,16 +222,16 @@ export const StudentHome: React.FC<StudentHomeProps> = ({
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <p className="text-[10px] font-bold uppercase opacity-80">Gordura Corporal</p>
-                                <p className="text-2xl font-black">12.4<span className="text-sm ml-1">%</span></p>
+                                 <p className="text-[10px] font-bold uppercase opacity-80">Gordura Corporal</p>
+                                <p className="text-xl font-black">12.4<span className="text-sm ml-1">%</span></p>
                                 <div className="flex items-center text-[10px] font-black text-green-300 mt-1 uppercase">
                                     <Icons.ChevronUp className="w-3 h-3 mr-1 rotate-180" />
                                     -0.8% esse mês
                                 </div>
                             </div>
                             <div>
-                                <p className="text-[10px] font-bold uppercase opacity-80">Massa Muscular</p>
-                                <p className="text-2xl font-black">38.2<span className="text-sm ml-1">kg</span></p>
+                                 <p className="text-[10px] font-bold uppercase opacity-80">Massa Muscular</p>
+                                <p className="text-xl font-black">38.2<span className="text-sm ml-1">kg</span></p>
                                 <div className="flex items-center text-[10px] font-black text-green-300 mt-1 uppercase">
                                     <Icons.ChevronUp className="w-3 h-3 mr-1" />
                                     +1.2kg esse mês
@@ -309,7 +321,7 @@ export const StudentHome: React.FC<StudentHomeProps> = ({
                     </h4>
                 </div>
 
-                <Card variant="flat" className="relative border-slate-200 dark:border-white/5 hover:border-blue-500/30 transition-all p-0 overflow-hidden min-h-[360px] group-hover:shadow-2xl">
+                 <Card variant="flat" className="relative border-slate-200 dark:border-white/5 hover:border-blue-500/30 transition-all p-0 overflow-hidden min-h-[320px] group-hover:shadow-2xl">
                     {/* Background Image with Strong Dark Overlay for Contrast */}
                     <div className="absolute inset-0 z-0 select-none pointer-events-none">
                         <img
@@ -398,7 +410,7 @@ export const StudentHome: React.FC<StudentHomeProps> = ({
                     { label: 'Frequência', val: '85', unit: '%', icon: Icons.TrendingUp, color: 'text-green-500', trend: 'Regular' },
                     { label: 'Volume Total', val: '1.4', unit: 'ton', icon: Icons.Chart, color: 'text-blue-500', trend: 'Alto' }
                 ].map((m, i) => (
-                    <Card key={i} variant="flat" className="p-6 transition-colors relative group hover:shadow-lg border-app bg-surface">
+                     <Card key={i} variant="flat" className="p-4 transition-colors relative group hover:shadow-lg border-app bg-surface">
                         <div className={`absolute top-4 right-4 text-[9px] font-black tracking-widest ${m.trend === 'Alto' ? 'text-cobalt' : 'text-green-600'}`}>{m.trend}</div>
                         <div className="space-y-6">
                             <div className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all ${i === 0 ? 'bg-green-50 text-green-600' : 'bg-blue-50 text-blue-600'}`}>
@@ -419,11 +431,11 @@ export const StudentHome: React.FC<StudentHomeProps> = ({
                 ))}
             </div>
 
-            {/* 4.5 SUA JORNADA */}
+            {/* 4.5 SEU HISTÓRICO */}
             <section className="space-y-4">
                 <div className="flex justify-between items-end px-1">
                     <h4 className="text-[11px] font-black text-blue-950 dark:text-slate-400 uppercase tracking-[0.3em]">
-                        Sua Jornada
+                        Seu Histórico
                     </h4>
                     <button
                         onClick={() => navigate('/timeline')}
@@ -485,25 +497,25 @@ export const StudentHome: React.FC<StudentHomeProps> = ({
                 </div>
             </section>
 
-            {/* 5. NEXT EXPERIENCE */}
-            <button
-                onClick={() => navigate('/wellness')}
-                className="w-full group relative overflow-hidden h-24 rounded-2xl shadow-xl hover:shadow-2xl hover:shadow-blue-900/20 transition-all active:scale-[0.99]"
+            {/* 5. UNIFIED AGENDA ENTRY */}
+             <button
+                onClick={() => navigate('/agenda')}
+                className="w-full group relative overflow-hidden h-20 rounded-2xl shadow-xl hover:shadow-2xl hover:shadow-blue-900/20 transition-all active:scale-[0.99]"
             >
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 group-hover:from-blue-500 group-hover:to-indigo-500 transition-all"></div>
                 <div className="flex items-center px-8 h-full justify-between relative z-10">
                     <div className="flex items-center space-x-6">
                         <div className="w-12 h-12 flex items-center justify-center border border-white/10 group-hover:border-blue-600 transition-all">
-                            <Icons.Leaf className="w-6 h-6 text-blue-500" />
+                            <Icons.Calendar className="w-6 h-6 text-blue-100" />
                         </div>
                         <div className="text-left">
-                            <p className="text-[10px] font-bold text-blue-100 uppercase tracking-[0.3em] mb-1 leading-none">Precisa Relaxar?</p>
-                            <h4 className="text-xl font-bold tracking-tight uppercase text-white leading-none">Agendar Massagem</h4>
+                            <p className="text-[10px] font-bold text-blue-100 uppercase tracking-[0.3em] mb-1 leading-none">Sua Agenda PG</p>
+                            <h4 className="text-xl font-bold tracking-tight uppercase text-white leading-none">Agendar Sessão</h4>
                         </div>
                     </div>
                     <div className="text-right">
-                        <span className="text-[8px] font-bold text-blue-200 tracking-[0.1em] uppercase">Créditos //</span>
-                        <p className="text-sm font-bold text-white">01 Disponível</p>
+                        <span className="text-[8px] font-bold text-blue-200 tracking-[0.1em] uppercase">Horários //</span>
+                        <p className="text-sm font-bold text-white">Disponíveis</p>
                     </div>
                 </div>
             </button>
