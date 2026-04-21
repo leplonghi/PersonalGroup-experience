@@ -23,8 +23,10 @@ interface StudentHomeProps {
     onGoEvolution?: () => void;
     onGoAdmin?: () => void;
     onGoSupport?: () => void;
+    onGoCheckIn?: () => void;
     onGoRanking?: () => void;
     onGoWearables?: () => void;
+    onGoExplore?: () => void;
 }
 
 export const StudentHome: React.FC<StudentHomeProps> = ({
@@ -39,7 +41,9 @@ export const StudentHome: React.FC<StudentHomeProps> = ({
     onGoAdmin,
     onGoSupport,
     onGoEvolution,
-    onGoWellness
+    onGoWellness,
+    onGoCheckIn,
+    onGoExplore
 }) => {
     return (
         <div className="animate-in fade-in duration-1000 space-y-8 px-6 pb-24 pt-6">
@@ -431,6 +435,26 @@ export const StudentHome: React.FC<StudentHomeProps> = ({
                         Ver Tudo
                     </button>
                 </div>
+
+                <Card 
+                    key="wellness-checkin"
+                    variant="flat" 
+                    onClick={onGoCheckIn}
+                    className="p-5 border-emerald-100 dark:border-white/5 bg-emerald-50/30 dark:bg-white/5 hover:border-emerald-500/30 transition-all flex items-center gap-5 group cursor-pointer"
+                >
+                    <div className="w-14 h-14 rounded-2xl bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/20 group-hover:scale-110 transition-transform">
+                        <Icons.Activity className="w-6 h-6 text-white" />
+                    </div>
+                    <div className="flex-1 space-y-1">
+                        <div className="flex items-center space-x-2">
+                             <h5 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-tight">Check-in de Saúde</h5>
+                             <span className="px-1.5 py-0.5 bg-emerald-500/10 text-emerald-500 rounded text-[7px] font-black tracking-widest uppercase">Biohacks</span>
+                        </div>
+                        <p className="text-[10px] font-medium text-slate-500 dark:text-slate-400">Sincronize sua saúde e personalize seu treino.</p>
+                    </div>
+                    <Icons.ChevronRight className="w-5 h-5 text-slate-400 group-hover:translate-x-1 transition-transform" />
+                </Card>
+
                 <div className="space-y-3">
                     {[
                         { date: 'Hoje', title: 'Treino A - Superior', trainer: 'Paulo H.', status: 'Concluído' },
@@ -453,6 +477,35 @@ export const StudentHome: React.FC<StudentHomeProps> = ({
                         </Card>
                     ))}
                 </div>
+            </section>
+
+            {/* 4.6. EDUCATION HUB (EXPLORE) */}
+            <section className="space-y-4">
+                <div className="flex justify-between items-end px-1">
+                    <h4 className="text-[11px] font-black text-blue-950 dark:text-slate-400 uppercase tracking-[0.3em]">
+                        Education Hub
+                    </h4>
+                    <button
+                        onClick={onGoExplore}
+                        className="text-[10px] font-black text-blue-600 uppercase tracking-widest hover:underline"
+                    >
+                        Explorar Tudo
+                    </button>
+                </div>
+                <Card 
+                    variant="flat" 
+                    onClick={onGoExplore}
+                    className="p-5 border-blue-100 dark:border-white/5 bg-blue-50/30 dark:bg-white/5 hover:border-blue-500/30 transition-all flex items-center gap-5 group cursor-pointer"
+                >
+                    <div className="w-14 h-14 rounded-2xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-600/20 group-hover:scale-110 transition-transform">
+                        <Icons.Play className="w-6 h-6 text-white ml-0.5" />
+                    </div>
+                    <div className="flex-1 space-y-1">
+                        <h5 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-tight">Técnicas & Biohacking</h5>
+                        <p className="text-[10px] font-medium text-slate-500 dark:text-slate-400">Aprenda a biomecânica correta e hacks de performance com nossos especialistas.</p>
+                    </div>
+                    <Icons.ChevronRight className="w-5 h-5 text-slate-400 group-hover:translate-x-1 transition-transform" />
+                </Card>
             </section>
 
             {/* 4.7. EXPERIÊNCIA PERSONAL GROUP (AMENIDADES) */}

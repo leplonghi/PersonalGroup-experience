@@ -9,11 +9,12 @@ interface AdminRequestsProps {
 }
 
 const requestTypes: { value: AdminRequestType; label: string; emoji: string; description: string }[] = [
-    { value: 'MUDANCA_TREINO', label: 'Mudança de Treino', emoji: '🔄', description: 'Solicitar alteração no programa de treino' },
-    { value: 'TRANCAMENTO', label: 'Trancamento', emoji: '🔒', description: 'Pausar matrícula com justificativa' },
-    { value: 'ATESTADO', label: 'Atestado Médico', emoji: '📋', description: 'Enviar atestado para abono de faltas' },
-    { value: 'REPOSICAO', label: 'Reposição / Aula Extra', emoji: '📅', description: 'Solicitar aula de reposição' },
-    { value: 'OUTRO', label: 'Outro', emoji: '💬', description: 'Outras solicitações administrativas' },
+    { value: 'MUDANCA_TREINO', label: 'Protocolo de Treino', emoji: '🔄', description: 'Solicitar alteração no seu programa' },
+    { value: 'TRANCAMENTO', label: 'Trancamento / Pausa', emoji: '🔒', description: 'Viagens ou motivos de saúde' },
+    { value: 'ATESTADO', label: 'Atestado Médico', emoji: '📋', description: 'Atualizar seu prontuário de saúde' },
+    { value: 'PAGAMENTO', label: 'Financeiro', emoji: '💳', description: 'Troca de cartão ou plano' },
+    { value: 'EQUIPAMENTO', label: 'PG Gear / Acessórios', emoji: '👕', description: 'Solicitar vestuário ou tags' },
+    { value: 'OUTRO', label: 'Outro Assunto', emoji: '💬', description: 'Mensagem para a diretoria' },
 ];
 
 const statusConfig: Record<string, { bg: string; text: string; label: string }> = {

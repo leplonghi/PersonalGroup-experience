@@ -20,6 +20,7 @@ interface HomeProps {
   onGoSupport?: () => void;
   onGoRanking?: () => void;
   onGoWearables?: () => void;
+  onGoExplore?: () => void;
 }
 
 const Home: React.FC<HomeProps> = ({
@@ -35,7 +36,8 @@ const Home: React.FC<HomeProps> = ({
   onGoAdmin,
   onGoSupport,
   onGoRanking,
-  onGoWearables
+  onGoWearables,
+  onGoExplore
 }) => {
   const [protocol, setProtocol] = useState<Protocol | null>(null);
   const [loadingProtocol, setLoadingProtocol] = useState(false);
@@ -94,15 +96,16 @@ const Home: React.FC<HomeProps> = ({
             onGoCheckIn={onGoCheckIn}
             onGoRanking={onGoRanking}
             onGoWearables={onGoWearables}
+            onGoExplore={onGoExplore}
           />
         )}
       </div>
 
       {/* BLACK CARD QR MODAL */}
       {showBlackCard && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/90 backdrop-blur-xl animate-in fade-in duration-300">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/90 backdrop-blur-xl animate-in fade-in duration-300" onClick={() => setShowBlackCard(false)}>
           <div className="relative w-full max-w-sm aspect-[1/1.6] rounded-[32px] overflow-hidden shadow-[0_0_50px_rgba(255,255,255,0.1)] animate-in zoom-in-95 slide-in-from-bottom-10 flex flex-col justify-between p-8"
-            style={{ background: 'linear-gradient(145deg, #1e293b, #0f172a)' }}>
+            style={{ background: 'linear-gradient(145deg, #1e293b, #0f172a)' }} onClick={(e) => e.stopPropagation()}>
 
             {/* Shiny border effect */}
             <div className="absolute inset-0 border-[2px] border-white/10 rounded-[32px] pointer-events-none"></div>

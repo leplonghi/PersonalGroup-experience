@@ -90,12 +90,12 @@ export const getStaff = async (): Promise<User[]> => {
 export const subscribeToActiveStaff = (callback: (staff: User[]) => void) => {
     const q = query(
         usersCol,
-        where("role", "in", [UserRole.PERSONAL, UserRole.CHEFE]),
-        where("status", "==", "ACTIVE_IN_GYM")
+        where("role", "in", [UserRole.PERSONAL, UserRole.CHEFE])
     );
     return onSnapshot(q, (snap) => {
         const staff = snap.docs.map(d => ({ id: d.id, ...d.data() } as User));
-        callback(staff);
+        const activeStaff = staff.filter((s: any) => s.status === "ACTIVE_IN_GYM");
+        callback(activeStaff);
     });
 };
 

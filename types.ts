@@ -143,7 +143,7 @@ export interface GymConfig {
   gymUnit: string;
 }
 
-export type AdminRequestType = 'MUDANCA_TREINO' | 'TRANCAMENTO' | 'ATESTADO' | 'REPOSICAO' | 'OUTRO';
+export type AdminRequestType = 'MUDANCA_TREINO' | 'TRANCAMENTO' | 'ATESTADO' | 'REPOSICAO' | 'OUTRO' | 'PAGAMENTO' | 'EQUIPAMENTO';
 export type AdminRequestStatus = 'pending' | 'approved' | 'rejected';
 
 export interface AdminRequest {

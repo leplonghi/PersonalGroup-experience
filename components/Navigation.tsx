@@ -22,10 +22,10 @@ const Navigation: React.FC<NavigationProps> = ({ role, isDarkMode }) => {
     return (
       <button
         onClick={() => navigate(path)}
-        className={`flex flex-col items-center justify-center flex-1 h-full transition-all relative ${isActive ? 'text-app' : 'text-app-muted'}`}
+        className={`flex flex-col items-center justify-center flex-1 h-full transition-all relative ${isActive ? 'text-white' : 'text-slate-400'}`}
       >
         <div className={`transition-all duration-500 transform ${isActive ? 'scale-110 translate-y-[-4px]' : 'opacity-80'}`}>
-          <Icon className={`w-6 h-6 object-contain ${isActive ? 'text-cobalt drop-shadow-[0_0_8px_rgba(37,99,235,0.5)]' : 'text-app-muted'}`} />
+          <Icon className={`w-6 h-6 object-contain ${isActive ? 'text-cobalt drop-shadow-[0_0_8px_rgba(37,99,235,0.5)]' : 'text-slate-400'}`} />
         </div>
         <span className={`text-[11px] font-black uppercase tracking-wider mt-1 transition-all duration-300 ${isActive ? 'opacity-100 text-cobalt' : 'opacity-80'}`}>
           {label}
@@ -38,7 +38,7 @@ const Navigation: React.FC<NavigationProps> = ({ role, isDarkMode }) => {
   };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-[150] backdrop-blur-xl pb-safe border-t border-app bg-[var(--pg-glass-bg-main)] transition-all duration-500 shadow-2xl dark:shadow-blue-950/40 shadow-slate-200/50">
+    <div className="fixed bottom-0 left-0 right-0 z-[150] backdrop-blur-xl pb-safe border-t border-app bg-app transition-all duration-500 shadow-2xl dark:shadow-blue-950/40 shadow-slate-200/50">
       <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-blue-400/20 to-transparent"></div>
       <div className="h-24 max-w-[480px] md:max-w-2xl lg:max-w-4xl mx-auto px-4">
         <nav className="h-full flex items-center justify-around">
@@ -54,7 +54,7 @@ const Navigation: React.FC<NavigationProps> = ({ role, isDarkMode }) => {
               >
                 <div className="relative group">
                   <div className="absolute inset-0 bg-cobalt/20 blur-xl rounded-full group-hover:bg-cobalt/30 transition-all"></div>
-                  <Icons.LogoSymbol className="w-[77px] h-[77px] object-contain relative z-10 drop-shadow-[0_0_20px_rgba(0,182,253,0.8)]" />
+                  <Icons.LogoSymbol className="w-[85px] h-[85px] object-contain relative z-10 drop-shadow-[0_0_20px_rgba(0,182,253,0.8)]" />
                 </div>
               </button>
 
@@ -73,12 +73,12 @@ const Navigation: React.FC<NavigationProps> = ({ role, isDarkMode }) => {
               >
                 <div className="relative group">
                   <div className="absolute inset-0 bg-cobalt/20 blur-xl rounded-full group-hover:bg-cobalt/30 transition-all"></div>
-                  <Icons.LogoSymbol className="w-[77px] h-[77px] object-contain relative z-10 drop-shadow-[0_0_20px_rgba(0,182,253,0.8)]" />
+                  <Icons.LogoSymbol className="w-[85px] h-[85px] object-contain relative z-10 drop-shadow-[0_0_20px_rgba(0,182,253,0.8)]" />
                 </div>
               </button>
 
-              <NavItem path="/agenda" icon={Icons.Calendar} label="Agenda" />
-              <NavItem path="/club" icon={Icons.Star} label="Clube" />
+              <NavItem path="/evolution" icon={Icons.Activity} label="Saúde" />
+              <NavItem path="/wellness" icon={Icons.Star} label="Wellness" />
             </>
           )}
         </nav>

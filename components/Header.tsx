@@ -26,7 +26,7 @@ const Header: React.FC<HeaderProps> = ({
   onGoProfile
 }) => {
   return (
-    <header className="fixed top-0 left-0 right-0 z-[150] h-20 backdrop-blur-xl border-b border-white/5 transition-all duration-500 shadow-2xl dark:shadow-blue-950/40 shadow-slate-200/50 bg-[var(--pg-glass-bg-main)]">
+    <header className="fixed top-0 left-0 right-0 z-[150] h-20 backdrop-blur-xl border-b border-white/5 transition-all duration-500 shadow-2xl dark:shadow-blue-950/40 shadow-slate-200/50 bg-gradient-to-r from-[#1b2854] via-blue-900 to-[#1b2854]">
       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-400/5 to-transparent"></div>
       <div className="absolute inset-x-0 bottom-0 h-[1px] bg-gradient-to-r from-transparent via-blue-500/10 to-transparent"></div>
 
@@ -45,17 +45,17 @@ const Header: React.FC<HeaderProps> = ({
         <div className="flex flex-col items-center text-center px-4">
           {title ? (
             <div className="flex flex-col items-center">
-              <h1 className="text-lg font-bold text-slate-900 dark:text-white leading-none tracking-tight whitespace-nowrap font-display">
+              <h1 className="text-lg font-bold text-white leading-none tracking-tight whitespace-nowrap font-display">
                 {title}
               </h1>
               {subtitle && (
-                <p className="text-[10px] font-black text-blue-800 dark:text-blue-400 uppercase tracking-[0.2em] mt-1.5 whitespace-nowrap">
+                <p className="text-[10px] font-black text-blue-400 uppercase tracking-[0.2em] mt-1.5 whitespace-nowrap">
                   {subtitle}
                 </p>
               )}
             </div>
           ) : (
-            <h2 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white leading-none font-display">Exclusive<span className="text-cobalt">.</span></h2>
+            <h2 className="text-xl font-bold tracking-tight text-white leading-none font-display">Exclusive<span className="text-cobalt">.</span></h2>
           )}
         </div>
 
@@ -64,10 +64,10 @@ const Header: React.FC<HeaderProps> = ({
           {onToggleTheme && (
             <button
               onClick={onToggleTheme}
-              className="relative z-50 w-10 h-10 border border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-white/10 flex items-center justify-center text-slate-700 dark:text-white active:scale-95 transition-all hover:bg-slate-200 dark:hover:bg-white/20 rounded-full"
+              className="relative z-50 w-10 h-10 border border-white/10 bg-white/10 flex items-center justify-center text-white active:scale-95 transition-all hover:bg-white/20 rounded-full"
               aria-label="Alternar tema"
             >
-              {isDarkMode ? <Icons.Sun className="w-5 h-5 text-amber-400" /> : <Icons.Moon className="w-5 h-5 text-slate-600" />}
+              {isDarkMode ? <Icons.Sun className="w-5 h-5 text-amber-400" /> : <Icons.Moon className="w-5 h-5 text-slate-300" />}
             </button>
           )}
 

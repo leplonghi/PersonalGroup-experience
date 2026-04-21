@@ -3,9 +3,9 @@
 
 @theme {
     /* Brand-Aligned Color System (personalgroup.com.br) */
-    --color-pg-deep-blue: #25235b;
-    --color-pg-midnight: #171638;
-    --color-pg-ocean: #1a1945;
+    --color-pg-deep-blue: #1b2854;
+    --color-pg-midnight: #141d3d;
+    --color-pg-ocean: #111a38;
     --color-pg-cobalt: #00b6fd;
     /* Brand Cyan */
     --color-pg-sky: #3363a2;
@@ -51,9 +51,9 @@
     --pg-border-main: rgba(15, 23, 42, 0.08);
 
     /* Brand Palette Aliases */
-    --pg-deep-blue: #25235b;
-    --pg-midnight: #171638;
-    --pg-ocean: #1a1945;
+    --pg-deep-blue: #1b2854;
+    --pg-midnight: #141d3d;
+    --pg-ocean: #111a38;
     --pg-cobalt: #00b6fd;
     --pg-sky: #3363a2;
     --pg-laser: #00b6fd;
@@ -77,10 +77,10 @@
     --pg-radius-pill: 9999px;
 
     /* Brand Gradients */
-    --pg-bg-gradient: linear-gradient(180deg, #F8FAFC 0%, #F1F5F9 100%);
-    --pg-primary-gradient: linear-gradient(180deg, #25235b 0%, #171638 100%);
+    --pg-bg-gradient: linear-gradient(180deg, #1b2854 0%, #0a0f20 100%);
+    --pg-primary-gradient: linear-gradient(180deg, #1b2854 0%, #0a0f20 100%);
     --pg-accent-gradient: linear-gradient(180deg, #00b6fd 0%, #3363a2 100%);
-    --pg-hero-gradient: linear-gradient(180deg, #25235b 0%, #171638 100%);
+    --pg-hero-gradient: linear-gradient(180deg, #1b2854 0%, #0a0f20 100%);
     --pg-glass-bg-main: rgba(255, 255, 255, 0.65);
 }
 
@@ -90,15 +90,15 @@
     /* Slate 50 */
     --pg-text-muted: #94A3B8;
     /* Slate 400 */
-    --pg-bg-main: #010409;
-    /* Very Deep Blue/Black */
-    --pg-bg-surface: #0D1117;
+    --pg-bg-main: #1b2854;
+    /* rgb(27, 40, 84) */
+    --pg-bg-surface: #141d3d;
     /* Deep Overlay */
     --pg-border-main: rgba(255, 255, 255, 0.08);
 
     /* Dark Gradients */
-    --pg-bg-gradient: linear-gradient(180deg, #020617 0%, #010409 100%);
-    --pg-glass-bg-main: rgba(1, 4, 9, 0.50);
+    --pg-bg-gradient: linear-gradient(180deg, #1b2854 0%, #0a0f20 100%);
+    --pg-glass-bg-main: rgba(27, 40, 84, 0.65);
 }
 
 * {
@@ -132,7 +132,8 @@ h6,
 
 /* Theme-aware background utilities */
 .bg-app {
-    background: var(--pg-bg-main) !important;
+    background: var(--pg-bg-gradient) !important;
+    background-attachment: fixed !important;
     color: var(--pg-text-main) !important;
 }
 
@@ -366,6 +367,7 @@ h6,
     filter: blur(250px);
     animation: pulse-glow 20s ease-in-out infinite;
     z-index: 0;
+    pointer-events: none;
 }
 
 .precision-bg::after {
@@ -381,6 +383,7 @@ h6,
     filter: blur(200px);
     animation: pulse-glow 25s ease-in-out infinite reverse;
     z-index: 0;
+    pointer-events: none;
 }
 
 .glass-panel {

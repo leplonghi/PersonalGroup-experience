@@ -30,6 +30,7 @@ const Ranking = lazy(() => import('./views/Ranking'));
 const Wearables = lazy(() => import('./views/Wearables'));
 const FloorView = lazy(() => import('./views/FloorView'));
 const StudentBriefing = lazy(() => import('./views/StudentBriefing'));
+const Explore = lazy(() => import('./views/Explore'));
 const Onboarding = lazy(() => import('./views/Onboarding'));
 // Shared Loader
 export const PageLoader = () => (
@@ -135,13 +136,14 @@ const AppLayout: React.FC<{
                 {/* Protected Routes */}
                 {user ? (
                   <>
-                    <Route path="/home" element={<Home user={user} onStartSession={() => navigate('/session')} onGoWellness={() => navigate('/wellness')} onGoTimeline={() => navigate('/timeline')} onGoMessages={() => navigate('/messages')} onGoAgenda={() => navigate('/agenda')} onGoCheckIn={() => navigate('/checkin')} onGoClub={() => navigate('/club')} onGoEvolution={() => navigate('/evolution')} onGoAdmin={() => navigate('/admin-requests')} onGoSupport={() => navigate('/support')} onGoRanking={() => navigate('/ranking')} onGoWearables={() => navigate('/wearables')} />} />
+                    <Route path="/home" element={<Home user={user} onStartSession={() => navigate('/session')} onGoWellness={() => navigate('/wellness')} onGoTimeline={() => navigate('/timeline')} onGoMessages={() => navigate('/messages')} onGoAgenda={() => navigate('/agenda')} onGoCheckIn={() => navigate('/checkin')} onGoClub={() => navigate('/club')} onGoEvolution={() => navigate('/evolution')} onGoAdmin={() => navigate('/admin-requests')} onGoSupport={() => navigate('/support')} onGoRanking={() => navigate('/ranking')} onGoWearables={() => navigate('/wearables')} onGoExplore={() => navigate('/explore')} />} />
                     <Route path="/club" element={<Club user={user} onBack={() => navigate('/home')} />} />
                     <Route path="/agenda" element={<Agenda />} />
                     <Route path="/messages" element={<Messages user={user} />} />
                     <Route path="/timeline" element={<Timeline user={user} onBack={() => navigate('/home')} />} />
                     <Route path="/wellness" element={<Wellness user={user} onBack={() => navigate('/home')} />} />
-                    <Route path="/profile" element={<StudentHub user={user} onLogout={onLogout} onNavigateTo={(page) => navigate(`/${page}`)} />} />
+                    <Route path="/evolution/:studentId?" element={<EvolutionRoute viewer={user} />} />
+                    <Route path="/profile" element={<Profile user={user} onLogout={onLogout} onUpdateUser={onUpdateUser} onGoTimeline={() => navigate('/timeline')} />} />
                     <Route path="/onboarding" element={<Onboarding user={user} onComplete={() => navigate('/home')} />} />
 
                     {/* Active Session & Management */}
@@ -168,6 +170,7 @@ const AppLayout: React.FC<{
                     <Route path="/support" element={<SupportChat user={user} onBack={() => navigate('/home')} />} />
                     <Route path="/ranking" element={<Ranking user={user} onBack={() => navigate('/home')} />} />
                     <Route path="/wearables" element={<Wearables user={user} onBack={() => navigate('/home')} />} />
+                    <Route path="/explore" element={<Explore />} />
 
                     <Route path="*" element={<Navigate to="/home" />} />
                   </>
