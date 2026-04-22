@@ -1,31 +1,34 @@
-
 import React from 'react';
 
 interface CardProps {
   children: React.ReactNode;
   className?: string;
   onClick?: () => void;
-  variant?: 'flat' | 'elevated' | 'glass' | 'blue' | 'outline' | 'gradient';
+  variant?: 'flat' | 'elevated' | 'glass' | 'cobalt' | 'outline' | 'gradient';
 }
 
-const Card: React.FC<CardProps> = ({ children, variant = 'flat', className = '', onClick }) => {
+const Card: React.FC<CardProps> = ({ children, variant = 'glass', className = '', onClick }) => {
   const variants = {
-    flat: 'bg-surface text-app border border-app shadow-sm hover:shadow-md hover:border-cobalt/50 ring-1 ring-black/5 dark:ring-white/5',
-    elevated: 'bg-surface text-app border border-app shadow-xl shadow-blue-900/5 hover:translate-y-[-2px] hover:shadow-2xl hover:shadow-blue-900/10',
-    glass: 'bg-[var(--pg-glass-bg-main)] text-app border border-app backdrop-blur-xl shadow-lg hover:brightness-110',
-    blue: 'bg-cobalt text-white border border-white/10 shadow-lg shadow-blue-900/20 relative overflow-hidden',
-    outline: 'bg-transparent text-app border border-app hover:border-cobalt hover:bg-cobalt/10 transition-all cursor-pointer',
-    gradient: 'bg-gradient-to-b from-blue-600 to-indigo-700 text-white border border-white/20 shadow-xl shadow-blue-900/30'
+    flat: 'bg-pg-midnight-light border border-pg-border-main/10 shadow-sm hover:border-pg-cobalt/30 transition-all',
+    elevated: 'bg-pg-midnight border border-pg-border-main/20 shadow-2xl shadow-black/50 hover:translate-y-[-4px] hover:shadow-pg-cobalt/10',
+    glass: 'glass-card border border-pg-border-main/10 hover:border-pg-cobalt/30 transition-all',
+    cobalt: 'bg-gradient-to-br from-pg-cobalt to-indigo-600 text-white border border-white/20 shadow-lg shadow-pg-cobalt/20',
+    outline: 'bg-transparent border border-pg-border-main/30 hover:border-pg-cobalt hover:bg-pg-cobalt/5 transition-all',
+    gradient: 'glass-card bg-gradient-to-br from-pg-midnight/80 via-pg-midnight-light/50 to-pg-cobalt/10 border border-pg-border-main/20'
   };
 
   return (
     <div
       onClick={onClick}
-      className={`rounded-sm overflow-hidden transition-all duration-500 ${variants[variant]} ${onClick ? 'cursor-pointer active:scale-[0.99] active:brightness-110' : ''} ${className}`}
+      className={`rounded-xl overflow-hidden transition-all duration-500 ${variants[variant]} ${onClick ? 'cursor-pointer active:scale-[0.98]' : ''} ${className} relative group`}
     >
-      {variant === 'blue' && (
-        <div className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent pointer-events-none opacity-50"></div>
+      {/* Subtle hover glow for all cards */}
+      <div className="absolute inset-0 bg-pg-cobalt/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+      
+      {variant === 'cobalt' && (
+        <div className="absolute inset-x-0 top-0 h-[100px] bg-gradient-to-b from-white/10 to-transparent pointer-events-none opacity-50" />
       )}
+      
       <div className="relative z-10 h-full">
         {children}
       </div>

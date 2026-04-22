@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { User, UserRole, Protocol } from '../types';
 import { getProtocolById, subscribeToActiveStaff } from '../firebase';
@@ -103,49 +102,65 @@ const Home: React.FC<HomeProps> = ({
 
       {/* BLACK CARD QR MODAL */}
       {showBlackCard && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/90 backdrop-blur-xl animate-in fade-in duration-300" onClick={() => setShowBlackCard(false)}>
-          <div className="relative w-full max-w-sm aspect-[1/1.6] rounded-[32px] overflow-hidden shadow-[0_0_50px_rgba(255,255,255,0.1)] animate-in zoom-in-95 slide-in-from-bottom-10 flex flex-col justify-between p-8"
-            style={{ background: 'linear-gradient(145deg, #1e293b, #0f172a)' }} onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 backdrop-blur-2xl bg-black/80 animate-in fade-in duration-500" onClick={() => setShowBlackCard(false)}>
+          <div className="relative w-full max-w-sm aspect-[1/1.6] rounded-[40px] overflow-hidden shadow-[0_0_80px_rgba(37,99,235,0.25)] animate-in zoom-in-95 slide-in-from-bottom-20 duration-500 flex flex-col justify-between p-10 border border-white/10"
+            style={{ background: 'linear-gradient(160deg, #1e293b 0%, #0f172a 100%)' }} onClick={(e) => e.stopPropagation()}>
 
-            {/* Shiny border effect */}
-            <div className="absolute inset-0 border-[2px] border-white/10 rounded-[32px] pointer-events-none"></div>
-            <div className="absolute -top-[50%] -left-[50%] w-[200%] h-[200%] bg-gradient-to-br from-white/10 to-transparent rotate-45 pointer-events-none mix-blend-overlay"></div>
+            {/* Premium background effects */}
+            <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_top_right,rgba(37,99,235,0.15),transparent_50%)]"></div>
+            <div className="absolute bottom-0 left-0 w-full h-full bg-[radial-gradient(circle_at_bottom_left,rgba(99,102,241,0.1),transparent_50%)]"></div>
+            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-[0.03] mix-blend-overlay"></div>
 
             <div className="relative z-10 flex justify-between items-start">
-              <div>
-                <Icons.LogoSymbol className="w-10 h-10 object-contain text-white" />
-                <h2 className="text-white font-black uppercase tracking-[0.2em] text-[10px] mt-4 opacity-80">Personal Group</h2>
-                <h3 className="text-white font-display text-2xl mt-1 leading-none uppercase tracking-tight">Access<br />Card</h3>
+              <div className="space-y-4">
+                <div className="w-12 h-12 glass-surface rounded-2xl flex items-center justify-center border border-white/10 shadow-xl">
+                    <Icons.LogoSymbol className="w-8 h-8 text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]" />
+                </div>
+                <div>
+                    <h2 className="text-white font-black uppercase tracking-[0.4em] text-[10px] opacity-50 mb-1">Personal Group</h2>
+                    <h3 className="text-white font-display text-3xl font-bold leading-none uppercase tracking-tighter">Access<br />Digital</h3>
+                </div>
               </div>
-              <button onClick={() => setShowBlackCard(false)} className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white/50 hover:text-white transition-colors">
-                <Icons.X className="w-5 h-5 pointer-events-none" />
+              <button 
+                onClick={() => setShowBlackCard(false)} 
+                className="w-12 h-12 rounded-2xl glass-surface border border-white/10 flex items-center justify-center text-white/50 hover:text-white hover:border-white/30 transition-all active:scale-90"
+              >
+                <Icons.X className="w-6 h-6" />
               </button>
             </div>
 
-            <div className="relative z-10 flex flex-col items-center">
-              <div className="w-48 h-48 bg-white p-4 rounded-2xl shadow-[0_0_30px_rgba(255,255,255,0.2)] mb-6 flex flex-col items-center justify-center">
+            <div className="relative z-10 flex flex-col items-center py-10">
+              <div className="w-56 h-56 bg-white p-6 rounded-[32px] shadow-[0_0_50px_rgba(255,255,255,0.2)] mb-8 flex flex-col items-center justify-center group relative overflow-hidden">
+                <div className="absolute inset-0 bg-pg-cobalt/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 {/* Fake QR using grid for pure CSS visual - avoids dependency */}
-                <div className="w-full h-full grid grid-cols-6 grid-rows-6 gap-1 opacity-90 relative">
+                <div className="w-full h-full grid grid-cols-6 grid-rows-6 gap-1.5 opacity-90 relative">
                   {Array.from({ length: 36 }).map((_, i) => (
-                    <div key={i} className={`bg-black rounded-sm ${(i % 5 === 0 || i % 7 === 0 || i % 3 === 0) ? 'opacity-100' : 'opacity-0'}`}></div>
+                    <div key={i} className={`bg-slate-900 rounded-sm ${(i % 5 === 0 || i % 7 === 0 || i % 3 === 0 || i === 14 || i === 22) ? 'opacity-100' : 'opacity-0'}`}></div>
                   ))}
-                  <div className="absolute top-0 left-0 w-8 h-8 border-4 border-black rounded-md"></div>
-                  <div className="absolute top-0 right-0 w-8 h-8 border-4 border-black rounded-md"></div>
-                  <div className="absolute bottom-0 left-0 w-8 h-8 border-4 border-black rounded-md"></div>
+                  <div className="absolute top-0 left-0 w-10 h-10 border-[6px] border-slate-900 rounded-lg"></div>
+                  <div className="absolute top-0 right-0 w-10 h-10 border-[6px] border-slate-900 rounded-lg"></div>
+                  <div className="absolute bottom-0 left-0 w-10 h-10 border-[6px] border-slate-900 rounded-lg"></div>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-lg border border-slate-100">
+                        <div className="w-6 h-6 bg-slate-900 rounded-md"></div>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <p className="text-white/50 font-black text-[10px] uppercase tracking-[0.3em] mb-1">Aproxime da Catraca</p>
-              <p className="text-white font-black tracking-widest uppercase">{user.name}</p>
+              <div className="text-center space-y-2">
+                <p className="text-amber-500 font-black text-[11px] uppercase tracking-[0.4em] animate-pulse">Aproxime do Leitor</p>
+                <p className="text-white font-bold text-xl tracking-wide uppercase font-display">{user.name}</p>
+              </div>
             </div>
 
-            <div className="relative z-10 flex items-center justify-between border-t border-white/10 pt-6">
-              <div>
-                <p className="text-[8px] font-black text-white/40 uppercase tracking-widest">Membro desde</p>
-                <p className="text-xs font-bold text-white uppercase tracking-widest">2026</p>
+            <div className="relative z-10 flex items-center justify-between border-t border-white/10 pt-8">
+              <div className="space-y-1">
+                <p className="text-[9px] font-black text-white/40 uppercase tracking-widest leading-none">Membro Since</p>
+                <p className="text-sm font-bold text-white uppercase tracking-widest font-display">2026</p>
               </div>
-              <div className="text-right">
-                <p className="text-[8px] font-black text-amber-500 uppercase tracking-widest">Status</p>
-                <p className="text-xs font-bold text-amber-500 uppercase tracking-widest shadow-sm">Ativo (Premium)</p>
+              <div className="text-right space-y-1">
+                <p className="text-[9px] font-black text-amber-500 uppercase tracking-widest leading-none">Membership</p>
+                <p className="text-sm font-bold text-amber-500 uppercase tracking-widest font-display shadow-sm">Platinum Flex</p>
               </div>
             </div>
           </div>

@@ -26,69 +26,76 @@ const Header: React.FC<HeaderProps> = ({
   onGoProfile
 }) => {
   return (
-    <header className="fixed top-0 left-0 right-0 z-[150] h-20 backdrop-blur-xl border-b border-white/5 transition-all duration-500 shadow-2xl dark:shadow-blue-950/40 shadow-slate-200/50 bg-gradient-to-r from-[#1b2854] via-blue-900 to-[#1b2854]">
-      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-400/5 to-transparent"></div>
-      <div className="absolute inset-x-0 bottom-0 h-[1px] bg-gradient-to-r from-transparent via-blue-500/10 to-transparent"></div>
-
-      <div className="h-full max-w-[480px] md:max-w-2xl lg:max-w-4xl mx-auto px-8 flex items-center justify-between relative z-10">
-        {/* Left Section */}
+    <header className="fixed top-0 left-0 right-0 z-[160] transition-all duration-500 h-20 glass-surface border-b border-pg-border-main/20">
+      <div className="absolute inset-x-0 bottom-0 h-[1px] bg-gradient-to-r from-transparent via-pg-cobalt/20 to-transparent"></div>
+      
+      <div className="max-w-[480px] md:max-w-2xl lg:max-w-4xl mx-auto h-full px-6 flex items-center justify-between relative z-10">
+        
+        {/* Left Section - Logo Focus */}
         <div className="flex items-center space-x-4 flex-1">
           {leftAction}
           {!leftAction && showLogo && (
-            <div className="flex items-center group cursor-pointer">
-              <img src="/personalgroup-logo.png" alt="Personal Group Logo" className="h-10 w-auto object-contain transition-all filter drop-shadow-[0_0_8px_rgba(37,99,235,0.3)] group-hover:scale-105" />
-            </div>
+            <button 
+              onClick={() => window.location.href = '/'}
+              className="group relative flex items-center hover:scale-105 active:scale-95 transition-all outline-none"
+            >
+              <div className="absolute -inset-4 bg-pg-cobalt/5 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <img 
+                src="/logo-wellness.png" 
+                className="h-10 sm:h-12 w-auto object-contain filter brightness-110 drop-shadow-[0_0_20px_rgba(37,99,235,0.2)] dark:drop-shadow-[0_0_20px_rgba(37,99,235,0.4)]" 
+                alt="PersonalGroup" 
+              />
+            </button>
           )}
         </div>
 
-        {/* Center/Title Section */}
+        {/* Center Title Section */}
         <div className="flex flex-col items-center text-center px-4">
-          {title ? (
+          {title && (
             <div className="flex flex-col items-center">
-              <h1 className="text-lg font-bold text-white leading-none tracking-tight whitespace-nowrap font-display">
+              <h1 className="text-base sm:text-lg font-bold text-gradient leading-none tracking-tighter font-display uppercase whitespace-nowrap">
                 {title}
               </h1>
               {subtitle && (
-                <p className="text-[10px] font-black text-blue-400 uppercase tracking-[0.2em] mt-1.5 whitespace-nowrap">
+                <p className="text-[9px] font-bold text-pg-text-muted uppercase tracking-[0.3em] mt-1.5 whitespace-nowrap">
                   {subtitle}
                 </p>
               )}
             </div>
-          ) : (
-            <h2 className="text-xl font-bold tracking-tight text-white leading-none font-display">Exclusive<span className="text-cobalt">.</span></h2>
           )}
         </div>
 
-        <div className="flex justify-end items-center gap-3">
-          {/* Theme Toggle - Always Visible */}
+        {/* Right Section */}
+        <div className="flex items-center justify-end space-x-4 flex-1">
           {onToggleTheme && (
             <button
               onClick={onToggleTheme}
-              className="relative z-50 w-10 h-10 border border-white/10 bg-white/10 flex items-center justify-center text-white active:scale-95 transition-all hover:bg-white/20 rounded-full"
-              aria-label="Alternar tema"
+              className="w-10 h-10 flex items-center justify-center text-pg-text-muted hover:text-pg-cobalt transition-colors"
             >
-              {isDarkMode ? <Icons.Sun className="w-5 h-5 text-amber-400" /> : <Icons.Moon className="w-5 h-5 text-slate-300" />}
+              {isDarkMode ? <Icons.Sun className="w-5 h-5" /> : <Icons.Moon className="w-5 h-5" />}
             </button>
           )}
 
-          {/* Profile Clickable Avatar */}
           {user && (
-            <button
+            <button 
               onClick={onGoProfile}
-              className="relative z-50 group active:scale-95 transition-all"
-              aria-label="Ir para perfil"
+              className="relative group outline-none"
             >
-              <div className="w-10 h-10 rounded-full p-0.5 bg-gradient-to-tr from-cobalt to-sky transition-transform group-hover:rotate-12">
-                <div className="w-full h-full rounded-full overflow-hidden border-2 border-white dark:border-blue-950">
-                  <img src={user.avatar} className="w-full h-full object-cover" alt="Profile" />
+              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full p-0.5 bg-gradient-to-tr from-pg-cobalt/80 to-sky-400/80 transition-all group-hover:scale-110 group-active:scale-95">
+                <div className="w-full h-full rounded-full overflow-hidden bg-pg-midnight-light ring-2 ring-pg-midnight/50">
+                  <img 
+                    src={user.avatar} 
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
+                    alt="Perfil" 
+                  />
                 </div>
               </div>
-              <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white dark:border-blue-950 shadow-lg"></div>
+              <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-pg-midnight rounded-full shadow-[0_0_10px_rgba(34,197,94,0.5)]"></div>
             </button>
           )}
-
           {rightAction}
         </div>
+
       </div>
     </header>
   );

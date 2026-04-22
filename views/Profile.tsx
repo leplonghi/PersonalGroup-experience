@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { User } from '../types';
 import { Icons } from '../constants';
+import { useNavigate } from 'react-router-dom';
 
 interface ProfileProps {
   user: User;
@@ -11,6 +12,7 @@ interface ProfileProps {
 }
 
 const Profile: React.FC<ProfileProps> = ({ user, onLogout, onUpdateUser, onGoTimeline }) => {
+  const navigate = useNavigate();
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -30,7 +32,7 @@ const Profile: React.FC<ProfileProps> = ({ user, onLogout, onUpdateUser, onGoTim
   };
 
   const menuItems = [
-    { id: 'data', icon: <Icons.User className="w-5 h-5" />, label: 'Dados Pessoais', desc: 'Edite seu perfil e identificação', action: () => setIsEditing(true) },
+    { id: 'data', icon: <Icons.User className="w-5 h-5" />, label: 'Dados Pessoais', desc: 'Edite seu perfil e identificação', action: () => navigate('/edit-profile') },
     { id: 'plan', icon: <Icons.Shield className="w-5 h-5" />, label: 'Meu Plano', desc: 'Renovação e status financeiro', action: () => setShowPlan(true) },
     { id: 'guest', icon: <Icons.Users className="w-5 h-5" />, label: 'VIP Guest Pass', desc: 'Convide amigos para treinar', action: () => setShowGuestPass(true) },
     { id: 'health', icon: <Icons.Chart className="w-5 h-5" />, label: 'Deep Health', desc: 'Biometria e Evolução Corporal', action: () => setShowHealth(true) },
@@ -73,7 +75,7 @@ const Profile: React.FC<ProfileProps> = ({ user, onLogout, onUpdateUser, onGoTim
 
         <div className="relative mb-10 group">
           {/* Sharp Avatar Border */}
-          <div className="w-40 h-40 border border-white/10 p-1 group-hover:border-cobalt/50 transition-all duration-700 relative rounded-2xl overflow-hidden">
+          <div className="w-44 h-44 border border-white/10 p-1 group-hover:border-cobalt/50 transition-all duration-700 relative rounded-2xl overflow-hidden">
             <div className="absolute inset-0 bg-cobalt/5 group-hover:bg-cobalt/10"></div>
             <div className="w-full h-full overflow-hidden bg-midnight relative z-10 rounded-2xl">
               <img src={user.avatar} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" alt="Avatar" />

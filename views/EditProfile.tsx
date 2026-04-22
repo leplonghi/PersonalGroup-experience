@@ -100,7 +100,7 @@ const EditProfile: React.FC<EditProfileProps> = ({ user, onBack, onUpdated }) =>
         }
     };
 
-    const inputClass = `w-full bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 px-5 py-4 text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-blue-600 transition-colors placeholder:text-slate-400 dark:placeholder:text-slate-600`;
+    const inputClass = `w-full bg-pg-midnight/80 dark:bg-black/40 border border-slate-200 dark:border-white/10 px-5 py-4 text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-blue-600 transition-colors placeholder:text-slate-400 dark:placeholder:text-slate-600 rounded-xl shadow-inner`;
     const labelClass = `text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mb-2 block`;
 
     return (
@@ -109,41 +109,77 @@ const EditProfile: React.FC<EditProfileProps> = ({ user, onBack, onUpdated }) =>
 
             <div className="relative z-10 px-8 pt-6 pb-10 space-y-8 max-w-md mx-auto w-full">
 
-                {/* Photo Upload */}
-                <div className="flex flex-col items-center space-y-4 pt-4">
-                    <div className="relative">
-                        <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-blue-600 bg-slate-800">
-                            {photoPreview
-                                ? <img src={photoPreview} alt={name} className="w-full h-full object-cover" />
-                                : <div className="w-full h-full flex items-center justify-center">
-                                    <Icons.User className="w-10 h-10 text-slate-400" />
-                                </div>
-                            }
+                {/* Photo Selection Section - NEW & PREMIUM */}
+                <div className="flex flex-col items-center space-y-6 pt-4">
+                    <div className="relative group">
+                        <div className="w-32 h-32 rounded-full p-1 bg-gradient-to-tr from-blue-600 via-sky to-blue-400 group-hover:scale-105 transition-all duration-500 shadow-[0_0_30px_rgba(37,99,235,0.2)]">
+                            <div className="w-full h-full rounded-full overflow-hidden bg-slate-800 ring-4 ring-white dark:ring-slate-900">
+                                {photoPreview
+                                    ? <img src={photoPreview} alt={name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                                    : <div className="w-full h-full flex items-center justify-center">
+                                        <Icons.User className="w-12 h-12 text-slate-500" />
+                                    </div>
+                                }
+                            </div>
                         </div>
+
+                        {/* Centered Upload Overlay */}
                         <button
                             onClick={() => fileInputRef.current?.click()}
                             disabled={uploadingPhoto}
-                            className="absolute -bottom-2 -right-2 w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center border-2 border-white dark:border-slate-900 transition-opacity hover:opacity-80">
+                            className="absolute inset-0 rounded-full flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
                             {uploadingPhoto
-                                ? <div className="w-3 h-3 border border-white/50 border-t-white rounded-full animate-spin" />
-                                : <Icons.Plus className="w-3 h-3 text-white" />
+                                ? <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                : <Icons.Camera className="w-6 h-6 text-white" />
                             }
                         </button>
                     </div>
-                    <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoChange} />
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center mt-2">Toque para enviar foto</p>
+
+                    <div className="flex flex-col items-center space-y-3 w-full">
+                        <div className="flex gap-2 w-full justify-center">
+                            <button 
+                                onClick={() => fileInputRef.current?.click()}
+                                className="px-4 py-2 bg-blue-600/10 border border-blue-600/30 text-blue-500 text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all flex items-center gap-2"
+                            >
+                                <Icons.Plus className="w-3 h-3" />
+                                Upload Foto
+                            </button>
+                            
+                            {/* Option to sync from Google - simulated if photoUrl exists */}
+                            {user.photoUrl && user.photoUrl !== user.avatar && (
+                                <button 
+                                    onClick={() => setPhotoPreview(user.photoUrl || '')}
+                                    className="px-4 py-2 bg-white/5 border border-white/10 text-slate-400 text-[10px] font-black uppercase tracking-widest hover:bg-white/10 hover:text-white transition-all flex items-center gap-2"
+                                >
+                                    <Icons.Activity className="w-3 h-3" />
+                                    Sincronizar Google
+                                </button>
+                            )}
+                        </div>
+
+                        <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoChange} />
+                    </div>
 
                     {/* Default Avatars */}
-                    <div className="pt-2 w-full max-w-[280px]">
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center mb-3">Ou escolha um avatar</p>
-                        <div className="flex flex-wrap justify-center gap-3">
+                    <div className="pt-4 w-full">
+                        <div className="flex items-center space-x-4 mb-4">
+                            <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent to-white/10"></div>
+                            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] whitespace-nowrap">Expressões Wellness</p>
+                            <div className="h-[1px] flex-1 bg-gradient-to-l from-transparent to-white/10"></div>
+                        </div>
+                        <div className="flex flex-wrap justify-center gap-4">
                             {PRESET_AVATARS.map((avatar, idx) => (
                                 <button
                                     key={idx}
                                     onClick={() => setPhotoPreview(avatar)}
-                                    className={`w-10 h-10 rounded-full overflow-hidden border-2 transition-all ${photoPreview === avatar ? 'border-blue-500 scale-110 shadow-lg shadow-blue-500/30' : 'border-slate-800 opacity-70 hover:opacity-100 hover:scale-105 hover:border-blue-500/50'}`}
+                                    className={`relative w-12 h-12 rounded-full overflow-hidden border-2 transition-all duration-500 ${photoPreview === avatar ? 'border-blue-500 scale-125 z-10 shadow-lg shadow-blue-500/40 ring-4 ring-blue-500/20' : 'border-slate-800 opacity-60 hover:opacity-100 hover:scale-110 hover:border-blue-500/50'}`}
                                 >
                                     <img src={avatar} alt={`Avatar ${idx + 1}`} className="w-full h-full object-cover" />
+                                    {photoPreview === avatar && (
+                                        <div className="absolute inset-0 bg-blue-500/10 flex items-center justify-center">
+                                            <Icons.Check className="w-4 h-4 text-white drop-shadow-md" />
+                                        </div>
+                                    )}
                                 </button>
                             ))}
                         </div>
