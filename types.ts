@@ -10,7 +10,7 @@ export type HealthStatus = 'NORMAL' | 'WARNING' | 'CRITICAL';
 export type AssessmentType = 'INICIAL' | 'PERIODICA' | 'EXTRAORDINARIA';
 export type CyclePhase = 'ADAPTACAO' | 'CARGA' | 'PICO' | 'RECOVERY';
 export type MessageType = 'INSTITUTIONAL' | 'SEGMENTED' | 'MOTIVATIONAL';
-export type TimelineEntryType = 'SESSION_COMPLETE' | 'ASSESSMENT_COMPLETE' | 'WELLNESS_BOOKED' | 'WELLNESS_CANCELLED' | 'CYCLE_START' | 'HEALTH_ALERT' | 'VERSION_UPDATE' | 'CHECKIN';
+export type TimelineEntryType = 'SESSION_COMPLETE' | 'ASSESSMENT_COMPLETE' | 'WELLNESS_BOOKED' | 'WELLNESS_CANCELLED' | 'CYCLE_START' | 'HEALTH_ALERT' | 'VERSION_UPDATE' | 'CHECKIN' | 'ADMIN_ACTION';
 
 export interface TrainingCycle {
   id: string;
@@ -44,6 +44,20 @@ export interface WellnessBooking {
   date: string;
   time: string;
   status: 'CONFIRMADO' | 'CANCELADO' | 'PENDENTE';
+}
+
+export type TypedAgendaItem = 'WELLNESS' | 'CLASS' | 'PERSONAL';
+
+export interface UnifiedAgendaItem {
+  id: string;
+  type: TypedAgendaItem;
+  title: string;
+  subtitle: string;
+  date: string;
+  time: string;
+  status: 'CONFIRMADO' | 'CANCELADO' | 'PENDENTE';
+  instructor?: string;
+  location?: string;
 }
 
 export interface User {
@@ -121,6 +135,15 @@ export interface User {
   // Flex System (for Personal/Staff)
   personalFlexStatus?: 'ACTIVE' | 'INACTIVE';
   flexCapabilities?: FlexCapability[];
+
+  // Gym Presence
+  status?: 'ACTIVE_IN_GYM' | 'OFFLINE' | 'SYNC_PENDING';
+
+  // Aggregated Stats
+  stats?: {
+    totalSessions: number;
+    totalCheckins: number;
+  };
 }
 
 // --- New Interfaces (Etapas 2-5) ---
@@ -211,6 +234,16 @@ export interface TimelineEntry {
   date: string;
   message: string;
   details?: string;
+  isAdminOnly?: boolean;
+  timestamp?: any;
+}
+
+export interface ActionQueueItem {
+  id: string;
+  userId: string;
+  action: string;
+  payload: any;
+  retryCount: number;
 }
 
 export interface AppMessage {

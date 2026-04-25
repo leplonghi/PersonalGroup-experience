@@ -59,7 +59,7 @@ const Evolution: React.FC<EvolutionProps> = ({ user, viewer, onBack }) => {
     return (
         <div className="min-h-screen bg-app space-y-6 pb-32">
             {/* Pill Segmented Control - Fixed below Global Header (h-20) */}
-            <div className="sticky top-[80px] z-50 bg-app backdrop-blur-md pt-4 pb-2 px-6 shadow-sm border-b border-app font-display">
+            <div className="sticky top-[calc(3.5rem+env(safe-area-inset-top))] z-50 bg-app backdrop-blur-md pt-4 pb-2 px-6 shadow-sm border-b border-app font-display">
                 <div className="bg-surface border border-app rounded-full p-1 flex justify-between items-center shadow-inner overflow-x-auto no-scrollbar gap-1">
                     <button
                         onClick={() => setView('flex')}

@@ -82,80 +82,59 @@ const AssessmentFlow: React.FC<AssessmentFlowProps> = ({ student, chefe, onBack,
           <div className="space-y-12 animate-in slide-in-from-right-4 duration-500">
             <header className="border-l-4 border-blue-600 pl-6">
               <p className="text-[10px] font-black text-blue-500 uppercase tracking-[0.4em] mb-2">Etapa 2 de 3</p>
-              <h3 className="text-3xl font-black text-slate-900 dark:text-white uppercase italic tracking-tighter leading-none">Medidas</h3>
+              <h3 className="text-3xl font-black text-slate-900 dark:text-white uppercase italic tracking-tighter leading-none">Sincronização de Dados</h3>
             </header>
 
-            <div className="space-y-12">
-              {/* Peso */}
-              <div className="space-y-6">
-                <div className="flex justify-between items-end px-2">
-                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] italic leading-none">Peso Corporal</label>
-                  <div className="flex items-baseline space-x-2">
-                    <span className="text-5xl font-black text-slate-900 dark:text-white italic tracking-tighter tabular-nums leading-none">{data.weight}</span>
-                    <span className="text-xs font-black text-blue-600 uppercase italic">kg</span>
+            <div className="space-y-8">
+              {/* PDF UPLOAD SECTION */}
+              <div className="group relative border-2 border-dashed border-slate-200 dark:border-white/10 p-12 text-center transition-all hover:border-blue-500/50 hover:bg-blue-500/5 cursor-pointer">
+                <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" accept=".pdf" />
+                <div className="w-20 h-20 bg-blue-600/10 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
+                  <Icons.FileText className="w-10 h-10 text-blue-600" />
+                </div>
+                <h4 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest mb-2 italic">Importar PDF Bioimpedância</h4>
+                <p className="text-[10px] text-slate-500 uppercase tracking-widest leading-loose">Solte o relatório aqui ou clique para selecionar.<br />Os dados serão extraídos automaticamente.</p>
+              </div>
+
+              {/* WEARABLES SYNC */}
+              <div className="bg-slate-900 dark:bg-midnight p-8 flex items-center justify-between border border-blue-600/20">
+                <div className="flex items-center gap-6">
+                  <div className="w-12 h-12 bg-blue-500/20 rounded-full flex items-center justify-center animate-pulse">
+                    <Icons.Activity className="w-6 h-6 text-blue-500" />
+                  </div>
+                  <div>
+                    <h5 className="text-[10px] font-black text-white uppercase tracking-widest italic">Integração Wearables</h5>
+                    <p className="text-[9px] text-slate-400 uppercase tracking-widest mt-1 italic">Sincronizando FC, Sono e Atividade...</p>
                   </div>
                 </div>
-                <input
-                  type="range" min="40" max="180" step="0.1"
-                  value={data.weight}
-                  onChange={e => setData({ ...data, weight: parseFloat(e.target.value) })}
-                  className="w-full h-1.5 bg-slate-200 dark:bg-white/5 appearance-none accent-blue-600 cursor-pointer"
-                />
-              </div>
-
-              {/* Gordura */}
-              <div className="space-y-6">
-                <div className="flex justify-between items-end px-2">
-                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] italic leading-none">% de Gordura</label>
-                  <div className="flex items-baseline space-x-2">
-                    <span className="text-5xl font-black text-blue-600 italic tracking-tighter tabular-nums leading-none">{data.fatPercentage}</span>
-                    <span className="text-xs font-black text-slate-400 dark:text-white opacity-40 uppercase italic">%</span>
-                  </div>
-                </div>
-                <input
-                  type="range" min="3" max="50" step="0.1"
-                  value={data.fatPercentage}
-                  onChange={e => setData({ ...data, fatPercentage: parseFloat(e.target.value) })}
-                  className="w-full h-1.5 bg-slate-200 dark:bg-white/5 appearance-none accent-blue-600 cursor-pointer"
-                />
-              </div>
-
-              {/* Resultado Automático */}
-              <div className="bg-white dark:bg-ocean p-10 flex justify-between items-center shadow-2xl border border-slate-200 dark:border-white/10">
-                <div>
-                  <p className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400 mb-2 italic leading-none">Massa Magra</p>
-                  <h4 className="text-4xl font-black text-slate-900 dark:text-white italic tracking-tighter leading-none">{calculatedLeanMass} <span className="text-sm">kg</span></h4>
-                </div>
-                <div className="w-16 h-16 bg-slate-900 dark:bg-midnight flex items-center justify-center text-white">
-                  <Icons.TrendingUp className="w-8 h-8" />
+                <div className="text-right">
+                  <p className="text-xs font-black text-blue-500 italic">CONECTADO</p>
                 </div>
               </div>
 
+              {/* AUTOMATED RESULTS PREVIEW */}
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-4">
-                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] italic ml-1 leading-none">PA (Repouso)</label>
-                  <input
-                    type="text"
-                    value={data.bloodPressure}
-                    placeholder="12/8"
-                    onChange={e => setData({ ...data, bloodPressure: e.target.value })}
-                    className="w-full bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 px-6 py-5 text-base font-black text-slate-900 dark:text-white italic tracking-tighter focus:outline-none focus:border-blue-600"
-                  />
+                <div className="bg-white dark:bg-white/5 p-6 border border-slate-200 dark:border-white/10">
+                  <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-2 italic">Peso (PDF)</p>
+                  <p className="text-2xl font-black text-slate-900 dark:text-white italic tabular-nums">{data.weight} <span className="text-[10px]">kg</span></p>
                 </div>
-                <div className="space-y-4">
-                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] italic ml-1 leading-none">VO2 Máx</label>
-                  <input
-                    type="number"
-                    value={data.vo2Max}
-                    placeholder="40"
-                    onChange={e => setData({ ...data, vo2Max: parseInt(e.target.value) })}
-                    className="w-full bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 px-6 py-5 text-base font-black text-slate-900 dark:text-white italic tracking-tighter focus:outline-none focus:border-blue-600"
-                  />
+                <div className="bg-white dark:bg-white/5 p-6 border border-slate-200 dark:border-white/10">
+                  <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-2 italic">Gordura (PDF)</p>
+                  <p className="text-2xl font-black text-blue-600 italic tabular-nums">{data.fatPercentage}%</p>
                 </div>
+              </div>
+
+              <div className="bg-blue-600/5 p-8 border border-blue-600/10">
+                <div className="flex justify-between items-center mb-4">
+                  <p className="text-[10px] font-black uppercase tracking-[0.4em] text-blue-500 italic">Resultado Consolidado</p>
+                  <Icons.Zap className="w-4 h-4 text-blue-600" />
+                </div>
+                <h4 className="text-4xl font-black text-slate-900 dark:text-white italic tracking-tighter leading-none">{calculatedLeanMass} <span className="text-sm">kg</span> <span className="text-xs text-slate-500 italic ml-2">Massa Magra</span></h4>
               </div>
             </div>
           </div>
         );
+
       case 3:
         return (
           <div className="space-y-12 animate-in slide-in-from-right-4 duration-500">

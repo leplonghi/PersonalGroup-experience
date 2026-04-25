@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getUserById } from '../firebase';
-import { obterUltimaSessao, subscribeTeamNotes, iniciarSessao, adicionarTeamNote } from '../src/services/sessionService';
+import { getUserById, startLiveSession } from '../firebase';
+import { obterUltimaSessao, subscribeTeamNotes, adicionarTeamNote } from '../src/services/sessionService';
 import { User } from '../types';
 import { Icons } from '../constants';
 
@@ -59,11 +59,16 @@ const StudentBriefing: React.FC<{ trainer: User }> = ({ trainer }) => {
     };
 
     const handleStartSession = async () => {
-        if (!uid) return;
-        const exercicios = lastSession?.exercicios || DEFAULT_EXERCISES;
-        const sessId = await iniciarSessao(uid, trainer.id, trainer.name, exercicios);
-        navigate(`/session/${uid}`);
-        // If the app expects /live-session/:sessionId, we can use navigate(`/live-session/${sessId}`)
+        if (!student?.currentCycle?.protocolId) {
+            alert("Aluno sem protocolo ativo.");
+            return;
+        }
+        try {
+            await startLiveSession(uid!, trainer.id, trainer.name, student.currentCycle.protocolId);
+            navigate(`/session/${uid}`);
+        } catch (error) {
+            console.error(error);
+        }
     };
 
     if (loading) {

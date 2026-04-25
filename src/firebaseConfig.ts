@@ -1,1 +1,1 @@
-export { db } from '../firebase';
+export { db, auth, storage } from '../services/firebaseCore';

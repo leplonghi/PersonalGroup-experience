@@ -1,5 +1,5 @@
 import { doc, getDoc, addDoc, updateDoc, serverTimestamp, query, where, getDocs, orderBy, limit, increment, Timestamp } from "firebase/firestore";
-import { db, timelineCol, mensagensCol, checkInsCol, adminRequestsCol, evolutionCol, usersCol } from "./firebaseCore";
+import { db, timelineCol, mensagensCol, checkInsCol, adminRequestsCol, evolutionCol, usersCol, adminLogsCol } from "./firebaseCore";
 import { TimelineEntry, AppMessage, MessageType, GymConfig, CheckInRecord, FrequencyReport, AdminRequest, EvolutionEntry, User } from "../types";
 import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
 import { storage } from "./firebaseCore";
@@ -51,7 +51,7 @@ const DEFAULT_GYM_CONFIG: GymConfig = {
     maxWellnessPerMonth: 2,
     timezone: 'America/Sao_Paulo',
     gymName: 'PersonalGroup Exclusive',
-    gymUnit: 'Unidade Península Jardins',
+    gymUnit: 'Personal Group',
 };
 
 export const getGymConfig = async (): Promise<GymConfig> => {
@@ -191,6 +191,14 @@ export const resolveAdminRequest = async (
         resolution: resolution || '',
         resolvedAt: serverTimestamp()
     });
+
+    // Audit Log
+    await logAdminAction(
+        resolvedBy,
+        'SYSTEM', // Global or Request specific
+        'RESOLVE_REQUEST',
+        `Pedido de suporte resolvido (${status}): ${requestId}`
+    );
 };
 
 export const getAdminRequests = async (userId?: string): Promise<AdminRequest[]> => {
@@ -250,4 +258,23 @@ export const sendSegmentedMessage = async (
         })
     );
     await Promise.all(batch);
+};
+
+export const logAdminAction = async (
+    adminId: string, 
+    targetId: string, 
+    action: string, 
+    details: string
+): Promise<void> => {
+    try {
+        await addDoc(adminLogsCol, {
+            adminId,
+            targetId,
+            action,
+            details,
+            timestamp: serverTimestamp()
+        });
+    } catch (e) {
+        console.error("Erro ao registrar ação administrativa:", e);
+    }
 };

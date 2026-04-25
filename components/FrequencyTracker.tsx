@@ -49,7 +49,7 @@ const FrequencyTracker: React.FC<FrequencyTrackerProps> = ({ user }) => {
                 <div
                     className={`h-full rounded-full transition-all duration-700 ${isBehind
                         ? 'bg-gradient-to-r from-amber-500 to-red-500'
-                        : 'bg-gradient-to-r from-blue-600 to-blue-400'
+                        : 'bg-gradient-to-r from-cobalt to-sky'
                         }`}
                     style={{ width: `${progressPct}%` }}
                 />
@@ -61,7 +61,7 @@ const FrequencyTracker: React.FC<FrequencyTrackerProps> = ({ user }) => {
                     <div
                         key={i}
                         className={`w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-black transition-all ${i < completedThisWeek
-                            ? 'bg-blue-600 text-white shadow-[0_4_12px_rgba(37,99,235,0.3)]'
+                            ? 'bg-cobalt text-white shadow-cobalt'
                             : 'bg-white/10 dark:bg-white/5 text-slate-600 dark:text-slate-500 border border-blue-100 dark:border-white/10'
                             }`}
                     >

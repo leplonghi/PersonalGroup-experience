@@ -1,5 +1,5 @@
-import { doc, getDoc, setDoc, updateDoc, addDoc, serverTimestamp, increment, deleteField, arrayUnion, arrayRemove, onSnapshot } from "firebase/firestore";
-import { db, sessoesCol, timelineCol, avaliacoesCol, wellnessCol, checkInsCol } from "./firebaseCore";
+import { doc, getDoc, setDoc, updateDoc, addDoc, serverTimestamp, increment, deleteField, arrayUnion, arrayRemove, onSnapshot, query, where, orderBy, limit, getDocs, collection } from "firebase/firestore";
+import { db, sessoesCol, timelineCol, avaliacoesCol, wellnessCol, checkInsCol, liveSessionsCol } from "./firebaseCore";
 import { User, TrainingCycle, SessionLog, Assessment, HealthStatus, WellnessBooking, LiveSession } from "../types";
 import { triggerSystemAlert } from "./adminService";
 import { evolutionCol } from "./firebaseCore";
@@ -243,7 +243,7 @@ export const performCheckIn = async (userId: string, gymId: string) => {
             referenceId: gymId,
             timestamp: serverTimestamp(),
             message: "Check-in Confirmado",
-            details: "Unidade Península Jardins"
+            details: "Personal Group Experience"
         });
 
         return true;
@@ -254,7 +254,7 @@ export const performCheckIn = async (userId: string, gymId: string) => {
 };
 
 export const startLiveSession = async (studentId: string, personalId: string, personalName: string, protocolId: string): Promise<void> => {
-    const sessionRef = doc(db, "active_sessions", studentId);
+    const sessionRef = doc(liveSessionsCol, studentId);
     await setDoc(sessionRef, {
         studentId,
         personalId,
@@ -268,10 +268,22 @@ export const startLiveSession = async (studentId: string, personalId: string, pe
         logs: [],
         lastUpdate: serverTimestamp()
     });
+
+    // --- Sync with Floor View ---
+    const dateStr = new Date().toISOString().split('T')[0];
+    const checkInRef = doc(checkInsCol, `${studentId}_${dateStr}`);
+    try {
+        await updateDoc(checkInRef, {
+            emSessao: true,
+            trainerNome: personalName
+        });
+    } catch (e) {
+        console.warn("Check-in doc not found for today. Skipping floor view sync.", e);
+    }
 };
 
 export const updateLiveSession = async (studentId: string, data: Partial<LiveSession>): Promise<void> => {
-    const sessionRef = doc(db, "active_sessions", studentId);
+    const sessionRef = doc(liveSessionsCol, studentId);
     await updateDoc(sessionRef, {
         ...data,
         lastUpdate: serverTimestamp()
@@ -279,7 +291,7 @@ export const updateLiveSession = async (studentId: string, data: Partial<LiveSes
 };
 
 export const subscribeToLiveSession = (studentId: string, callback: (session: LiveSession | null) => void) => {
-    const sessionRef = doc(db, "active_sessions", studentId);
+    const sessionRef = doc(liveSessionsCol, studentId);
     return onSnapshot(sessionRef, (snap) => {
         if (snap.exists()) {
             callback(snap.data() as LiveSession);
@@ -290,9 +302,35 @@ export const subscribeToLiveSession = (studentId: string, callback: (session: Li
 };
 
 export const endLiveSession = async (studentId: string): Promise<void> => {
-    const sessionRef = doc(db, "active_sessions", studentId);
+    const sessionRef = doc(liveSessionsCol, studentId);
     await updateDoc(sessionRef, {
         status: 'FINISHED',
         lastUpdate: serverTimestamp()
     });
+
+    // --- Sync with Floor View (Clear) ---
+    const dateStr = new Date().toISOString().split('T')[0];
+    const checkInRef = doc(checkInsCol, `${studentId}_${dateStr}`);
+    try {
+        await updateDoc(checkInRef, {
+            emSessao: false,
+            trainerNome: null
+        });
+    } catch (e) {
+        console.warn("Check-in doc not found for today. Skipping floor view sync removal.", e);
+    }
+};
+
+export const getLastTrainerSession = async (studentId: string) => {
+    const q = query(
+        collection(db, "sessions"),
+        where("alunoUid", "==", studentId),
+        where("status", "==", "DONE"),
+        orderBy("endTime", "desc"),
+        limit(1)
+    );
+    const snap = await getDocs(q);
+    if (snap.empty) return null;
+    const docSnap = snap.docs[0];
+    return { id: docSnap.id, ...docSnap.data() };
 };

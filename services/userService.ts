@@ -1,4 +1,4 @@
-import { doc, getDoc, setDoc, updateDoc, serverTimestamp, query, where, getDocs, onSnapshot, arrayUnion } from "firebase/firestore";
+import { doc, getDoc, setDoc, updateDoc, serverTimestamp, query, where, getDocs, onSnapshot, arrayUnion, limit, orderBy, startAfter } from "firebase/firestore";
 import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage, usersCol } from "./firebaseCore";
 import { User, UserRole, TrainingCycle } from "../types";
@@ -67,12 +67,25 @@ export const updateUserCycle = async (userId: string, cycle: TrainingCycle): Pro
 
 export const getStudents = async (): Promise<User[]> => {
     try {
-        const q = query(usersCol, where("role", "==", UserRole.ALUNO));
+        const q = query(usersCol, where("role", "==", UserRole.ALUNO), limit(50));
         const snap = await getDocs(q);
         return snap.docs.map(d => ({ id: d.id, ...d.data() } as User));
     } catch (error) {
         console.error("Erro getStudents:", error);
         return [];
+    }
+};
+
+export const getStudentsPaginated = async (lastDoc?: any): Promise<{ students: User[], lastVisible: any }> => {
+    try {
+        let q = query(usersCol, where("role", "==", UserRole.ALUNO), orderBy("name"), limit(50));
+        if (lastDoc) q = query(q, startAfter(lastDoc));
+        const snap = await getDocs(q);
+        const students = snap.docs.map(d => ({ id: d.id, ...d.data() } as User));
+        return { students, lastVisible: snap.docs[snap.docs.length - 1] };
+    } catch (error) {
+        console.error("Erro getStudentsPaginated:", error);
+        return { students: [], lastVisible: null };
     }
 };
 
@@ -103,6 +116,13 @@ export const toggleUserRole = async (userId: string, currentRole: UserRole): Pro
     const newRole = currentRole === UserRole.PERSONAL ? UserRole.CHEFE : UserRole.PERSONAL;
     const userRef = doc(db, "users", userId);
     await updateDoc(userRef, { role: newRole, updatedAt: serverTimestamp() });
+    return newRole;
+};
+
+export const toggleUserRoleWithAudit = async (adminId: string, userId: string, currentRole: UserRole, targetName: string): Promise<UserRole> => {
+    const newRole = await toggleUserRole(userId, currentRole);
+    // Logging is imported conditionally or used from adminService in the UI layer to avoid circular dependency
+    // For now we'll update the component to handle the second call
     return newRole;
 };
 
