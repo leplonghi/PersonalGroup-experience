@@ -166,7 +166,7 @@ const Lounge: React.FC<LoungeProps> = ({ user, onBack }) => {
                     </button>
                 </div>
 
-            </div>
+            </main>
         </div>
     );
 };

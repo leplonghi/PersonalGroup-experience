@@ -226,8 +226,8 @@ const ActiveSession: React.FC<ActiveSessionProps> = ({ user, executor, onFinish 
     try {
       if (isStaff) {
         // Save the logs permanently
-        if (activeSession && user.currentCycle) {
-          await logSession(user.id, user.currentCycle.id, activeSession.logs);
+        if (sessionLogs.length > 0 && user.currentCycle) {
+          await logSession(user.id, user.currentCycle.id, sessionLogs);
         }
         await endLiveSession(user.id);
       }

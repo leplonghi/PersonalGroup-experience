@@ -47,6 +47,20 @@ const StatWidget: React.FC<StatWidgetProps> = ({ label, value, subtext, icon = '
                 <p className="text-xs font-bold text-slate-600 dark:text-slate-500 uppercase tracking-widest mt-1.5">{subtext}</p>
             )}
 
+            {/* Mini Sparkline Chart */}
+            <div className="flex items-end gap-1 h-8 mt-4 opacity-50 group-hover:opacity-100 transition-opacity duration-500">
+                {[40, 70, 45, 90, 65, 80, 50].map((h, i) => (
+                    <div 
+                        key={i}
+                        className={`flex-1 rounded-t-[2px] transition-all duration-500 delay-[${i * 50}ms] group-hover:h-[${h}%]`}
+                        style={{ 
+                            height: `${h * 0.6}%`, 
+                            backgroundColor: color === 'blue' ? 'var(--pg-cobalt)' : color === 'green' ? 'var(--pg-success)' : color === 'red' ? 'var(--pg-error)' : 'var(--pg-warning)'
+                        }}
+                    />
+                ))}
+            </div>
+
             {/* Background decoration */}
             <div className={`absolute -bottom-4 -right-4 w-16 h-16 rounded-full opacity-5 blur-xl ${colorMap[color].split(' ')[2]}`}></div>
         </div>

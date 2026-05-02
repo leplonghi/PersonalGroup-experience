@@ -53,10 +53,8 @@ const Navigation: React.FC<NavigationProps> = ({ role, isDarkMode }) => {
               >
                 <div className="relative group">
                   <div className="absolute inset-0 bg-pg-cobalt/30 blur-2xl rounded-full group-hover:bg-pg-cobalt/40 transition-all scale-125"></div>
-                  <div className="relative z-10 w-[80px] h-[80px] rounded-full p-0.5 bg-gradient-to-b from-pg-cobalt to-sky-500 shadow-[0_10px_30px_rgba(37,99,235,0.4)]">
-                    <div className="w-full h-full rounded-full bg-pg-midnight flex items-center justify-center overflow-hidden">
-                       <Icons.LogoSymbol className="w-[85px] h-[85px] object-contain scale-[1.3] filter brightness-110" />
-                    </div>
+                  <div className="relative z-10 w-[80px] h-[80px] rounded-full overflow-hidden shadow-[0_0_20px_rgba(0,182,253,0.6)]">
+                    <img src="/favicon.png" alt="Personal Group" className="w-full h-full object-cover drop-shadow-[0_0_12px_rgba(0,182,253,0.9)]" />
                   </div>
                 </div>
               </button>
@@ -76,16 +74,14 @@ const Navigation: React.FC<NavigationProps> = ({ role, isDarkMode }) => {
               >
                 <div className="relative group">
                   <div className="absolute inset-0 bg-pg-cobalt/30 blur-2xl rounded-full group-hover:bg-pg-cobalt/40 transition-all scale-125 animate-pulse"></div>
-                  <div className="relative z-10 w-[80px] h-[80px] rounded-full p-0.5 bg-gradient-to-b from-pg-cobalt to-sky-500 shadow-[0_10px_30px_rgba(37,99,235,0.4)]">
-                    <div className="w-full h-full rounded-full bg-pg-midnight flex items-center justify-center overflow-hidden">
-                       <Icons.LogoSymbol className="w-[85px] h-[85px] object-contain scale-[1.3] filter brightness-110" />
-                    </div>
+                  <div className="relative z-10 w-[80px] h-[80px] rounded-full overflow-hidden shadow-[0_0_20px_rgba(0,182,253,0.6)]">
+                    <img src="/favicon.png" alt="Personal Group" className="w-full h-full object-cover drop-shadow-[0_0_12px_rgba(0,182,253,0.9)]" />
                   </div>
                 </div>
               </button>
 
               <NavItem path="/evolution" icon={Icons.Activity} label="Saúde" />
-              <NavItem path="/wellness" icon={Icons.Star} label="Wellness" />
+              <NavItem path="/student-hub" icon={Icons.Star} label="Hub" />
             </>
           )}
         </nav>

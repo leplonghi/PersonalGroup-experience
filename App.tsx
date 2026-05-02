@@ -131,7 +131,13 @@ const AppLayout: React.FC<{
           user={user || undefined}
           isDarkMode={isDarkMode}
           onToggleTheme={toggleTheme}
-          onGoProfile={() => navigate('/profile')}
+          onGoProfile={() => {
+            if (user?.role === UserRole.ALUNO) {
+              navigate('/student-hub');
+            } else {
+              navigate('/profile');
+            }
+          }}
         />
       )}
 
@@ -147,6 +153,7 @@ const AppLayout: React.FC<{
                 <Route path="/wellness" element={<Wellness user={user!} onBack={() => navigate('/home')} />} />
                 <Route path="/evolution/:studentId?" element={<EvolutionRoute viewer={user!} />} />
                 <Route path="/profile" element={<Profile user={user!} onLogout={onLogout} onUpdateUser={onUpdateUser} onGoTimeline={() => navigate('/timeline')} />} />
+                <Route path="/student-hub" element={user ? <StudentHub user={user} onLogout={onLogout} onNavigateTo={(v) => navigate(`/${v}`)} /> : <Navigate to="/login" />} />
                 <Route path="/onboarding" element={<Onboarding user={user!} onComplete={() => navigate('/home')} />} />
 
                 {/* Active Session & Management */}
@@ -205,19 +212,33 @@ const AuthShell: React.FC<{ isDarkMode: boolean; toggleTheme: () => void }> = ({
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-app bg-grid flex items-center justify-center relative overflow-hidden">
-        <div className="grain-overlay opacity-[0.03]" />
-        <div className="flex flex-col items-center space-y-8 animate-reveal z-10">
+      <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
+        {/* Background academia com gradiente escuro */}
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: 'url(/gym-background.png)' }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/80" />
+
+        <div className="flex flex-col items-center space-y-8 animate-reveal z-10 px-6">
+          {/* Logo Personal Group */}
+          <img
+            src="/personalgroup-logo.png"
+            alt="Personal Group"
+            className="w-40 h-auto object-contain drop-shadow-[0_0_20px_rgba(0,182,253,0.4)]"
+          />
+
           <div className="relative">
-            <div className="w-20 h-20 border-[3px] border-pg-cobalt/10 rounded-full"></div>
+            <div className="w-20 h-20 border-[3px] border-white/10 rounded-full"></div>
             <div className="absolute top-0 left-0 w-20 h-20 border-[3px] border-pg-cobalt border-t-transparent rounded-full animate-spin"></div>
             <div className="absolute inset-0 flex items-center justify-center">
                <div className="w-10 h-10 rounded-2xl bg-pg-cobalt/10 border border-pg-cobalt/20 backdrop-blur-md animate-pulse" />
             </div>
           </div>
+
           <div className="flex flex-col items-center gap-3">
-            <h2 className="text-3xl font-bold tracking-tighter text-gradient font-display">PERSONAL GROUP</h2>
-            <p className="text-[11px] font-black text-pg-text-muted uppercase tracking-[0.6em]">Premium Network</p>
+            <h2 className="text-3xl font-bold tracking-tighter text-white font-display drop-shadow-lg">PERSONAL GROUP</h2>
+            <p className="text-[11px] font-black text-white/60 uppercase tracking-[0.6em]">Premium Network</p>
           </div>
         </div>
       </div>

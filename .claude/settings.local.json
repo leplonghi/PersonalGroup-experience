@@ -2,7 +2,11 @@
   "permissions": {
     "allow": [
       "Bash(git add *)",
-      "Bash(git commit -m ' *)"
+      "Bash(git commit -m ' *)",
+      "Skill(update-config)",
+      "Skill(update-config:*)",
+      "Bash(xargs grep *)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(list\\(d.get\\('mcpServers',{}\\).keys\\(\\)\\)\\)\")"
     ]
   }
 }

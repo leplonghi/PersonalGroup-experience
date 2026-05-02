@@ -140,6 +140,23 @@ body {
     border-color: var(--pg-accent);
 }
 
+.glass-panel {
+    background: var(--pg-glass-bg);
+    backdrop-filter: blur(var(--pg-blur));
+    -webkit-backdrop-filter: blur(var(--pg-blur));
+    border: 1px solid var(--pg-glass-border);
+    border-radius: var(--radius-pg-card);
+}
+
+.bg-app {
+    background-color: var(--pg-bg-main);
+}
+
+.precision-bg {
+    background: radial-gradient(circle at top right, rgba(0, 182, 253, 0.05), transparent),
+                radial-gradient(circle at bottom left, rgba(51, 99, 162, 0.05), transparent);
+}
+
 /* Typography Enhancements */
 .font-display {
     font-family: var(--font-display);
