@@ -258,7 +258,7 @@ const ExperienceHub: React.FC<ExperienceHubProps> = ({ user, onBack }) => {
                                 <div>
                                     <div className="flex items-center gap-2 mb-4">
                                         <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse shadow-[0_0_8px_#22c55e]"></div>
-                                        <span className="text-[8px] font-black text-slate-500 uppercase tracking-[0.3em]">Check-in Confirmado</span>
+                                        <span className="text-[8px] font-black text-slate-500 uppercase tracking-[0.3em]">Chegada Registrada</span>
                                     </div>
                                     <h4 className="text-lg font-black text-slate-900 dark:text-white uppercase italic tracking-tighter leading-none mb-6 group-hover:text-blue-500 transition-colors">{session.title}</h4>
                                     <div className="flex items-center gap-6 text-[9px] font-bold text-slate-500 uppercase tracking-[0.2em]">
@@ -342,7 +342,7 @@ const ExperienceHub: React.FC<ExperienceHubProps> = ({ user, onBack }) => {
                     <div className="w-28 h-28 bg-white rounded-[40px] flex items-center justify-center text-blue-600 mb-10 shadow-3xl shadow-black/30 transform -rotate-12">
                         <Icons.Check className="w-14 h-14" />
                     </div>
-                    <h3 className="text-4xl font-black uppercase italic tracking-tighter text-center mb-6 leading-none">CHECK-IN<br />CONFIRMADO<span className="text-blue-300">!</span></h3>
+                    <h3 className="text-4xl font-black uppercase italic tracking-tighter text-center mb-6 leading-none">CHEGADA<br />REGISTRADA<span className="text-blue-300">!</span></h3>
                     <p className="text-[11px] font-bold uppercase tracking-[0.5em] opacity-80 mb-16 text-center">Prepare seu corpo para elevar o nível.</p>
                     <button 
                         onClick={() => { setBookingStep('LIST'); setActiveTab('AGENDA'); setAgendaTab('WELLNESS'); }}

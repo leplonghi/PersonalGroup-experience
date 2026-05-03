@@ -31,6 +31,19 @@ const Profile: React.FC<ProfileProps> = ({ user, onLogout, onUpdateUser, onGoTim
     setIsEditing(false);
   };
 
+  const formatarData = (data: string) => {
+    // Simples retorno já que no mock já está formatada, 
+    // mas preparado para ISO se vier do banco futuro.
+    if (!data) return '';
+    if (data.includes('-')) {
+      const [year, month, day] = data.split('T')[0].split('-');
+      return `${day}/${month}/${year}`;
+    }
+    return data;
+  };
+
+  const gerarConvite = () => setShowGuestPass(true);
+
   const menuItems = [
     { id: 'data', icon: <Icons.User className="w-5 h-5" />, label: 'Dados Pessoais', desc: 'Edite seu perfil e identificação', action: () => navigate('/edit-profile') },
     { id: 'plan', icon: <Icons.Shield className="w-5 h-5" />, label: 'Meu Plano', desc: 'Renovação e status financeiro', action: () => setShowPlan(true) },
@@ -65,7 +78,29 @@ const Profile: React.FC<ProfileProps> = ({ user, onLogout, onUpdateUser, onGoTim
   // Safe defaults for new fields
   const userPlan = user.plan || { type: 'PLATINUM', name: 'Platinum Flex', renewalDate: '15/05/2026', status: 'ACTIVE', price: 'R$ 489,00' };
   const userGamification = user.gamification || { level: 12, points: 2450, club: 'IRON' };
+  const progresso = user.progresso || {
+    categoria: 'CONSTANTE',
+    pontos: 1250,
+    treinosNoMes: 12,
+    diasSeguidos: 3,
+    conquistasDesbloqueadas: ['first_session', 'month_consistent', 'water_hero']
+  };
   const guestPasses = { available: user.guestPassesAvailable ?? 1, used: user.guestPassesUsed || [] };
+
+  const categoriaNomes: Record<string, string> = {
+    'INICIANTE': 'Ritmo Inicial',
+    'DEDICADO': 'Movimento Ativo',
+    'CONSTANTE': 'Hábito Saudável',
+    'DESTAQUE': 'Foco & Vitalidade',
+    'REFERENCIA': 'Exemplo de Vida'
+  };
+
+  const conquistasMocks = [
+    { id: 'first_session', titulo: 'Primeiro Passo', icon: <Icons.Activity className="w-5 h-5" />, desc: 'Completou o primeiro treino' },
+    { id: 'month_consistent', titulo: 'Hábito Mensal', icon: <Icons.Calendar className="w-5 h-5" />, desc: '12 treinos no mesmo mês' },
+    { id: 'water_hero', titulo: 'Hidratação UP', icon: <Icons.CheckCircle className="w-5 h-5" />, desc: 'Manteve-se hidratado na semana' },
+    { id: 'morning_star', titulo: 'Madrugador', icon: <Icons.Sun className="w-5 h-5" />, desc: 'Treinou antes das 08:00' },
+  ];
 
   return (
     <div className="flex flex-col transition-colors duration-500 relative p-8 pb-32">
@@ -93,9 +128,154 @@ const Profile: React.FC<ProfileProps> = ({ user, onLogout, onUpdateUser, onGoTim
           <div className="w-2 h-2 bg-blue-600 shadow-[0_0_10px_#2563EB]"></div>
           <p className="text-xs text-blue-900 dark:text-blue-400 font-bold uppercase tracking-[0.3em] leading-none">Membro Exclusive Center</p>
           <div className="w-1 h-1 bg-slate-700"></div>
-          <p className="text-xs text-amber-600 dark:text-yellow-500 font-bold uppercase tracking-[0.3em] leading-none">LVL {userGamification.level}</p>
+          <p className="text-xs text-pg-cobalt font-bold uppercase tracking-[0.3em] leading-none">{categoriaNomes[progresso.categoria]}</p>
         </div>
       </header>
+
+      {/* Gamificação: Categoria & Conquistas */}
+      <section className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-4 mb-10">
+        {/* Card de Categoria - Estilo Apple Health Rings */}
+        <div className="glass-panel p-6 border-white/5 bg-gradient-to-br from-pg-cobalt/5 to-transparent rounded-2xl relative overflow-hidden">
+          <div className="flex justify-between items-center mb-6">
+            <div>
+              <p className="text-[10px] font-bold text-pg-cobalt uppercase tracking-[0.2em] mb-1">Status de Atividade</p>
+              <h4 className="text-xl font-bold text-slate-900 dark:text-white uppercase tracking-tight">{categoriaNomes[progresso.categoria]}</h4>
+            </div>
+            
+            {/* Health Ring Visual */}
+            <div className="relative w-16 h-16">
+              <svg className="health-ring w-full h-full" viewBox="0 0 36 36">
+                <circle
+                  cx="18" cy="18" r="16"
+                  fill="none"
+                  className="stroke-pg-cobalt/10"
+                  strokeWidth="3"
+                />
+                <circle
+                  cx="18" cy="18" r="16"
+                  fill="none"
+                  className="health-ring-circle stroke-pg-cobalt"
+                  strokeWidth="3"
+                  strokeDasharray="100, 100"
+                  strokeDashoffset={100 - (progresso.treinosNoMes / 15) * 100}
+                  strokeLinecap="round"
+                />
+              </svg>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <Icons.Activity className="w-5 h-5 text-pg-cobalt" />
+              </div>
+            </div>
+          </div>
+          
+          <div className="space-y-4">
+            <div className="flex justify-between items-baseline">
+              <span className="text-[10px] font-bold text-slate-500 uppercase">Progresso Mensal</span>
+              <span className="text-lg font-black text-slate-900 dark:text-white">{progresso.treinosNoMes}<span className="text-[10px] text-slate-400 font-bold ml-1">/ 15</span></span>
+            </div>
+            <p className="text-[9px] text-slate-500 dark:text-slate-400 font-medium uppercase leading-relaxed tracking-wider">
+              {progresso.treinosNoMes >= 12 
+                ? "Incrível! Você está mantendo uma constância de elite." 
+                : `Faltam apenas ${15 - progresso.treinosNoMes} sessões para subir de nível.`}
+            </p>
+          </div>
+        </div>
+
+        {/* Grid de Conquistas (Selos) */}
+        <div className="glass-panel p-6 border-white/5 rounded-2xl">
+          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-4">Minhas Conquistas</p>
+          <div className="grid grid-cols-4 gap-3">
+            {conquistasMocks.map(conquista => {
+              const isUnlocked = progresso.conquistasDesbloqueadas.includes(conquista.id);
+              return (
+                <div key={conquista.id} className="relative group cursor-help">
+                  <div className={`w-full aspect-square border ${isUnlocked ? 'border-pg-cobalt/30 bg-pg-cobalt/5' : 'border-white/5 bg-white/0 opacity-30'} flex items-center justify-center transition-all duration-500 rounded-xl`}>
+                    <div className={isUnlocked ? 'text-pg-cobalt' : 'text-slate-600'}>
+                      {conquista.icon}
+                    </div>
+                  </div>
+                  {/* Tooltip simples */}
+                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-24 p-2 bg-pg-midnight border border-white/10 rounded opacity-0 group-hover:opacity-100 transition-opacity z-20 pointer-events-none">
+                    <p className="text-[8px] font-bold text-white uppercase text-center">{conquista.titulo}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Cartões de Status do Plano e Guest Pass */}
+      <section className="relative z-10 mb-10 space-y-4">
+        {userPlan && (
+          <div className="glass-panel p-6 border-white/5 bg-pg-surface-dark/40 rounded-2xl">
+            {/* Cabeçalho */}
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Icons.Shield className="w-4 h-4 text-pg-cobalt" />
+                <h3 className="text-white font-bold text-xs uppercase tracking-widest">Meu plano</h3>
+              </div>
+              <span
+                className={`text-[10px] px-3 py-1 rounded-full font-bold uppercase tracking-wider ${
+                  userPlan.status === 'ACTIVE'
+                    ? 'bg-green-500/10 text-green-500 border border-green-500/20'
+                    : userPlan.status === 'PENDING'
+                    ? 'bg-yellow-500/10 text-yellow-500 border border-yellow-500/20'
+                    : 'bg-red-500/10 text-red-400 border border-red-500/20'
+                }`}
+              >
+                {userPlan.status === 'ACTIVE' ? 'Em dia' : userPlan.status === 'PENDING' ? 'Pendente' : 'Vencido'}
+              </span>
+            </div>
+
+            {/* Nome do plano */}
+            <p className="text-2xl font-black text-white mb-1 uppercase tracking-tight">{userPlan.name}</p>
+            
+            {/* Vencimento */}
+            <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">
+              {userPlan.status === 'ACTIVE'
+                ? `Renovação em ${formatarData(userPlan.renewalDate)}`
+                : `Venceu em ${formatarData(userPlan.renewalDate)}`}
+            </p>
+
+            {/* CTA — somente contato, sem ação financeira no app */}
+            <a
+              href="https://wa.me/5598991332316?text=Olá! Gostaria de falar sobre meu plano."
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-6 flex items-center justify-center gap-2 w-full py-4 
+                         rounded-xl border border-pg-cobalt/30 text-pg-cobalt text-[10px] font-bold uppercase tracking-widest
+                         hover:bg-pg-cobalt/5 transition-all active:scale-[0.98]"
+            >
+              <Icons.MessageCircle className="w-4 h-4" />
+              Falar com a recepção sobre meu plano
+            </a>
+          </div>
+        )}
+
+        {guestPasses.available > 0 && (
+          <div className="glass-panel p-6 border-pg-cobalt/20 bg-pg-cobalt/5 rounded-2xl relative overflow-hidden group">
+            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+              <Icons.Users className="w-12 h-12 text-pg-cobalt" />
+            </div>
+            
+            <h3 className="text-white font-bold text-xs uppercase tracking-widest mb-2">Convide um amigo</h3>
+            <p className="text-slate-400 text-[10px] font-medium uppercase leading-relaxed tracking-wider mb-6 max-w-[280px]">
+              Você tem {guestPasses.available} {guestPasses.available === 1 ? 'convite disponível' : 'convites disponíveis'} 
+              este mês. Seu amigo poderá treinar um dia com você!
+            </p>
+            <button
+              onClick={gerarConvite}
+              className="w-full py-4 rounded-xl bg-pg-cobalt text-midnight font-black text-[10px] uppercase tracking-[0.2em] 
+                         shadow-[0_0_20px_rgba(0,182,253,0.3)] hover:bg-sky transition-all active:scale-[0.98]"
+            >
+              Gerar QR Code de convite
+            </button>
+            <p className="text-slate-500 text-[8px] font-bold uppercase tracking-widest mt-4 text-center">
+              Necessário validação na recepção no dia da visita.
+            </p>
+          </div>
+        )}
+      </section>
 
       <div className="relative z-10 space-y-4 mb-20">
         {menuItems.map((item, idx) => (
@@ -259,6 +439,27 @@ const Profile: React.FC<ProfileProps> = ({ user, onLogout, onUpdateUser, onGoTim
 
               <div className="flex items-center justify-between p-4 bg-blue-600/10 border border-blue-500/20">
                 <div className="flex items-center space-x-3">
+                  <Icons.Users className="w-4 h-4 text-blue-500" />
+                  <span className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">Exibir no Mural da Constância</span>
+                </div>
+                <div className="relative inline-block w-10 h-5 align-middle select-none transition duration-200 ease-in">
+                  <input
+                    type="checkbox"
+                    onChange={(e) => {
+                      onUpdateUser({
+                        ...user,
+                        showInRanking: e.target.checked
+                      });
+                    }}
+                    checked={user.showInRanking !== false} // Default true
+                    className="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer checked:right-0 right-5"
+                  />
+                  <label className="toggle-label block overflow-hidden h-5 rounded-full bg-slate-800 cursor-pointer checked:bg-blue-600"></label>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between p-4 bg-blue-600/10 border border-blue-500/20">
+                <div className="flex items-center space-x-3">
                   <Icons.User className="w-4 h-4 text-blue-500" />
                   <span className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">FaceID / Biometria</span>
                 </div>
@@ -308,74 +509,73 @@ const Profile: React.FC<ProfileProps> = ({ user, onLogout, onUpdateUser, onGoTim
 
           <div className="flex-1 p-8 space-y-12 pb-32">
 
-            {/* Main Stats Grid */}
+            {/* Main Stats Grid - Apple Health Style Cards */}
             <div className="grid grid-cols-2 gap-4">
-              <div className="p-6 bg-white dark:bg-ocean/50 border border-slate-200 dark:border-white/10 space-y-2 relative overflow-hidden group">
-                <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-20 transition-opacity">
-                  <Icons.TrendingUp className="w-8 h-8 text-blue-500" />
+              <div className="p-6 bg-white dark:bg-ocean/30 border border-slate-200 dark:border-white/5 rounded-2xl shadow-sm space-y-3">
+                <div className="flex items-center space-x-2 text-pg-cobalt">
+                  <Icons.TrendingUp className="w-4 h-4" />
+                  <p className="text-[9px] font-bold uppercase tracking-widest">Peso Corporal</p>
                 </div>
-                <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Peso Atual</p>
                 <div className="flex items-baseline space-x-1">
-                  <h4 className="text-4xl font-bold text-slate-900 dark:text-white tracking-tighter">{bioData.current.weight}</h4>
-                  <span className="text-xs font-bold text-slate-600">kg</span>
+                  <h4 className="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">{bioData.current.weight}</h4>
+                  <span className="text-xs font-bold text-slate-400">kg</span>
                 </div>
-                <div className="flex items-center text-[9px] font-bold text-green-500 uppercase tracking-wider">
-                  <span className="mr-1">▼</span>
-                  {(bioData.previous.weight - bioData.current.weight).toFixed(1)}kg vs anterior
+                <div className="flex items-center text-[9px] font-bold text-green-500 uppercase bg-green-500/10 px-2 py-1 rounded-full w-fit">
+                  <span className="mr-1">↓</span>
+                  {(bioData.previous.weight - bioData.current.weight).toFixed(1)} kg
                 </div>
               </div>
 
-              <div className="p-6 bg-white dark:bg-ocean/50 border border-slate-200 dark:border-white/10 space-y-2 relative overflow-hidden group">
-                <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-20 transition-opacity">
-                  <Icons.Activity className="w-8 h-8 text-red-500" />
+              <div className="p-6 bg-white dark:bg-ocean/30 border border-slate-200 dark:border-white/5 rounded-2xl shadow-sm space-y-3">
+                <div className="flex items-center space-x-2 text-red-500">
+                  <Icons.Activity className="w-4 h-4" />
+                  <p className="text-[9px] font-bold uppercase tracking-widest">Gordura</p>
                 </div>
-                <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Gordura Corporal</p>
                 <div className="flex items-baseline space-x-1">
-                  <h4 className="text-4xl font-bold text-slate-900 dark:text-white tracking-tighter">{bioData.current.fat}</h4>
-                  <span className="text-xs font-bold text-slate-600">%</span>
+                  <h4 className="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">{bioData.current.fat}</h4>
+                  <span className="text-xs font-bold text-slate-400">%</span>
                 </div>
-                <div className="flex items-center text-[9px] font-bold text-green-500 uppercase tracking-wider">
-                  <span className="mr-1">▼</span>
-                  {(bioData.previous.fat - bioData.current.fat).toFixed(1)}% vs anterior
+                <div className="flex items-center text-[9px] font-bold text-green-500 uppercase bg-green-500/10 px-2 py-1 rounded-full w-fit">
+                  <span className="mr-1">↓</span>
+                  {(bioData.previous.fat - bioData.current.fat).toFixed(1)}%
                 </div>
               </div>
 
-              <div className="p-6 bg-white dark:bg-ocean/50 border border-slate-200 dark:border-white/10 space-y-2 col-span-2">
-                <div className="flex justify-between items-center mb-4">
-                  <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Composição Corporal</p>
-                  <span className="text-[9px] font-bold text-blue-500 uppercase tracking-widest">Bioimpedância Tetrapolar</span>
+              <div className="p-6 bg-white dark:bg-ocean/30 border border-slate-200 dark:border-white/5 rounded-2xl shadow-sm col-span-2 space-y-6">
+                <div className="flex justify-between items-center">
+                  <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Composição de Tecidos</p>
+                  <Icons.Info className="w-4 h-4 text-slate-300" />
                 </div>
 
-                {/* Visual Bar for Body Comp */}
                 <div className="space-y-6">
                   <div>
-                    <div className="flex justify-between text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
-                      <span>Massa Muscular</span>
+                    <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider mb-2">
+                      <span className="text-slate-500">Massa Muscular</span>
                       <span className="text-slate-900 dark:text-white">{bioData.current.muscle} kg</span>
                     </div>
-                    <div className="w-full h-2 bg-slate-200 dark:bg-white/5 rounded-full overflow-hidden">
-                      <div className="h-full bg-blue-600 w-[55%] shadow-[0_0_10px_#2563EB]"></div>
+                    <div className="w-full h-3 bg-slate-100 dark:bg-white/5 rounded-full overflow-hidden">
+                      <div className="h-full bg-pg-cobalt rounded-full" style={{ width: '65%' }}></div>
                     </div>
                   </div>
                   <div>
-                    <div className="flex justify-between text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
-                      <span>Massa Gorda</span>
+                    <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider mb-2">
+                      <span className="text-slate-500">Massa Gorda</span>
                       <span className="text-slate-900 dark:text-white">{(bioData.current.weight * (bioData.current.fat / 100)).toFixed(1)} kg</span>
                     </div>
-                    <div className="w-full h-2 bg-slate-200 dark:bg-white/5 rounded-full overflow-hidden">
-                      <div className="h-full bg-yellow-500 w-[18%]"></div>
+                    <div className="w-full h-3 bg-slate-100 dark:bg-white/5 rounded-full overflow-hidden">
+                      <div className="h-full bg-yellow-500 rounded-full" style={{ width: '25%' }}></div>
                     </div>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 mt-6 pt-6 border-t border-white/5">
+                <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-100 dark:border-white/5">
                   <div>
-                    <p className="text-[8px] font-bold text-slate-600 uppercase tracking-widest">Gordura Visceral</p>
-                    <p className="text-xl font-bold text-slate-900 dark:text-white mt-1">{bioData.current.visceral} <span className="text-[9px] text-green-500">Nível Ótimo</span></p>
+                    <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Gordura Visceral</p>
+                    <p className="text-lg font-bold text-slate-900 dark:text-white mt-1">Nível {bioData.current.visceral}</p>
                   </div>
                   <div>
-                    <p className="text-[8px] font-bold text-slate-600 uppercase tracking-widest">Idade Metabólica</p>
-                    <p className="text-xl font-bold text-slate-900 dark:text-white mt-1">{bioData.current.metaAge} <span className="text-[9px] text-slate-500">Anos</span></p>
+                    <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Metabolismo</p>
+                    <p className="text-lg font-bold text-slate-900 dark:text-white mt-1">{bioData.current.metaAge} anos</p>
                   </div>
                 </div>
               </div>

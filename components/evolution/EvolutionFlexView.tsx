@@ -55,7 +55,7 @@ export const EvolutionFlexView: React.FC<EvolutionFlexViewProps> = ({ user }) =>
                             <span className="text-xl font-black text-amber-500 leading-none">
                                 {Math.round(74 + Math.min((user.stats?.totalSessions || 1) * 1.1, 20))}
                             </span>
-                            <span className="text-[8px] font-bold text-amber-500/80 uppercase tracking-widest mt-0.5">Score</span>
+                            <span className="text-[8px] font-bold text-amber-500/80 uppercase tracking-widest mt-0.5">Desempenho</span>
                         </div>
                     </div>
                 </div>

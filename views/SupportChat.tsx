@@ -33,7 +33,7 @@ const faqData = [
     {
         category: '🔑 Conta & Acesso',
         items: [
-            { q: 'Como fazer check-in na academia?', a: 'Na Home, toque em "Check-in" e escaneie o QR code da recepção. O check-in só funciona durante o horário de funcionamento.' },
+            { q: 'Como registrar minha chegada na academia?', a: 'Na Home, toque em "Registrar Chegada" e escaneie o QR code da recepção. O registro só funciona durante o horário de funcionamento.' },
             { q: 'Como trancar minha matrícula?', a: 'Acesse Administrativo → Trancamento. Anexe o documento comprobatório e descreva o motivo.' },
             { q: 'Como enviar atestado médico?', a: 'Acesse Administrativo → Atestado Médico. Faça upload da imagem ou PDF do atestado.' },
         ]

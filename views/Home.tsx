@@ -20,6 +20,7 @@ interface HomeProps {
   onGoRanking?: () => void;
   onGoWearables?: () => void;
   onGoExplore?: () => void;
+  onGoComunidade?: () => void;
 }
 
 const Home: React.FC<HomeProps> = ({
@@ -36,7 +37,8 @@ const Home: React.FC<HomeProps> = ({
   onGoSupport,
   onGoRanking,
   onGoWearables,
-  onGoExplore
+  onGoExplore,
+  onGoComunidade
 }) => {
   const [protocol, setProtocol] = useState<Protocol | null>(null);
   const [loadingProtocol, setLoadingProtocol] = useState(false);

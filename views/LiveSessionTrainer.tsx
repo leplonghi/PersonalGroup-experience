@@ -109,9 +109,10 @@ export default function LiveSessionTrainer() {
                     <div className="flex justify-between items-end">
                         <span className="text-[10px] font-bold text-app-muted uppercase tracking-widest">Progresso Total</span>
                         <div className="text-xl font-black text-app">
+                        <div className="text-xl font-black text-app">
                             <span className="text-cobalt">{doneSets}</span>
-                            <span className="text-app-muted text-sm mx-1">/</span>
-                            <span className="text-sm">{totalSets} sets</span>
+                            <span className="text-app-muted text-sm mx-1">de</span>
+                            <span className="text-sm">{totalSets} concluídos</span>
                         </div>
                     </div>
                     <div className="w-full h-2 bg-surface rounded-full overflow-hidden border border-app">
@@ -146,7 +147,7 @@ export default function LiveSessionTrainer() {
                                     {ex.name || ex.nome || `Exercício ${idx + 1}`}
                                 </h2>
                                 <span className={`text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider ${isAllDone ? 'bg-green-500/10 text-green-500' : 'bg-surface text-app-muted'}`}>
-                                    {done}/{target} sets
+                                    {done} de {target} concluídos
                                 </span>
                             </div>
 
@@ -171,7 +172,7 @@ export default function LiveSessionTrainer() {
                                                     <span className="text-[8px] font-black uppercase tracking-widest text-green-500/70">KG</span>
                                                 </>
                                             ) : (
-                                                <span className="text-sm font-black uppercase tracking-widest">+ Set</span>
+                                                <span className="text-sm font-black uppercase tracking-widest">+ Série</span>
                                             )}
                                         </button>
                                     );
@@ -249,7 +250,7 @@ export default function LiveSessionTrainer() {
                                 onClick={handleConfirmWeight}
                                 className="flex-1 py-4 rounded-xl bg-cobalt text-white font-black text-xs uppercase tracking-wider shadow-[0_5px_20px_rgba(37,99,235,0.4)] hover:bg-sky active:scale-95 transition-all text-center flex items-center justify-center space-x-2"
                             >
-                                <span>Salvar Set</span>
+                                <span>Salvar Série</span>
                             </button>
                         </div>
                     </div>
@@ -342,6 +343,7 @@ export default function LiveSessionTrainer() {
                     </div>
                 </div>
             )}
+        </div>
         </div>
     );
 }

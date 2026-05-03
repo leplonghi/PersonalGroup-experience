@@ -41,3 +41,4 @@ export const gymConfigCol = collection(db, "config");
 export const adminLogsCol = collection(db, "admin_logs");
 // Live session state (staff-synced, used by ActiveSession component)
 export const liveSessionsCol = collection(db, "active_sessions");
+export const importacoesCol = collection(db, "importacoes");

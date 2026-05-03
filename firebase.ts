@@ -6,3 +6,5 @@ export * from "./services/userService";
 export * from "./services/protocolService";
 export * from "./services/sessionService";
 export * from "./services/adminService";
+export * from "./services/muralService";
+

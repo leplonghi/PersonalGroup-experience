@@ -12,6 +12,7 @@ import { StaffDetailView } from '../components/management/StaffDetailView';
 import { getStudentsPaginated } from '../services/userService';
 import { useActionQueue } from '../hooks/useActionQueue';
 import { logAdminAction } from '../services/adminService';
+import { getRecentObservationsGlobal } from '../services/sessionService';
 
 interface ManagementProps {
   user: User;
@@ -28,16 +29,17 @@ const Management: React.FC<ManagementProps> = ({ user, onEditProtocol, onStartAs
   const [students, setStudents] = useState<User[]>([]);
   const [protocols, setProtocols] = useState<Protocol[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'DASHBOARD' | 'ALUNOS' | 'EQUIPE' | 'PROTOCOLOS'>(
-    user.role === UserRole.PERSONAL ? 'ALUNOS' : 'DASHBOARD'
+  const [activeTab, setActiveTab] = useState<'PAINEL' | 'ALUNOS' | 'EQUIPE' | 'PROTOCOLOS'>(
+    user.role === UserRole.PERSONAL ? 'ALUNOS' : 'PAINEL'
   );
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStudentView, setSelectedStudentView] = useState<User | null>(null);
   const [staffList, setStaffList] = useState<User[]>([]);
   const [showStaffReg, setShowStaffReg] = useState(false);
   const [selectedStaff, setSelectedStaff] = useState<User | null>(null);
-  const [lastVisible, setLastVisible] = useState<any>(null);
   const [hasMore, setHasMore] = useState(true);
+  const [lastVisible, setLastVisible] = useState<any>(null);
+  const [recentObservations, setRecentObservations] = useState<any[]>([]);
   const { isOffline, queue, addToQueue, processQueue } = useActionQueue();
 
   const filteredStudents = students.filter(s =>
@@ -50,16 +52,18 @@ const Management: React.FC<ManagementProps> = ({ user, onEditProtocol, onStartAs
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      const [protocolsData, studentsRes, staffData] = await Promise.all([
+      const [protocolsData, studentsRes, staffData, obsData] = await Promise.all([
         getProtocols(),
         getStudentsPaginated(),
-        getStaff()
+        getStaff(),
+        getRecentObservationsGlobal(5)
       ]);
       setProtocols(protocolsData);
       setStudents(studentsRes.students);
       setLastVisible(studentsRes.lastVisible);
       setHasMore(studentsRes.students.length === 50);
       setStaffList(staffData);
+      setRecentObservations(obsData);
     } catch (e) {
       console.error(e);
     } finally {
@@ -240,7 +244,7 @@ const Management: React.FC<ManagementProps> = ({ user, onEditProtocol, onStartAs
                     </div>
                     <p className="text-[9px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-widest mt-2 flex items-center">
                       <span className={`w-1.5 h-1.5 rounded-full mr-2 ${student.isCheckedIn ? 'bg-emerald-500' : 'bg-slate-500 opacity-30'}`}></span>
-                      {student.isCheckedIn ? 'Treinando Agora' : 'Offline'} • {student.currentCycle ? student.currentCycle.name : 'Sem ciclo'}
+                      {student.isCheckedIn ? 'Treinando Agora' : 'Offline'} • {student.currentCycle ? `Protocolo: ${student.currentCycle.name}` : 'Sem protocolo definido'}
                     </p>
                   </div>
                 </div>
@@ -265,6 +269,49 @@ const Management: React.FC<ManagementProps> = ({ user, onEditProtocol, onStartAs
           })}
         </div>
       </section>
+      <section className="space-y-6">
+        <div className="flex justify-between items-end px-2">
+          <div className="border-l-4 border-amber-500 pl-4">
+            <h4 className="text-[10px] font-bold text-slate-600 uppercase tracking-[0.3em] mb-1 leading-none">Feedback Técnico</h4>
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white uppercase tracking-tight leading-none">Últimas Observações</h3>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          {recentObservations.length > 0 ? (
+            recentObservations.map((session, idx) => {
+              const student = students.find(s => s.id === session.userId);
+              return (
+                <div key={session.id} className="bg-white dark:bg-white/5 border border-slate-200 dark:border-white/5 p-6 rounded-[32px] transition-all hover:border-amber-500/30">
+                  <div className="flex items-center space-x-4 mb-4">
+                    <img 
+                      src={student?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${session.userId}`} 
+                      className="w-10 h-10 rounded-full border border-slate-200 dark:border-white/10"
+                      alt="Student"
+                    />
+                    <div>
+                      <p className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-tight">{student?.name || 'Aluno'}</p>
+                      <p className="text-[8px] font-bold text-slate-500 uppercase tracking-widest">{session.timestamp?.toDate ? session.timestamp.toDate().toLocaleDateString('pt-BR') : 'Hoje'}</p>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    {session.observacoes.map((obs: any) => (
+                      <div key={obs.id} className="pl-4 border-l-2 border-amber-500/30">
+                        <p className="text-xs text-slate-700 dark:text-slate-300 italic">"{obs.texto}"</p>
+                        <p className="text-[8px] font-black text-amber-500 uppercase mt-1 tracking-widest">— {obs.trainerNome}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })
+          ) : (
+            <div className="py-10 text-center bg-white/5 border border-dashed border-slate-200 dark:border-white/5">
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Nenhuma observação recente</p>
+            </div>
+          )}
+        </div>
+      </section>
 
       {/* PERFORMANCE DE PISTA - SHARP OBSIDIAN */}
       <section className="space-y-6">
@@ -273,12 +320,9 @@ const Management: React.FC<ManagementProps> = ({ user, onEditProtocol, onStartAs
             <h4 className="text-[10px] font-bold text-slate-600 uppercase tracking-[0.3em] mb-1 leading-none">Frequência</h4>
             <h3 className="text-xl font-bold text-slate-900 dark:text-white uppercase tracking-tight leading-none">Atividade Geral</h3>
           </div>
-          <button className="text-[10px] font-bold text-blue-500 uppercase tracking-widest flex items-center hover:translate-x-2 transition-transform">
-            Detalhes <Icons.ChevronRight className="ml-2 w-4 h-4" />
-          </button>
         </div>
 
-        <div className="bg-white border border-slate-200 dark:bg-white/5 dark:border-white/5 p-10">
+        <div className="bg-white border border-slate-200 dark:bg-white/5 dark:border-white/5 p-10 rounded-[40px]">
           <div className="grid grid-cols-2 gap-10 mb-12 border-b border-slate-200 dark:border-white/5 pb-12">
             <div className="text-center">
               <h5 className="text-4xl font-bold text-blue-600 leading-none tabular-nums">
@@ -298,13 +342,13 @@ const Management: React.FC<ManagementProps> = ({ user, onEditProtocol, onStartAs
             {[30, 45, 60, 50, 80, 100, onlineStudents.length * 10].map((h, i) => (
               <div key={i} className="flex-1 flex flex-col items-center">
                 <div
-                  className={`w-full transition-all duration-700 ${i === 6 ? 'bg-emerald-500 shadow-[0_0_20px_#10B981]' : (i === 5 ? 'bg-blue-600' : 'bg-slate-200 dark:bg-white/5')}`}
+                  className={`w-full transition-all duration-700 rounded-t-lg ${i === 6 ? 'bg-emerald-500 shadow-[0_0_20px_#10B981]' : (i === 5 ? 'bg-blue-600' : 'bg-slate-200 dark:bg-white/5')}`}
                   style={{ height: `${Math.max(5, h)}%` }}
                 ></div>
               </div>
             ))}
           </div>
-          <p className="text-[9px] font-bold text-slate-800 uppercase text-center tracking-[0.4em] mt-10">Frequência Semanal do Studio</p>
+          <p className="text-[9px] font-bold text-slate-500 uppercase text-center tracking-[0.4em] mt-10">Monitoramento Semanal de Fluxo</p>
         </div>
       </section>
 
@@ -344,7 +388,7 @@ const Management: React.FC<ManagementProps> = ({ user, onEditProtocol, onStartAs
         )}
         {/* NAV TABS */}
         <div className="flex space-x-6 px-6 mb-4 border-b border-slate-200 dark:border-white/5 overflow-x-auto no-scrollbar">
-          {['DASHBOARD', 'ALUNOS', 'EQUIPE', 'PROTOCOLOS']
+          {['PAINEL', 'ALUNOS', 'EQUIPE', 'PROTOCOLOS']
             .filter(tab => {
               if (user.role === UserRole.PERSONAL) {
                 return tab === 'ALUNOS';
@@ -363,7 +407,7 @@ const Management: React.FC<ManagementProps> = ({ user, onEditProtocol, onStartAs
             ))}
         </div>
 
-        {activeTab === 'DASHBOARD' && renderDashboardChefe()}
+        {activeTab === 'PAINEL' && renderDashboardChefe()}
         {activeTab === 'ALUNOS' && (
           <div className="p-6 space-y-4">
             <header className="border-l-4 border-emerald-500 pl-4 mb-6">

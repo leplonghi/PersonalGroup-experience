@@ -45,7 +45,7 @@ const HealthPortfolio: React.FC<HealthPortfolioProps> = ({ user, onBack }) => {
                     
                     <div className="relative z-10 flex items-center justify-between">
                         <div className="space-y-2">
-                            <p className="text-[10px] font-black text-white/60 uppercase tracking-widest">Score de Vitalidade</p>
+                            <p className="text-[10px] font-black text-white/60 uppercase tracking-widest">Desempenho de Vitalidade</p>
                             <div className="flex items-baseline space-x-1.5">
                                 <span className="text-5xl font-black text-white tracking-tighter italic">94</span>
                                 <span className="text-[10px] font-bold text-white/60">/ 100</span>

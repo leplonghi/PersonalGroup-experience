@@ -94,7 +94,7 @@ export default function LiveSessionStudent() {
             <div className="mb-10 bg-ocean/30 p-4 rounded-xl border border-slate-700/50">
                 <div className="flex justify-between items-end mb-3">
                     <span className="text-slate-300 font-medium">Progresso do Treino</span>
-                    <span className="text-xl font-bold text-cobalt">{doneSets} <span className="text-sm text-slate-500 font-normal">/ {totalSets} sets</span></span>
+                    <span className="text-xl font-bold text-cobalt">{doneSets} <span className="text-sm text-slate-500 font-normal">de {totalSets} concluídos</span></span>
                 </div>
                 <div className="h-4 w-full bg-slate-800/80 rounded-full overflow-hidden border border-slate-700">
                     <div
@@ -148,7 +148,7 @@ export default function LiveSessionStudent() {
                                             key={sIdx}
                                             className="bg-ocean px-3 py-2 rounded-lg whitespace-nowrap text-sm flex items-center space-x-2 border border-slate-700/50"
                                         >
-                                            <span className="text-slate-400">Set {sIdx + 1}:</span>
+                                            <span className="text-slate-400">Série {sIdx + 1}:</span>
                                             <span className="font-bold text-cobalt text-base">{set.carga}kg</span>
                                         </div>
                                     ))}

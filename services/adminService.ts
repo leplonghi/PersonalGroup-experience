@@ -1,6 +1,6 @@
 import { doc, getDoc, addDoc, updateDoc, serverTimestamp, query, where, getDocs, orderBy, limit, increment, Timestamp } from "firebase/firestore";
-import { db, timelineCol, mensagensCol, checkInsCol, adminRequestsCol, evolutionCol, usersCol, adminLogsCol } from "./firebaseCore";
-import { TimelineEntry, AppMessage, MessageType, GymConfig, CheckInRecord, FrequencyReport, AdminRequest, EvolutionEntry, User } from "../types";
+import { db, timelineCol, mensagensCol, checkInsCol, adminRequestsCol, evolutionCol, usersCol, adminLogsCol, importacoesCol } from "./firebaseCore";
+import { TimelineEntry, AppMessage, MessageType, GymConfig, CheckInRecord, FrequencyReport, AdminRequest, EvolutionEntry, User, UserRole, ImportacaoAluno, LogImportacao, ImportConflict } from "../types";
 import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
 import { storage } from "./firebaseCore";
 
@@ -276,5 +276,207 @@ export const logAdminAction = async (
         });
     } catch (e) {
         console.error("Erro ao registrar ação administrativa:", e);
+    }
+};
+
+/**
+ * Validates CPF format and digits (simple version)
+ */
+const isValidCPF = (cpf: string): boolean => {
+    const clean = cpf.replace(/\D/g, '');
+    if (clean.length !== 11) return false;
+    if (/^(\d)\1+$/.test(clean)) return false;
+    // Simple length check for now, can be expanded if needed
+    return true;
+};
+
+export const detectImportConflicts = async (students: any[]): Promise<ImportConflict[]> => {
+    const conflicts: ImportConflict[] = [];
+
+    for (let i = 0; i < students.length; i++) {
+        const s = students[i];
+        const email = s.email?.trim().toLowerCase();
+        const cpf = s.cpf?.toString().replace(/\D/g, '') || '';
+
+        if (!email && !cpf) continue;
+
+        // Search for existing user
+        let existingUser: User | null = null;
+        
+        if (email) {
+            const q = query(usersCol, where("email", "==", email));
+            const snap = await getDocs(q);
+            if (!snap.empty) existingUser = { id: snap.docs[0].id, ...snap.docs[0].data() } as User;
+        }
+
+        if (!existingUser && cpf) {
+            const q = query(usersCol, where("cpf", "==", cpf));
+            const snap = await getDocs(q);
+            if (!snap.empty) existingUser = { id: snap.docs[0].id, ...snap.docs[0].data() } as User;
+        }
+
+        if (existingUser) {
+            const differences: ImportConflict['differences'] = [];
+            const newUserData: any = {};
+
+            // Compare specific fields
+            const fieldsToCompare = [
+                { key: 'name', label: 'Nome', val: s.nomeCompleto },
+                { key: 'plan.type', label: 'Tipo do Plano', val: s.plano?.toUpperCase() },
+                { key: 'plan.renewalDate', label: 'Vencimento', val: s.dataVencimento },
+            ];
+
+            fieldsToCompare.forEach(f => {
+                let oldVal: any;
+                if (f.key.includes('.')) {
+                    const keys = f.key.split('.');
+                    oldVal = (existingUser as any)[keys[0]]?.[keys[1]];
+                } else {
+                    oldVal = (existingUser as any)[f.key];
+                }
+
+                if (f.val && f.val !== oldVal) {
+                    differences.push({ field: f.label, oldValue: oldVal || 'Não definido', newValue: f.val });
+                    newUserData[f.key] = f.val;
+                }
+            });
+
+            if (differences.length > 0) {
+                conflicts.push({
+                    index: i,
+                    existingUser,
+                    newUserData,
+                    differences
+                });
+            }
+        }
+    }
+
+    return conflicts;
+};
+
+export const importStudents = async (
+    adminId: string,
+    students: any[],
+    filename: string,
+    authorizedMerges: Record<number, boolean> = {}
+): Promise<LogImportacao> => {
+    const log: Omit<LogImportacao, 'id'> = {
+        arquivo: filename,
+        totalLinhas: students.length,
+        importadosComSucesso: 0,
+        mesclados: 0,
+        erros: [],
+        realizadoEm: new Date(),
+        realizadoPor: adminId
+    };
+
+    for (let i = 0; i < students.length; i++) {
+        const s = students[i];
+        try {
+            const nome = s.nomeCompleto?.trim();
+            const email = s.email?.trim().toLowerCase();
+            const cpfRaw = s.cpf?.toString() || '';
+            const cpf = cpfRaw.replace(/\D/g, '');
+
+            if (!nome) throw new Error("Nome completo é obrigatório");
+            if (!email || !email.includes('@')) throw new Error("E-mail inválido ou ausente");
+            if (!cpf) throw new Error("CPF é obrigatório");
+            if (!isValidCPF(cpf)) throw new Error(`CPF inválido: ${cpfRaw}`);
+
+            // Check uniqueness
+            const emailQuery = query(usersCol, where("email", "==", email));
+            const emailSnap = await getDocs(emailQuery);
+            
+            const cpfQuery = query(usersCol, where("cpf", "==", cpf));
+            const cpfSnap = await getDocs(cpfQuery);
+
+            const existingDoc = !emailSnap.empty ? emailSnap.docs[0] : (!cpfSnap.empty ? cpfSnap.docs[0] : null);
+
+            if (existingDoc) {
+                if (authorizedMerges[i]) {
+                    // Update existing
+                    const updateData: any = {};
+                    if (s.nomeCompleto) updateData.name = s.nomeCompleto;
+                    if (s.plano || s.dataVencimento) {
+                        const currentPlan = existingDoc.data().plan || {};
+                        updateData.plan = {
+                            ...currentPlan,
+                            type: (s.plano || currentPlan.type || 'GOLD').toUpperCase(),
+                            renewalDate: s.dataVencimento || currentPlan.renewalDate || ""
+                        };
+                    }
+                    await updateDoc(doc(db, "users", existingDoc.id), updateData);
+                    
+                    const details = `Dados mesclados via importação (${filename}): ` + 
+                        Object.keys(updateData).map(k => `${k}`).join(', ');
+
+                    await logAdminAction(adminId, existingDoc.id, 'IMPORT_MERGE', details);
+                    
+                    // Adicionar uma notificação interna para o aluno saber que dados foram atualizados
+                    await triggerSystemAlert(
+                        existingDoc.id, 
+                        'Cadastro Atualizado', 
+                        'Seus dados de plano e cadastro foram atualizados via sincronização administrativa.',
+                        'INSTITUTIONAL'
+                    );
+
+                    log.mesclados!++;
+                    continue;
+                } else {
+                    throw new Error(`Conflito: ${!emailSnap.empty ? 'E-mail' : 'CPF'} já cadastrado e não autorizado para mesclagem.`);
+                }
+            }
+
+            // Provisioning
+            const defaultPass = cpf.substring(0, 6);
+            
+            const newUser: any = {
+                name: nome,
+                email: email,
+                cpf: cpf,
+                role: UserRole.ALUNO,
+                avatar: "",
+                healthStatus: 'NORMAL',
+                plan: {
+                    type: (s.plano || 'GOLD').toUpperCase(),
+                    name: s.plano || 'Plano Padrão',
+                    renewalDate: s.dataVencimento || "",
+                    status: 'ACTIVE',
+                    price: '0,00'
+                },
+                importacaoId: 'pending_auth', 
+                tempPassword: defaultPass,
+                createdAt: serverTimestamp(),
+                unit: "Personal Group Exclusive"
+            };
+
+            await addDoc(usersCol, newUser);
+            log.importadosComSucesso++;
+        } catch (err: any) {
+            log.erros.push({ linha: i + 1, motivo: err.message });
+        }
+    }
+
+    const docRef = await addDoc(importacoesCol, {
+        ...log,
+        realizadoEm: serverTimestamp()
+    });
+
+    return { id: docRef.id, ...log } as LogImportacao;
+};
+
+export const getImportationLogs = async (): Promise<LogImportacao[]> => {
+    try {
+        const q = query(importacoesCol, orderBy("realizadoEm", "desc"), limit(20));
+        const snap = await getDocs(q);
+        return snap.docs.map(d => ({
+            id: d.id,
+            ...d.data(),
+            realizadoEm: d.data().realizadoEm?.toDate() || new Date()
+        } as LogImportacao));
+    } catch (error) {
+        console.error("Erro ao buscar logs de importação:", error);
+        return [];
     }
 };

@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PersonalGroup App — Blueprint Completo v2</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  /* ──────────────────────────────────────────
+     DESIGN TOKENS — PersonalGroup Brand
+     ────────────────────────────────────────── */
+  :root {
+    --pg-navy:       #021141;
+    --pg-blue:       #3363a2;
+    --pg-cyan:       #00b6fd;
+    --pg-cyan-light: #e0f6ff;
+    --pg-cyan-mid:   #b3e9ff;
+    --text-main:     #021141;
+    --text-body:     #323232;
+    --text-muted:    #7a8ba5;
+    --surface:       #ffffff;
+    --surface-2:     #f8f9fb;
+    --surface-3:     #eef2f7;
+    --border:        #dde4ef;
+    --success:       #10b981;
+    --warning:       #f59e0b;
+    --danger:        #ef4444;
+    --purple:        #7c3aed;
+    --radius:        14px;
+    --radius-sm:     8px;
+    --shadow:        0 1px 4px rgba(2,17,65,0.08), 0 4px 16px rgba(2,17,65,0.06);
+    --shadow-lg:     0 8px 32px rgba(2,17,65,0.14);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Montserrat', -apple-system, sans-serif;
+    background: var(--surface-2);
+    color: var(--text-main);
+    line-height: 1.6;
+    font-size: 14px;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: linear-gradient(135deg, var(--pg-navy) 0%, var(--pg-blue) 65%, var(--pg-cyan) 100%);
+    padding: 52px 40px 44px;
+    color: white;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before { content:''; position:absolute; top:-60px; right:-60px; width:320px; height:320px; border-radius:50%; background:rgba(255,255,255,0.04); }
+  .header::after  { content:''; position:absolute; bottom:-80px; left:160px; width:220px; height:220px; border-radius:50%; background:rgba(0,182,253,0.08); }
+  .header-inner { max-width:1260px; margin:0 auto; position:relative; z-index:1; }
+  .header-logo { display:flex; align-items:center; gap:12px; margin-bottom:20px; }
+  .header-logo-mark { width:44px; height:44px; background:var(--pg-cyan); border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:22px; }
+  .header-logo span { font-size:20px; font-weight:900; letter-spacing:-0.5px; }
+  .header-logo em { font-style:normal; color:var(--pg-cyan); }
+  .header h1 { font-size:38px; font-weight:900; letter-spacing:-1px; margin-bottom:10px; line-height:1.15; }
+  .header h1 span { color:var(--pg-cyan); }
+  .header p { font-size:15px; opacity:0.82; max-width:640px; font-weight:500; }
+  .header-chips { display:flex; flex-wrap:wrap; gap:10px; margin-top:24px; }
+  .chip { display:inline-flex; align-items:center; gap:5px; background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.22); border-radius:100px; padding:5px 14px; font-size:12px; font-weight:700; }
+
+  /* ── TABS ── */
+  .tabs-bar { background:white; border-bottom:2px solid var(--border); position:sticky; top:0; z-index:100; box-shadow:0 2px 12px rgba(2,17,65,0.08); }
+  .tabs { display:flex; max-width:1260px; margin:0 auto; padding:0 40px; overflow-x:auto; scrollbar-width:none; }
+  .tabs::-webkit-scrollbar { display:none; }
+  .tab { padding:15px 18px; font-size:13px; font-weight:700; color:var(--text-muted); cursor:pointer; border-bottom:3px solid transparent; white-space:nowrap; transition:all .2s; user-select:none; font-family:'Montserrat',sans-serif; }
+  .tab:hover { color:var(--pg-blue); }
+  .tab.active { color:var(--pg-navy); border-bottom-color:var(--pg-cyan); }
+
+  /* ── CONTENT ── */
+  .content { max-width:1260px; margin:0 auto; padding:40px; }
+  .section { display:none; animation:fadeIn .25s ease; }
+  .section.active { display:block; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+
+  /* ── CARDS ── */
+  .card { background:white; border-radius:var(--radius); border:1px solid var(--border); padding:28px; box-shadow:var(--shadow); margin-bottom:20px; }
+  .card-sm { background:white; border-radius:var(--radius-sm); border:1px solid var(--border); padding:18px; }
+  .card-title { font-size:17px; font-weight:800; color:var(--pg-navy); margin-bottom:5px; display:flex; align-items:center; gap:9px; }
+  .card-sub { font-size:12px; color:var(--text-muted); margin-bottom:18px; font-weight:500; }
+  .card-accent-navy { border-left:4px solid var(--pg-navy); }
+  .card-accent-cyan { border-left:4px solid var(--pg-cyan); }
+  .card-accent-blue { border-left:4px solid var(--pg-blue); }
+
+  /* ── GRID ── */
+  .g2 { display:grid; grid-template-columns:repeat(2,1fr); gap:20px; }
+  .g3 { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; }
+  .g4 { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
+  @media(max-width:1000px){ .g3,.g4 { grid-template-columns:repeat(2,1fr); } }
+  @media(max-width:700px){ .g2,.g3,.g4 { grid-template-columns:1fr; } }
+
+  /* ── BADGES ── */
+  .badge { display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:100px; font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.4px; }
+  .b-cyan   { background:var(--pg-cyan-light); color:#005f8a; }
+  .b-navy   { background:#e0e5f3; color:var(--pg-navy); }
+  .b-blue   { background:#dce8f7; color:var(--pg-blue); }
+  .b-green  { background:#d1fae5; color:#065f46; }
+  .b-orange { background:#fef3c7; color:#92400e; }
+  .b-purple { background:#ede9fe; color:#5b21b6; }
+  .b-red    { background:#fee2e2; color:#991b1b; }
+  .b-gray   { background:var(--surface-3); color:var(--text-muted); }
+
+  /* ── ROLE CARDS ── */
+  .role-card { border-radius:var(--radius); padding:22px; border:2px solid; }
+  .role-aluno    { border-color:var(--pg-cyan); background:linear-gradient(135deg,#f0fbff,#d6f3ff); }
+  .role-personal { border-color:var(--success); background:linear-gradient(135deg,#f0fdf4,#dcfce7); }
+  .role-coord    { border-color:var(--warning); background:linear-gradient(135deg,#fffbeb,#fef3c7); }
+  .role-admin    { border-color:var(--purple); background:linear-gradient(135deg,#faf5ff,#ede9fe); }
+  .role-icon { font-size:30px; margin-bottom:10px; }
+  .role-card h3 { font-size:15px; font-weight:900; margin-bottom:4px; }
+
+  /* ── NAV VISUALIZER ── */
+  .nav-demo { display:flex; gap:0; justify-content:center; align-items:flex-end; padding:28px 0 8px; }
+  .nav-item-demo { display:flex; flex-direction:column; align-items:center; gap:6px; padding:0 12px; }
+  .nav-item-demo.center { transform:translateY(-8px); }
+  .nav-icon-box { width:56px; height:56px; border-radius:16px; display:flex; align-items:center; justify-content:center; font-size:22px; }
+  .center .nav-icon-box { width:68px; height:68px; border-radius:20px; background:linear-gradient(135deg,var(--pg-navy),var(--pg-blue),var(--pg-cyan)); box-shadow:0 8px 24px rgba(0,182,253,.35); }
+  .nav-icon-box.ic-home  { background:#eef6ff; border:2px solid #b3d7ff; }
+  .nav-icon-box.ic-agenda{ background:#f0fdf4; border:2px solid #86efac; }
+  .nav-icon-box.ic-evol  { background:#fffbeb; border:2px solid #fcd34d; }
+  .nav-icon-box.ic-perfil{ background:#faf5ff; border:2px solid #c4b5fd; }
+  .nav-lbl { font-size:10px; font-weight:800; color:var(--text-muted); }
+  .center .nav-lbl { color:var(--pg-navy); font-size:11px; }
+
+  /* ── FEATURE ITEMS ── */
+  .fi-list { display:flex; flex-direction:column; gap:7px; }
+  .fi { display:flex; align-items:flex-start; gap:10px; padding:9px 12px; border-radius:var(--radius-sm); background:var(--surface-2); border:1px solid var(--border); transition:border-color .15s; }
+  .fi:hover { border-color:var(--pg-cyan); background:var(--pg-cyan-light); }
+  .fi-ico { font-size:15px; flex-shrink:0; margin-top:1px; }
+  .fi-txt { font-size:12.5px; color:var(--text-main); font-weight:600; }
+  .fi-desc { font-size:11px; color:var(--text-muted); margin-top:2px; font-weight:500; }
+  .tag-new { display:inline-flex; align-items:center; background:#fef3c7; color:#92400e; font-size:10px; font-weight:800; padding:1px 6px; border-radius:4px; margin-left:6px; }
+  .tag-innov { display:inline-flex; align-items:center; background:#ede9fe; color:#5b21b6; font-size:10px; font-weight:800; padding:1px 6px; border-radius:4px; margin-left:6px; }
+
+  /* ── SECTION HEADER ── */
+  .sh { margin-bottom:28px; }
+  .sh h2 { font-size:26px; font-weight:900; color:var(--pg-navy); margin-bottom:5px; letter-spacing:-.5px; }
+  .sh p { font-size:13px; color:var(--text-muted); font-weight:500; }
+
+  /* ── DIVIDER ── */
+  hr { border:none; border-top:1px solid var(--border); margin:24px 0; }
+
+  /* ── STEPS ── */
+  .steps { display:flex; flex-direction:column; gap:0; }
+  .step { display:flex; gap:14px; position:relative; }
+  .step:not(:last-child)::after { content:''; position:absolute; left:17px; top:38px; width:2px; height:calc(100% - 22px); background:var(--border); }
+  .step-num { width:36px; height:36px; border-radius:50%; background:var(--pg-navy); color:white; font-size:13px; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0; z-index:1; }
+  .step-body { padding:6px 0 22px; }
+  .step-ttl { font-size:13px; font-weight:800; color:var(--text-main); margin-bottom:3px; }
+  .step-dsc { font-size:12px; color:var(--text-muted); font-weight:500; }
+
+  /* ── TABLES ── */
+  table { width:100%; border-collapse:collapse; font-size:12.5px; }
+  thead th { background:var(--surface-3); padding:9px 14px; text-align:left; font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.5px; color:var(--text-muted); border-bottom:1px solid var(--border); }
+  tbody td { padding:11px 14px; border-bottom:1px solid var(--border); color:var(--text-body); vertical-align:top; font-weight:500; }
+  tbody tr:hover td { background:var(--surface-2); }
+  tbody tr:last-child td { border-bottom:none; }
+  .p-high { color:var(--danger); font-weight:800; font-size:11px; }
+  .p-med  { color:var(--warning); font-weight:800; font-size:11px; }
+  .p-low  { color:var(--success); font-weight:800; font-size:11px; }
+
+  /* ── INSIGHTS ── */
+  .insight { background:linear-gradient(135deg,#e8f4ff,#d6effd); border:1px solid #b3d7ff; border-radius:var(--radius-sm); padding:14px 18px; margin-bottom:16px; font-size:13px; color:var(--pg-navy); font-weight:500; }
+  .insight strong { font-weight:800; }
+  .alert-o { padding:12px 16px; border-radius:var(--radius-sm); font-size:13px; margin-bottom:14px; display:flex; gap:10px; background:#fffbeb; border:1px solid #fde68a; color:#92400e; font-weight:500; }
+  .alert-g { padding:12px 16px; border-radius:var(--radius-sm); font-size:13px; margin-bottom:14px; display:flex; gap:10px; background:#f0fdf4; border:1px solid #bbf7d0; color:#166534; font-weight:500; }
+  .alert-b { padding:12px 16px; border-radius:var(--radius-sm); font-size:13px; margin-bottom:14px; display:flex; gap:10px; background:#eff6ff; border:1px solid #bfdbfe; color:#1e40af; font-weight:500; }
+
+  /* ── HIGHLIGHT ── */
+  .hl { background:linear-gradient(135deg,var(--pg-navy),var(--pg-blue)); border-radius:var(--radius); padding:26px; color:white; margin-bottom:20px; }
+  .hl h3 { font-size:18px; font-weight:900; margin-bottom:6px; }
+  .hl p { font-size:13px; opacity:.78; font-weight:500; }
+
+  /* ── FLOW SCREEN ── */
+  .fscreen { background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius-sm); padding:14px; }
+  .fscreen h4 { font-size:12.5px; font-weight:800; color:var(--pg-navy); margin-bottom:9px; display:flex; align-items:center; gap:7px; }
+  .fscreen ul { list-style:none; display:flex; flex-direction:column; gap:4px; }
+  .fscreen li { font-size:11.5px; color:var(--text-body); padding:5px 8px; background:white; border-radius:5px; border:1px solid var(--border); display:flex; align-items:center; gap:6px; font-weight:500; }
+  .fscreen li::before { content:'→'; color:var(--pg-cyan); font-weight:900; }
+
+  /* ── COLOR SWATCHES ── */
+  .swatch { width:44px; height:44px; border-radius:10px; display:inline-block; box-shadow:var(--shadow); }
+  .color-row { display:flex; align-items:center; gap:14px; margin-bottom:14px; }
+  .color-name { font-weight:800; color:var(--text-main); font-size:13px; }
+  .color-hex  { color:var(--text-muted); font-family:monospace; font-size:12px; }
+
+  /* ── ROAD CARD ── */
+  .road-card { border-radius:var(--radius); padding:22px; border:1px solid var(--border); background:white; box-shadow:var(--shadow); margin-bottom:0; }
+
+  /* ── PERMISSION TABLE ── */
+  .perm-table { font-size:12px; }
+  .perm-table td:first-child { font-weight:700; color:var(--pg-navy); }
+  .check-y { color:var(--success); font-weight:900; font-size:16px; }
+  .check-n { color:var(--danger); font-weight:900; font-size:16px; }
+  .check-p { color:var(--warning); font-weight:900; font-size:16px; }
+
+  /* ── GAMIFICATION CARD ── */
+  .badge-card { border-radius:12px; padding:16px; text-align:center; border:1px solid var(--border); background:white; }
+  .badge-icon { font-size:36px; margin-bottom:8px; display:block; }
+  .badge-name { font-size:12px; font-weight:800; color:var(--pg-navy); }
+  .badge-desc { font-size:11px; color:var(--text-muted); margin-top:3px; font-weight:500; }
+  .badge-crit { font-size:10px; background:var(--pg-cyan-light); color:#005f8a; padding:2px 8px; border-radius:100px; margin-top:6px; display:inline-block; font-weight:700; }
+
+  /* ── DB IMPORT ── */
+  .db-step { display:flex; align-items:flex-start; gap:12px; padding:14px; background:var(--surface-2); border-radius:var(--radius-sm); border:1px solid var(--border); margin-bottom:8px; }
+  .db-step-num { min-width:28px; height:28px; border-radius:50%; background:var(--pg-cyan); color:white; font-size:12px; font-weight:800; display:flex; align-items:center; justify-content:center; }
+  .db-step-body h5 { font-size:13px; font-weight:800; color:var(--pg-navy); margin-bottom:3px; }
+  .db-step-body p { font-size:12px; color:var(--text-muted); font-weight:500; }
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════ HEADER ════════════════════════ -->
+<div class="header">
+  <div class="header-inner">
+    <div class="header-logo">
+      <div class="header-logo-mark">💪</div>
+      <span><em>Personal</em>Group — App Blueprint v2</span>
+    </div>
+    <h1>Arquitetura Completa<br><span>Wellness Experience App</span></h1>
+    <p>Estrutura de navegação, perfis, funcionalidades, integração de dados, gamificação, comunidade e UI — baseada na identidade real da academia.</p>
+    <div class="header-chips">
+      <span class="chip">🏋️ Academia Boutique · São Luís</span>
+      <span class="chip">👤 4 perfis de usuário</span>
+      <span class="chip">🎨 Montserrat · #021141 · #00b6fd</span>
+      <span class="chip">📅 Maio 2026</span>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════ TABS ════════════════════════ -->
+<div class="tabs-bar">
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('identidade')">🎨 Identidade PG</div>
+    <div class="tab" onclick="showTab('navegacao')">🧭 Navegação</div>
+    <div class="tab" onclick="showTab('aluno')">🎓 Aluno</div>
+    <div class="tab" onclick="showTab('comunidade')">💬 Chat & Comunidade</div>
+    <div class="tab" onclick="showTab('personal')">🏅 Personal Flex</div>
+    <div class="tab" onclick="showTab('perfis')">🔑 Perfis & Permissões</div>
+    <div class="tab" onclick="showTab('gamificacao')">🏆 Gamificação</div>
+    <div class="tab" onclick="showTab('banco')">🗄️ Banco de Dados</div>
+    <div class="tab" onclick="showTab('features')">✨ Features</div>
+    <div class="tab" onclick="showTab('ui')">💅 UI & Tipografia</div>
+    <div class="tab" onclick="showTab('roadmap')">🚀 Roadmap</div>
+  </div>
+</div>
+
+<div class="content">
+
+<!-- ══════════════ IDENTIDADE PG ══════════════ -->
+<div class="section active" id="identidade">
+  <div class="sh"><h2>Identidade Visual & Filosofia PersonalGroup</h2><p>Extraído diretamente do site oficial — base de todo o design system do app.</p></div>
+
+  <div class="insight"><strong>Academia Boutique desde 2010, pioneira em São Luís e no Maranhão.</strong> O conceito é "Wellness Experience" — um ambiente de saúde, entretenimento e inovação que cuida do corpo e da mente. O app deve respirar esse mesmo posicionamento premium, humano e científico.</div>
+
+  <div class="g2" style="margin-bottom:20px;">
+    <div class="card">
+      <div class="card-title">🎨 Paleta de Cores Oficial</div>
+      <div class="card-sub">Exatamente como usada no site personalgroup.com.br</div>
+      <div class="color-row"><div class="swatch" style="background:#021141;"></div><div><div class="color-name">Navy — Texto principal, Header, Footer</div><div class="color-hex">#021141 · Usado em 80% do texto e fundos escuros</div></div></div>
+      <div class="color-row"><div class="swatch" style="background:#3363a2;"></div><div><div class="color-name">Azul Médio — Títulos, hover</div><div class="color-hex">#3363a2 · Seções h2, botão hover</div></div></div>
+      <div class="color-row"><div class="swatch" style="background:#00b6fd;"></div><div><div class="color-name">Cyan — Botões CTA, destaques, links</div><div class="color-hex">#00b6fd · Cor de ação principal. Pill buttons.</div></div></div>
+      <div class="color-row"><div class="swatch" style="background:#f8f9fb;"></div><div><div class="color-name">Fundo Claro</div><div class="color-hex">#f8f9fb · Seções alternadas, backgrounds de card</div></div></div>
+      <div class="color-row"><div class="swatch" style="background:#0b1f4a;"></div><div><div class="color-name">Azul Cards Escuros</div><div class="color-hex">#0b1f4a · Cards de aulas coletivas</div></div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">🔡 Tipografia Oficial</div>
+      <div class="card-sub">Fonte: Montserrat (Google Fonts) — pesos 400 a 900</div>
+      <div style="margin-bottom:16px;">
+        <div style="font-size:32px;font-weight:900;letter-spacing:-1px;color:#021141;">Montserrat</div>
+        <div style="font-size:12px;color:var(--text-muted);font-weight:500;">Font-family: 'Montserrat', sans-serif</div>
+      </div>
+      <hr>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:14px;">
+        <div style="display:flex;align-items:baseline;gap:12px;"><span style="font-size:26px;font-weight:900;color:#021141;">Aa</span><span style="font-size:11px;color:var(--text-muted);">900 · Títulos de tela, Hero</span></div>
+        <div style="display:flex;align-items:baseline;gap:12px;"><span style="font-size:20px;font-weight:800;color:#021141;">Aa</span><span style="font-size:11px;color:var(--text-muted);">800 · Section headers</span></div>
+        <div style="display:flex;align-items:baseline;gap:12px;"><span style="font-size:16px;font-weight:700;color:#021141;">Aa</span><span style="font-size:11px;color:var(--text-muted);">700 · Card titles, botões</span></div>
+        <div style="display:flex;align-items:baseline;gap:12px;"><span style="font-size:14px;font-weight:600;color:#323232;">Aa</span><span style="font-size:11px;color:var(--text-muted);">600 · Subtítulos, labels</span></div>
+        <div style="display:flex;align-items:baseline;gap:12px;"><span style="font-size:13px;font-weight:400;color:#323232;">Aa</span><span style="font-size:11px;color:var(--text-muted);">400 · Corpo de texto, descrições</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📖 Missão, Visão e Valores — Aplicação no App</div>
+    <div class="card-sub">Cada feature deve refletir a filosofia da academia</div>
+    <div class="g3">
+      <div class="card-sm card-accent-cyan">
+        <div style="font-size:11px;font-weight:800;color:var(--pg-cyan);text-transform:uppercase;margin-bottom:8px;">🎯 Missão</div>
+        <div style="font-size:13px;color:var(--text-body);font-weight:600;margin-bottom:8px;">"Melhora efetiva da saúde, aptidão física e qualidade de vida, de acordo com capacidades, necessidades e expectativas."</div>
+        <div style="font-size:11px;color:var(--text-muted);">→ App foca no progresso individual, não em competição. Linguagem encorajadora, metas pessoais.</div>
+      </div>
+      <div class="card-sm card-accent-navy">
+        <div style="font-size:11px;font-weight:800;color:var(--pg-navy);text-transform:uppercase;margin-bottom:8px;">👁️ Visão</div>
+        <div style="font-size:13px;color:var(--text-body);font-weight:600;margin-bottom:8px;">"Referência regional em saúde, bem-estar, inovação metodológica e treinamento."</div>
+        <div style="font-size:11px;color:var(--text-muted);">→ App precisa ser visivelmente mais moderno e completo que apps de academias concorrentes na região.</div>
+      </div>
+      <div class="card-sm card-accent-blue">
+        <div style="font-size:11px;font-weight:800;color:var(--pg-blue);text-transform:uppercase;margin-bottom:8px;">💎 Valores</div>
+        <div style="font-size:13px;color:var(--text-body);font-weight:600;margin-bottom:8px;">Ética · Valorização do ser humano · Segurança · Bem-estar físico e psicológico</div>
+        <div style="font-size:11px;color:var(--text-muted);">→ UI acessível (idosos), dados privados, linguagem respeitosa, nunca pressionante.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">🏋️ Planos (3 modalidades)</div>
+      <div class="fi-list">
+        <div class="fi"><div class="fi-ico">⭐</div><div><div class="fi-txt">Personal Flex</div><div class="fi-desc">Metodologia exclusiva + acompanhamento + app + avaliação física</div></div></div>
+        <div class="fi"><div class="fi-ico">👤</div><div><div class="fi-txt">Personal Individual</div><div class="fi-desc">Personal Trainer cadastrado pelo próprio aluno + horários livres</div></div></div>
+        <div class="fi"><div class="fi-ico">💎</div><div><div class="fi-txt">Personal Flex Exclusive</div><div class="fi-desc">Acompanhamento individual + app + avaliação exclusiva (premium)</div></div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">🧘 Wellness Experience</div>
+      <div class="card-sub">Diferencial premium que o app deve destacar</div>
+      <div class="fi-list">
+        <div class="fi"><div class="fi-ico">💆</div><div><div class="fi-txt">Massagem e recuperação muscular</div></div></div>
+        <div class="fi"><div class="fi-ico">🌿</div><div><div class="fi-txt">Liberação miofascial (foam roller)</div></div></div>
+        <div class="fi"><div class="fi-ico">🌸</div><div><div class="fi-txt">Aromaterapia doTerra</div></div></div>
+        <div class="fi"><div class="fi-ico">🧎</div><div><div class="fi-txt">Alongamento · Ritmos · Crosstrainer (+25 aulas/mês)</div></div></div>
+        <div class="fi"><div class="fi-ico">🗓️</div><div><div class="fi-txt">Wellness Day — 2× por mês (reserva pelo app)</div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ NAVEGAÇÃO ══════════════ -->
+<div class="section" id="navegacao">
+  <div class="sh"><h2>Estrutura de Navegação</h2><p>Árvore de informação por perfil. Bottom nav simplificada — 5 pilares, zero hamburguer.</p></div>
+
+  <div class="card">
+    <div class="card-title">📱 Bottom Nav — Perfil Aluno (padrão)</div>
+    <div class="card-sub">Treino no centro — botão maior, gradiente PG, elevado. Ponto de entrada principal do aluno.</div>
+    <div class="nav-demo">
+      <div class="nav-item-demo"><div class="nav-icon-box ic-home">🏠</div><div class="nav-lbl">Início</div></div>
+      <div style="width:1px;height:40px;background:var(--border);margin:0 4px;"></div>
+      <div class="nav-item-demo"><div class="nav-icon-box ic-agenda">📅</div><div class="nav-lbl">Agenda</div></div>
+      <div style="width:1px;height:40px;background:var(--border);margin:0 4px;"></div>
+      <div class="nav-item-demo center"><div class="nav-icon-box">💪</div><div class="nav-lbl" style="color:var(--pg-navy);font-weight:900;">TREINO</div></div>
+      <div style="width:1px;height:40px;background:var(--border);margin:0 4px;"></div>
+      <div class="nav-item-demo"><div class="nav-icon-box ic-evol">📊</div><div class="nav-lbl">Evolução</div></div>
+      <div style="width:1px;height:40px;background:var(--border);margin:0 4px;"></div>
+      <div class="nav-item-demo"><div class="nav-icon-box ic-perfil">👤</div><div class="nav-lbl">Eu</div></div>
+    </div>
+  </div>
+
+  <div class="g3" style="margin-bottom:20px;">
+    <div class="fscreen"><h4>🏠 Início</h4><ul><li>Treino do dia (card rápido)</li><li>Streak atual 🔥</li><li>Heatmap de ocupação</li><li>Feed da academia (posts)</li><li>Próxima aula reservada</li><li>Desafio do mês</li><li>Wellness Day disponível</li><li>Aniversariantes do dia</li></ul></div>
+    <div class="fscreen"><h4>📅 Agenda</h4><ul><li>Check-in QR Code</li><li>Check-in GPS automático</li><li>Timer de permanência</li><li>Reserva de Aulas Coletivas</li><li>Reserva Wellness Day (2×/mês)</li><li>Calendário de treinos</li><li>Histórico de presença</li></ul></div>
+    <div class="fscreen"><h4>💪 Treino (CENTRO)</h4><ul><li>Programa atual (1A, 2A…)</li><li>Iniciar sessão com cronômetro</li><li>Vídeo + prescrição do exercício</li><li>Registrar carga / reps / intensidade</li><li>Sugestão automática de carga</li><li>Timer de descanso</li><li>Check ✓ por exercício</li><li>Substituir exercício</li><li>Finalizar + esforço percebido</li><li>Histórico de sessões</li></ul></div>
+    <div class="fscreen"><h4>📊 Evolução</h4><ul><li>Frequência mensal / anual</li><li>Progressão de carga por exercício</li><li>Records pessoais (PRs)</li><li>Volume total (kg × reps)</li><li>Medidas corporais</li><li>Fotos antes/depois</li><li>Avaliações (download PDF)</li><li>Relatório mensal exportável</li></ul></div>
+    <div class="fscreen"><h4>👤 Perfil (Eu)</h4><ul><li>Foto + dados pessoais</li><li>Meu Plano (status, vencimento)</li><li>Personal Flex vinculado</li><li>Conquistas / Badges</li><li>Anotações pessoais 📝</li><li>Caixa de recados da academia</li><li>Configuração de notificações</li><li>Chat / Suporte</li></ul></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📱 Bottom Nav — Perfil Personal Flex / Coordenador</div>
+    <div class="card-sub">Centro = modo execução de treino com aluno. Linguagem de coach.</div>
+    <div class="nav-demo">
+      <div class="nav-item-demo"><div class="nav-icon-box ic-home">👥</div><div class="nav-lbl">Alunos</div></div>
+      <div style="width:1px;height:40px;background:var(--border);margin:0 4px;"></div>
+      <div class="nav-item-demo"><div class="nav-icon-box ic-agenda">📆</div><div class="nav-lbl">Agenda</div></div>
+      <div style="width:1px;height:40px;background:var(--border);margin:0 4px;"></div>
+      <div class="nav-item-demo center"><div class="nav-icon-box">▶️</div><div class="nav-lbl" style="color:var(--pg-navy);font-weight:900;">SESSÃO</div></div>
+      <div style="width:1px;height:40px;background:var(--border);margin:0 4px;"></div>
+      <div class="nav-item-demo"><div class="nav-icon-box ic-evol">📈</div><div class="nav-lbl">Relatórios</div></div>
+      <div style="width:1px;height:40px;background:var(--border);margin:0 4px;"></div>
+      <div class="nav-item-demo"><div class="nav-icon-box ic-perfil">🏅</div><div class="nav-lbl">Perfil</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ ALUNO ══════════════ -->
+<div class="section" id="aluno">
+  <div class="sh"><h2>Perfil Aluno — Fluxos & Funcionalidades</h2><p>Todos os fluxos detalhados, incluindo anotações e caixa de recados.</p></div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">📝 Área de Anotações & Recados</div>
+      <div class="card-sub">Novo — comunicação bilateral aluno ↔ academia</div>
+      <div class="fi-list">
+        <div class="fi"><div class="fi-ico">📒</div><div><div class="fi-txt">Diário Pessoal (privado)</div><div class="fi-desc">Anotações livres do aluno: como se sentiu no treino, objetivos, reflexões. Visível somente para ele.</div></div></div>
+        <div class="fi"><div class="fi-ico">📋</div><div><div class="fi-txt">Notas por Exercício</div><div class="fi-desc">Anotações em cada exercício: "Sinto dor no joelho nesse", "Prefiro 12kg nesse movimento". Salvo no histórico.</div></div></div>
+        <div class="fi"><div class="fi-ico">🏫</div><div><div class="fi-txt">Recados da Academia → Aluno</div><div class="fi-desc">A academia envia mensagens individuais (ex: "Sua avaliação está agendada para dia 10"). Aparece como notificação e fica na caixa.</div></div></div>
+        <div class="fi"><div class="fi-ico">✉️</div><div><div class="fi-txt">Recados do Aluno → Academia</div><div class="fi-desc">Aluno envia mensagem para a recepção/coordenação sem sair do app. Não é chat em tempo real — é mensagem assíncrona com resposta garantida em X horas.</div></div></div>
+        <div class="fi"><div class="fi-ico">🏷️</div><div><div class="fi-txt">Avisos da Academia (broadcast)</div><div class="fi-desc">Comunicados para todos os alunos: feriados, mudança de horário, eventos. Aparece destacado no Início.</div></div></div>
+        <div class="fi"><div class="fi-ico">🔔</div><div><div class="fi-txt">Notificações contextuais</div><div class="fi-desc">Lembrete de treino, confirmação de reserva, novo PR detectado, streak em risco, avaliação disponível para download.</div></div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🚨 Fluxo: Sinalização de Dor / Limitação</div>
+      <div class="card-sub">Segurança antes do treino — essencial para público adulto/idoso</div>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div class="step-body"><div class="step-ttl">Check pré-treino</div><div class="step-dsc">Ao iniciar sessão, pergunta rápida: "Como você está hoje?" com 3 opções: Ótimo / Bem / Com alguma limitação.</div></div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-body"><div class="step-ttl">Mapa de dores</div><div class="step-dsc">Se sinalizar limitação: silhueta do corpo para tocar e indicar região. Selecionar tipo: dor muscular, articulação, fadiga.</div></div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-body"><div class="step-ttl">Alerta ao Personal Flex</div><div class="step-dsc">O Personal recebe notificação antes da sessão: "Luis sinalizou dor no joelho direito hoje." Pode adaptar o treino antes de começar.</div></div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-body"><div class="step-ttl">Registro no histórico</div><div class="step-dsc">Dor/limitação fica no histórico do aluno. Facilita avaliações físicas e ajustes de programa.</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">💪 Fluxo Completo: Iniciar & Registrar Treino</div>
+    <div class="g2">
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div class="step-body"><div class="step-ttl">Tela "Meu Treino"</div><div class="step-dsc">Mostra treino do dia (ex: 1A), # de exercícios, última vez feito, carga média anterior.</div></div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-body"><div class="step-ttl">Check pré-treino (mood + dores)</div><div class="step-dsc">Pergunta rápida de bem-estar. Cronômetro inicia. Tela cheia com lista de exercícios.</div></div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-body"><div class="step-ttl">Executar exercício</div><div class="step-dsc">Toque no exercício → vídeo autoplay, reps prescritas, campo de carga com última carga sugerida em cinza.</div></div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-body"><div class="step-ttl">Registrar série</div><div class="step-dsc">Teclado numérico grande. Confirmar peso + reps. Timer de descanso automático (configurável).</div></div></div>
+      </div>
+      <div class="steps">
+        <div class="step"><div class="step-num">5</div><div class="step-body"><div class="step-ttl">Check ✓ e próximo</div><div class="step-dsc">Swipe ou botão para avançar. Exercícios concluídos ficam marcados com check verde.</div></div></div>
+        <div class="step"><div class="step-num">6</div><div class="step-body"><div class="step-ttl">Substituir exercício</div><div class="step-dsc">Segurar → Substituir → Lista de alternativos para o mesmo grupo muscular (curada pelo Personal).</div></div></div>
+        <div class="step"><div class="step-num">7</div><div class="step-body"><div class="step-ttl">Finalizar treino</div><div class="step-dsc">Botão parar → tela de resumo: tempo, volume total, exercícios concluídos.</div></div></div>
+        <div class="step"><div class="step-num">8</div><div class="step-body"><div class="step-ttl">Avaliação + registro</div><div class="step-dsc">Emoji de esforço (1–6) + campo de comentário. Salvar. Se novo PR detectado → celebração 🎉.</div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ COMUNIDADE ══════════════ -->
+<div class="section" id="comunidade">
+  <div class="sh"><h2>Chat & Área de Comunidade</h2><p>Comunicação interna fechada para membros da PersonalGroup. Não é rede social pública — é o espaço da família PG.</p></div>
+
+  <div class="hl"><h3>💬 Filosofia da Comunidade PG</h3><p>Um ambiente fechado, seguro e moderado. O aluno se sente parte de uma comunidade boutique exclusiva — não uma rede social genérica. Foco em pertencimento, motivação coletiva e comunicação eficiente com a academia.</p></div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">💬 Chat Individual (1:1)</div>
+      <div class="card-sub">Comunicação direta entre partes específicas</div>
+      <div class="fi-list">
+        <div class="fi"><div class="fi-ico">👤↔️🏅</div><div><div class="fi-txt">Aluno ↔ Personal Flex</div><div class="fi-desc">Tirar dúvidas sobre o treino, reportar desconforto, receber orientações fora da sessão. Substitui o WhatsApp individual.</div></div></div>
+        <div class="fi"><div class="fi-ico">👤↔️🏫</div><div><div class="fi-txt">Aluno ↔ Recepção / Academia</div><div class="fi-desc">Dúvidas sobre pagamento, agendamento, documentos. Mensagem assíncrona com prazo de resposta exibido.</div></div></div>
+        <div class="fi"><div class="fi-ico">🏅↔️⚙️</div><div><div class="fi-txt">Personal Flex ↔ Coordenador</div><div class="fi-desc">Alinhamento interno de turno, escala, alunos especiais. Sem precisar de grupos externos.</div></div></div>
+        <div class="fi"><div class="fi-ico">🔔</div><div><div class="fi-txt">Notificação de nova mensagem</div><div class="fi-desc">Badge no ícone do chat. Push notification com prévia da mensagem. Pode desativar por horário (ex: "não perturbar após 22h").</div></div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📢 Mural da Academia (Broadcast)</div>
+      <div class="card-sub">Academia → Todos. Sem resposta do aluno no mural — apenas reações.</div>
+      <div class="fi-list">
+        <div class="fi"><div class="fi-ico">📌</div><div><div class="fi-txt">Avisos gerais</div><div class="fi-desc">Feriados, mudanças de horário, manutenção de equipamentos. Push automático ao postar.</div></div></div>
+        <div class="fi"><div class="fi-ico">🎉</div><div><div class="fi-txt">Parabenizações</div><div class="fi-desc">Aniversariantes do dia recebem menção no mural. Outros alunos reagem com emoji.</div></div></div>
+        <div class="fi"><div class="fi-ico">🏆</div><div><div class="fi-txt">Destaques de alunos</div><div class="fi-desc">"Aluno do Mês", conquistas especiais (com permissão do aluno). Valorização pública e positiva.</div></div></div>
+        <div class="fi"><div class="fi-ico">📸</div><div><div class="fi-txt">Conteúdo da academia</div><div class="fi-desc">Fotos de eventos, aulas coletivas, dicas de saúde, conteúdo educativo do Sistema Flex.</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">👥 Comunidade Fechada (Feed de Membros)</div>
+      <div class="card-sub">Espaço social privado — apenas alunos ativos visualizam</div>
+      <div class="fi-list">
+        <div class="fi"><div class="fi-ico">📝</div><div><div class="fi-txt">Posts de membros</div><div class="fi-desc">Aluno pode compartilhar conquistas, fotos de progresso (opt-in), motivações. Moderado pela academia.</div></div></div>
+        <div class="fi"><div class="fi-ico">❤️</div><div><div class="fi-txt">Reações simples</div><div class="fi-desc">Curtir, 💪, 🔥 — sem comentários abertos para manter ambiente seguro e leve.</div></div></div>
+        <div class="fi"><div class="fi-ico">🎯</div><div><div class="fi-txt">Posts de desafios</div><div class="fi-desc">Academia publica desafio do mês → alunos participam e marcam como "aceito".</div></div></div>
+        <div class="fi"><div class="fi-ico">🔕</div><div><div class="fi-txt">Participação opcional</div><div class="fi-desc">Aluno pode usar o app sem participar da comunidade. Feed pode ser ocultado nas configurações.</div></div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📚 Biblioteca de Conteúdo <span class="tag-new">Novo</span></div>
+      <div class="card-sub">Conteúdo educativo da PersonalGroup dentro do app</div>
+      <div class="fi-list">
+        <div class="fi"><div class="fi-ico">🥗</div><div><div class="fi-txt">Receitas e nutrição</div><div class="fi-desc">Dicas alimentares alinhadas ao treino. Sem substituir nutricionista — conteúdo educativo.</div></div></div>
+        <div class="fi"><div class="fi-ico">📖</div><div><div class="fi-txt">Artigos sobre saúde e bem-estar</div><div class="fi-desc">Textos sobre mobilidade, recuperação, sono, aromaterapia doTerra, meditação.</div></div></div>
+        <div class="fi"><div class="fi-ico">🎥</div><div><div class="fi-txt">Vídeos educativos</div><div class="fi-desc">Como executar corretamente os movimentos do Sistema Flex. Produzidos pela equipe PG.</div></div></div>
+        <div class="fi"><div class="fi-ico">🔖</div><div><div class="fi-txt">Salvar favoritos</div><div class="fi-desc">Aluno marca conteúdos para reler depois.</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="alert-b">💡 <strong>Moderação:</strong> O Coordenador / Admin tem acesso a um painel de moderação do feed. Pode remover posts inapropriados, desativar a comunidade de um aluno específico e enviar advertências internas sem expor publicamente.</div>
+</div>
+
+<!-- ══════════════ PERSONAL FLEX ══════════════ -->
+<div class="section" id="personal">
+  <div class="sh"><h2>Personal Flex — Coach Mode</h2><p>Interface otimizada para velocidade durante a sessão. Tudo em 1–2 toques, funciona offline, sincroniza com o monitor da academia.</p></div>
+
+  <div class="alert-o">⚠️ <strong>Contexto de uso:</strong> Personal com as mãos ocupadas, ambiente barulhento, possivelmente com suor nos dedos. Cada elemento de UI deve ter touch target ≥ 56px. Teclado numérico nativo. Nenhum campo exige digitação de texto durante a sessão.</div>
+
+  <div class="hl"><h3>⚡ Princípio do Coach Mode</h3><p>Abrir app → Selecionar aluno (1 toque) → Treino do aluno abre automaticamente → Inserir carga + reps com teclado grande → Check ✓ → Próximo. Dados aparecem em tempo real no monitor da academia via WebSocket.</p></div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">▶️ Fluxo: Executar Sessão com Aluno</div>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div class="step-body"><div class="step-ttl">Abrir "Sessão Ativa"</div><div class="step-dsc">Lista de alunos do turno com foto, nome e horário. Se houver aluno com flag de dor/limitação, aparece ⚠️ vermelho ao lado do nome.</div></div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-body"><div class="step-ttl">Ver briefing do aluno</div><div class="step-dsc">Check pré-treino do aluno, dores sinalizadas, última sessão com notas do Personal anterior.</div></div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-body"><div class="step-ttl">Iniciar sessão</div><div class="step-dsc">1 toque → Treino do aluno abre. Cronômetro global inicia. Monitor da academia começa a sincronizar.</div></div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-body"><div class="step-ttl">Inserir dados de cada exercício</div><div class="step-dsc">Teclado numérico grande. Campos: Peso (kg) + Reps + Intensidade (opcional). Última carga sugerida em cinza.</div></div></div>
+        <div class="step"><div class="step-num">5</div><div class="step-body"><div class="step-ttl">Observações rápidas</div><div class="step-dsc">Botões pré-definidos: "Boa execução" · "Aumentar carga" · "Reduzir carga" · "Dor relatada" · "Técnica a melhorar". Ou texto livre (opcional).</div></div></div>
+        <div class="step"><div class="step-num">6</div><div class="step-body"><div class="step-ttl">Encerrar sessão</div><div class="step-dsc">Resumo: exercícios completos, volume, tempo. Nota do Personal para o aluno (aparece na caixa de recados dele).</div></div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🖥️ Monitor da Academia — Sync em Tempo Real</div>
+      <div class="card-sub">O que aparece na tela grande da academia durante a sessão</div>
+      <div class="fi-list">
+        <div class="fi"><div class="fi-ico">📺</div><div><div class="fi-txt">Layout do monitor</div><div class="fi-desc">Nome do aluno + foto · Exercício atual · Próximo exercício · Série em andamento · Timer de descanso · Volume acumulado.</div></div></div>
+        <div class="fi"><div class="fi-ico">🔄</div><div><div class="fi-txt">Sync via WebSocket</div><div class="fi-desc">Dados inseridos no app aparecem no monitor em < 1 segundo. Sem refresh manual necessário.</div></div></div>
+        <div class="fi"><div class="fi-ico">✅</div><div><div class="fi-txt">Check visual no monitor</div><div class="fi-desc">Quando Personal marca ✓, o exercício é riscado no monitor. Aluno acompanha visualmente o progresso.</div></div></div>
+        <div class="fi"><div class="fi-ico">📴</div><div><div class="fi-txt">Modo offline</div><div class="fi-desc">Se cair o Wi-Fi, dados são salvos localmente e sincronizados quando a conexão retornar. Monitor exibe "Modo offline" discretamente.</div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ PERFIS & PERMISSÕES ══════════════ -->
+<div class="section" id="perfis">
+  <div class="sh"><h2>Perfis & Matriz de Permissões</h2><p>4 perfis distintos com níveis de acesso bem definidos. Coordenador Flex tem acesso operacional — mais limitado que o Admin da academia.</p></div>
+
+  <div class="g4" style="margin-bottom:20px;">
+    <div class="role-card role-aluno"><div class="role-icon">🎓</div><h3 style="color:#005f8a;">Aluno</h3><div style="font-size:12px;color:#1e6b8a;margin-top:6px;">Acessa apenas dados próprios. Treinos, histórico, agenda, comunidade e comunicação com a academia.</div><div style="margin-top:10px;"><span class="badge b-cyan">Usuário final</span></div></div>
+    <div class="role-card role-personal"><div class="role-icon">🏅</div><h3 style="color:#065f46;">Personal Flex</h3><div style="font-size:12px;color:#166534;margin-top:6px;">Acessa seus alunos vinculados. Registra treinos, anota observações, comunicação com alunos e coordenação.</div><div style="margin-top:10px;"><span class="badge b-green">Coach mode</span></div></div>
+    <div class="role-card role-coord"><div class="role-icon">📋</div><h3 style="color:#92400e;">Coord. Flex</h3><div style="font-size:12px;color:#a16207;margin-top:6px;">Supervisiona Personais do seu turno. Sem acesso a financeiro, configurações globais ou outros turnos.</div><div style="margin-top:10px;"><span class="badge b-orange">Operacional</span></div></div>
+    <div class="role-card role-admin"><div class="role-icon">🛡️</div><h3 style="color:#5b21b6;">Admin</h3><div style="font-size:12px;color:#6d28d9;margin-top:6px;">Acesso total. Gestão de usuários, treinos, conteúdo, relatórios, configurações e banco de dados.</div><div style="margin-top:10px;"><span class="badge b-purple">Acesso total</span></div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🔑 Matriz de Permissões Detalhada</div>
+    <div style="overflow-x:auto;">
+      <table class="perm-table">
+        <thead><tr><th>Funcionalidade</th><th>Aluno</th><th>Personal Flex</th><th>Coord. Flex</th><th>Admin</th></tr></thead>
+        <tbody>
+          <tr><td>Ver próprio treino</td><td><span class="check-y">✓</span></td><td><span class="check-y">✓</span></td><td><span class="check-y">✓</span></td><td><span class="check-y">✓</span></td></tr>
+          <tr><td>Registrar treino de aluno</td><td><span class="check-n">✗</span></td><td><span class="check-y">✓ (vinculados)</span></td><td><span class="check-y">✓ (turno)</span></td><td><span class="check-y">✓</span></td></tr>
+          <tr><td>Ver histórico de alunos</td><td><span class="check-n">✗</span></td><td><span class="check-y">✓ (vinculados)</span></td><td><span class="check-y">✓ (turno)</span></td><td><span class="check-y">✓</span></td></tr>
+          <tr><td>Criar / editar treinos</td><td><span class="check-n">✗</span></td><td><span class="check-p">⚠ Próprios alunos</span></td><td><span class="check-p">⚠ Com aprovação</span></td><td><span class="check-y">✓</span></td></tr>
+          <tr><td>Enviar recados a alunos</td><td><span class="check-n">✗</span></td><td><span class="check-y">✓ (vinculados)</span></td><td><span class="check-y">✓ (turno)</span></td><td><span class="check-y">✓ todos</span></td></tr>
+          <tr><td>Ver todos os alunos da academia</td><td><span class="check-n">✗</span></td><td><span class="check-n">✗</span></td><td><span class="check-p">⚠ Só do turno</span></td><td><span class="check-y">✓</span></td></tr>
+          <tr><td>Gestão de Personais Flex</td><td><span class="check-n">✗</span></td><td><span class="check-n">✗</span></td><td><span class="check-p">⚠ Só do turno</span></td><td><span class="check-y">✓</span></td></tr>
+          <tr><td>Postar no mural da academia</td><td><span class="check-n">✗</span></td><td><span class="check-n">✗</span></td><td><span class="check-p">⚠ Com aprovação</span></td><td><span class="check-y">✓</span></td></tr>
+          <tr><td>Publicar posts / comunicados</td><td><span class="check-n">✗</span></td><td><span class="check-n">✗</span></td><td><span class="check-n">✗</span></td><td><span class="check-y">✓</span></td></tr>
+          <tr><td>Configurar Wellness Day</td><td><span class="check-n">✗</span></td><td><span class="check-n">✗</span></td><td><span class="check-n">✗</span></td><td><span class="check-y">✓</span></td></tr>
+          <tr><td>Upload de avaliações físicas</td><td><span class="check-n">✗</span></td><td><span class="check-n">✗</span></td><td><span class="check-p">⚠ Só do turno</span></td><td><span class="check-y">✓</span></td></tr>
+          <tr><td>Ver status do plano do aluno</td><td><span class="check-n">✗</span></td><td><span class="check-n">✗</span></td><td><span class="check-n">✗</span></td><td><span class="check-y">✓</span></td></tr>
+          <tr><td>Importar banco de dados / planilha</td><td><span class="check-n">✗</span></td><td><span class="check-n">✗</span></td><td><span class="check-n">✗</span></td><td><span class="check-y">✓</span></td></tr>
+          <tr><td>Configurações do app</td><td><span class="check-n">✗</span></td><td><span class="check-n">✗</span></td><td><span class="check-n">✗</span></td><td><span class="check-y">✓</span></td></tr>
+          <tr><td>Exportar relatórios completos</td><td><span class="check-p">⚠ Só próprios</span></td><td><span class="check-p">⚠ Alunos vinculados</span></td><td><span class="check-y">✓ Turno</span></td><td><span class="check-y">✓</span></td></tr>
+          <tr><td>Moderação da comunidade</td><td><span class="check-n">✗</span></td><td><span class="check-n">✗</span></td><td><span class="check-y">✓</span></td><td><span class="check-y">✓</span></td></tr>
+          <tr><td>Envio de push notification global</td><td><span class="check-n">✗</span></td><td><span class="check-n">✗</span></td><td><span class="check-n">✗</span></td><td><span class="check-y">✓</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="margin-top:12px;font-size:11px;color:var(--text-muted);"><span class="check-y">✓</span> Permitido · <span class="check-n">✗</span> Negado · <span class="check-p" style="color:var(--warning);">⚠</span> Parcial / Com restrição</div>
+  </div>
+</div>
+
+<!-- ══════════════ GAMIFICAÇÃO ══════════════ -->
+<div class="section" id="gamificacao">
+  <div class="sh"><h2>Gamificação Inteligente para Adultos & Idosos</h2><p>Motivação positiva, sem pressão competitiva. Foco em consistência, bem-estar e progresso pessoal.</p></div>
+
+  <div class="insight"><strong>Princípio central:</strong> O público da PersonalGroup é majoritariamente adulto e idoso. A gamificação deve <em>celebrar a jornada</em>, não criar ansiedade de performance. Comparação só com si mesmo. Linguagem encorajadora. Nenhum badge humilhante por "perder" uma sequência.</div>
+
+  <div class="g2" style="margin-bottom:20px;">
+    <div class="card">
+      <div class="card-title">🔥 Sistema de Streaks — Suave</div>
+      <div class="card-sub">Sequência de treinos sem punição agressiva por quebra</div>
+      <div class="fi-list">
+        <div class="fi"><div class="fi-ico">🔥</div><div><div class="fi-txt">Streak ativo</div><div class="fi-desc">Contador de dias consecutivos com treino. Exibido na tela Início de forma discreta, não intrusiva.</div></div></div>
+        <div class="fi"><div class="fi-ico">🛡️</div><div><div class="fi-txt">Proteção de streak (1× por mês)</div><div class="fi-desc">Se aluno faltar 1 dia, pode usar "escudo" para proteger a sequência. Evita frustração e abandono.</div></div></div>
+        <div class="fi"><div class="fi-ico">💤</div><div><div class="fi-txt">Dias de descanso contam</div><div class="fi-desc">Check-in do Wellness Day mantém o streak ativo. Descanso é parte do treino — não uma falha.</div></div></div>
+        <div class="fi"><div class="fi-ico">🔔</div><div><div class="fi-txt">Lembrete gentil (não alarmante)</div><div class="fi-desc">"Oi Luis! Seu streak de 5 dias continua. Que tal treinar amanhã?" — enviado com antecedência, não pressão.</div></div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">📊 Progresso Pessoal — Comparação consigo mesmo</div>
+      <div class="card-sub">Sem ranking geral. Benchmarking apenas pessoal.</div>
+      <div class="fi-list">
+        <div class="fi"><div class="fi-ico">📈</div><div><div class="fi-txt">"Seu melhor você"</div><div class="fi-desc">Comparação sempre com o próprio histórico. "Você carregou 15% mais que no mês passado." Sem comparar com outros alunos.</div></div></div>
+        <div class="fi"><div class="fi-ico">🏆</div><div><div class="fi-txt">Records Pessoais (PRs)</div><div class="fi-desc">App detecta automaticamente novo máximo de carga. Tela de celebração aparece: "🎉 Novo recorde! 32kg no Supino."</div></div></div>
+        <div class="fi"><div class="fi-ico">🎯</div><div><div class="fi-txt">Metas pessoais customizáveis</div><div class="fi-desc">Aluno define: "Quero treinar 3× por semana." App acompanha e celebra quando atingido.</div></div></div>
+        <div class="fi"><div class="fi-ico">📅</div><div><div class="fi-txt">Resumo mensal automático</div><div class="fi-desc">"Em abril você treinou 14 dias, equivalente a 2h30 de exercícios. Parabéns! 👏" — push + card no app.</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:20px;">
+    <div class="card-title">🏅 Sistema de Badges / Conquistas</div>
+    <div class="card-sub">Medalhas baseadas em consistência, bem-estar e participação — não em performance extrema</div>
+    <div class="g4">
+      <div class="badge-card"><span class="badge-icon">🌱</span><div class="badge-name">Primeiro Passo</div><div class="badge-desc">Completou o primeiro treino</div><div class="badge-crit">1 sessão</div></div>
+      <div class="badge-card"><span class="badge-icon">🔥</span><div class="badge-name">Chama Acesa</div><div class="badge-desc">7 dias seguidos de atividade</div><div class="badge-crit">Streak 7 dias</div></div>
+      <div class="badge-card"><span class="badge-icon">💎</span><div class="badge-name">Diamante PG</div><div class="badge-desc">30 dias seguidos</div><div class="badge-crit">Streak 30 dias</div></div>
+      <div class="badge-card"><span class="badge-icon">🌊</span><div class="badge-name">Wellness Star</div><div class="badge-desc">Usou os 2 Wellness Days do mês</div><div class="badge-crit">2× no mês</div></div>
+      <div class="badge-card"><span class="badge-icon">💯</span><div class="badge-name">Centenário</div><div class="badge-desc">100 check-ins na academia</div><div class="badge-crit">100 check-ins</div></div>
+      <div class="badge-card"><span class="badge-icon">📸</span><div class="badge-name">Transformação</div><div class="badge-desc">Registrou foto de progresso</div><div class="badge-crit">1ª foto</div></div>
+      <div class="badge-card"><span class="badge-icon">🧘</span><div class="badge-name">Equilíbrio</div><div class="badge-desc">Treino + Wellness + Aula coletiva no mesmo mês</div><div class="badge-crit">Combo mensal</div></div>
+      <div class="badge-card"><span class="badge-icon">🏅</span><div class="badge-name">Consistente</div><div class="badge-desc">12 meses com ≥ 2 treinos/semana</div><div class="badge-crit">1 ano completo</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📋 Regras de UX para o Público 40+ / Idosos</div>
+    <div class="g2">
+      <div class="fi-list">
+        <div class="fi"><div class="fi-ico">✅</div><div><div class="fi-txt">Celebrar toda conquista, por menor que seja</div><div class="fi-desc">Até "você veio hoje" merece reconhecimento.</div></div></div>
+        <div class="fi"><div class="fi-ico">✅</div><div><div class="fi-txt">Linguagem encorajadora e respeitosa</div><div class="fi-desc">"Parabéns!", "Você está evoluindo!", nunca "Você falhou".</div></div></div>
+        <div class="fi"><div class="fi-ico">✅</div><div><div class="fi-txt">Elementos grandes, sem hover-only</div><div class="fi-desc">Ícones ≥ 44px, texto mínimo 15px. Tudo funciona só com toque — sem gestos complexos.</div></div></div>
+        <div class="fi"><div class="fi-ico">✅</div><div><div class="fi-txt">Ranking opcional e nunca negativo</div><div class="fi-desc">Se houver ranking de frequência, é positivo ("Top frequentadores") e opt-in.</div></div></div>
+      </div>
+      <div class="fi-list">
+        <div class="fi"><div class="fi-ico">🚫</div><div><div class="fi-txt">Nunca punir por ausência</div><div class="fi-desc">Streak zerado não gera mensagem de culpa. Reinicia com "Que bom que você voltou!" 🙌</div></div></div>
+        <div class="fi"><div class="fi-ico">🚫</div><div><div class="fi-txt">Sem comparação com outros alunos</div><div class="fi-desc">Rankings competitivos causam ansiedade e evasão em adultos mais velhos.</div></div></div>
+        <div class="fi"><div class="fi-ico">🚫</div><div><div class="fi-txt">Sem notificações agressivas</div><div class="fi-desc">Máximo 2 push notifications por dia. Sempre desativáveis. Horário personalizável.</div></div></div>
+        <div class="fi"><div class="fi-ico">🚫</div><div><div class="fi-txt">Sem metas impossíveis</div><div class="fi-desc">Metas sugeridas pelo app são moderadas (3×/semana por padrão). Aluno ajusta.</div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ BANCO DE DADOS ══════════════ -->
+<div class="section" id="banco">
+  <div class="sh"><h2>Integração de Banco de Dados & Importação de Alunos</h2><p>Estratégia para migrar os dados do software atual e manter sincronização automática.</p></div>
+
+  <div class="insight"><strong>Situação atual:</strong> A academia usa um software de gestão (provavelmente Grupo Evo, Mfit, GymManager ou similar) que exporta dados em planilha. O app precisa importar esses dados E manter-se sincronizado automaticamente quando houver atualizações.</div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">📥 Importação Inicial (Migração)</div>
+      <div class="card-sub">Upload único da planilha com mapeamento de colunas</div>
+      <div class="db-step"><div class="db-step-num">1</div><div class="db-step-body"><h5>Exportar planilha do sistema atual</h5><p>O Admin exporta CSV ou XLSX do software atual (Evo, Mfit, etc.) com os dados dos alunos.</p></div></div>
+      <div class="db-step"><div class="db-step-num">2</div><div class="db-step-body"><h5>Upload no painel Admin do app</h5><p>Admin faz upload do arquivo. O app lê e exibe pré-visualização das colunas detectadas.</p></div></div>
+      <div class="db-step"><div class="db-step-num">3</div><div class="db-step-body"><h5>Mapeamento de campos</h5><p>Admin mapeia: "Coluna A = Nome" · "Coluna B = CPF" · "Coluna C = Plano" · "Coluna D = Vencimento" etc. Interface drag-and-drop.</p></div></div>
+      <div class="db-step"><div class="db-step-num">4</div><div class="db-step-body"><h5>Validação e importação</h5><p>App mostra erros (email duplicado, CPF inválido) antes de importar. Admin revisa e confirma.</p></div></div>
+      <div class="db-step"><div class="db-step-num">5</div><div class="db-step-body"><h5>Convite automático aos alunos</h5><p>App envia SMS + email de boas-vindas com link para criar senha e baixar o app.</p></div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🔄 Sincronização Contínua (Auto-update)</div>
+      <div class="card-sub">Manter o banco sempre atualizado sem trabalho manual</div>
+      <div class="fi-list">
+        <div class="fi"><div class="fi-ico">🔗</div><div><div class="fi-txt">Opção 1 — Webhook/API (ideal)</div><div class="fi-desc">Se o software atual tiver API (Evo tem), configurar webhook que avisa o app quando houver novo aluno ou atualização de plano.</div></div></div>
+        <div class="fi"><div class="fi-ico">📁</div><div><div class="fi-txt">Opção 2 — Pasta de sync compartilhada</div><div class="fi-desc">Software exporta planilha automaticamente para uma pasta (Google Drive / OneDrive). App monitora a pasta e reimporta quando detectar mudança.</div></div></div>
+        <div class="fi"><div class="fi-ico">📅</div><div><div class="fi-txt">Opção 3 — Upload periódico (fallback)</div><div class="fi-desc">Admin faz upload semanal/mensal da planilha atualizada. App faz diff e atualiza apenas o que mudou.</div></div></div>
+        <div class="fi"><div class="fi-ico">⚠️</div><div><div class="fi-txt">Conflito de dados</div><div class="fi-desc">Se um campo foi editado manualmente no app E na planilha, o app exibe alerta para o Admin escolher qual versão manter.</div></div></div>
+        <div class="fi"><div class="fi-ico">📊</div><div><div class="fi-txt">Log de sincronizações</div><div class="fi-desc">Histórico completo: data, tipo de sync, registros adicionados/atualizados/removidos. Admin pode reverter.</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📋 Campos do Perfil do Aluno no Banco de Dados</div>
+    <div class="g2">
+      <div>
+        <div style="font-size:11px;font-weight:800;color:var(--text-muted);text-transform:uppercase;margin-bottom:10px;">Dados importados do software atual</div>
+        <div class="fi-list">
+          <div class="fi" style="padding:7px 10px;"><div class="fi-ico">🪪</div><div><div class="fi-txt" style="font-size:12px;">Nome completo · CPF · Data de nascimento</div></div></div>
+          <div class="fi" style="padding:7px 10px;"><div class="fi-ico">📞</div><div><div class="fi-txt" style="font-size:12px;">Telefone · Email · Endereço</div></div></div>
+          <div class="fi" style="padding:7px 10px;"><div class="fi-ico">💳</div><div><div class="fi-txt" style="font-size:12px;">Plano atual · Data de início · Data de vencimento</div></div></div>
+          <div class="fi" style="padding:7px 10px;"><div class="fi-ico">📊</div><div><div class="fi-txt" style="font-size:12px;">Status (ativo / inativo / suspenso)</div></div></div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:800;color:var(--text-muted);text-transform:uppercase;margin-bottom:10px;">Dados gerados pelo app</div>
+        <div class="fi-list">
+          <div class="fi" style="padding:7px 10px;"><div class="fi-ico">🏅</div><div><div class="fi-txt" style="font-size:12px;">Personal Flex vinculado · Turno</div></div></div>
+          <div class="fi" style="padding:7px 10px;"><div class="fi-ico">💪</div><div><div class="fi-txt" style="font-size:12px;">Programa de treino atual (1A, 2A…)</div></div></div>
+          <div class="fi" style="padding:7px 10px;"><div class="fi-ico">📅</div><div><div class="fi-txt" style="font-size:12px;">Histórico de sessões · Check-ins · Tempo na academia</div></div></div>
+          <div class="fi" style="padding:7px 10px;"><div class="fi-ico">🏆</div><div><div class="fi-txt" style="font-size:12px;">Badges conquistados · Streak · Metas</div></div></div>
+          <div class="fi" style="padding:7px 10px;"><div class="fi-ico">📝</div><div><div class="fi-txt" style="font-size:12px;">Anotações · Recados · Histórico de dores</div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ FEATURES ══════════════ -->
+<div class="section" id="features">
+  <div class="sh"><h2>Features — Essenciais & Inovadoras</h2><p>Baseadas em pesquisa de concorrentes, filosofia da PG e necessidades reais do app. Tudo viável e implementável.</p></div>
+
+  <div class="card" style="margin-bottom:20px;">
+    <div class="card-title">🏆 Features Essenciais — Resolver Primeiro</div>
+    <table>
+      <thead><tr><th>Feature</th><th>Descrição</th><th>Por quê é essencial</th><th>Prioridade</th></tr></thead>
+      <tbody>
+        <tr><td><strong>💪 Fluxo de treino completo</strong></td><td>Iniciar, registrar, checar, finalizar com carga + reps</td><td>Core do app — sem isso não há valor</td><td><span class="p-high">CRÍTICA</span></td></tr>
+        <tr><td><strong>📍 Check-in QR + GPS</strong></td><td>QR dinâmico + geofencing 5m com push</td><td>Substitui controle manual da recepção</td><td><span class="p-high">CRÍTICA</span></td></tr>
+        <tr><td><strong>🏅 Coach Mode (Personal Flex)</strong></td><td>UI rápida para registrar dados do aluno durante sessão</td><td>Diferencial exclusivo do Sistema Flex</td><td><span class="p-high">CRÍTICA</span></td></tr>
+        <tr><td><strong>📝 Anotações & Recados</strong></td><td>Diário do aluno + caixa de mensagens bidirecional</td><td>Reduz WhatsApp fora do app</td><td><span class="p-high">ALTA</span></td></tr>
+        <tr><td><strong>🗄️ Import de planilha</strong></td><td>Migração e sync com software atual</td><td>Sem isso o app começa vazio</td><td><span class="p-high">CRÍTICA</span></td></tr>
+        <tr><td><strong>🧘 Reserva Wellness Day</strong></td><td>Calendário de reserva com limite 2×/mês</td><td>Diferencial da PG — precisa estar no app</td><td><span class="p-high">ALTA</span></td></tr>
+        <tr><td><strong>📢 Mural / Broadcast</strong></td><td>Academia envia avisos para todos</td><td>Substitui grupos de WhatsApp</td><td><span class="p-high">ALTA</span></td></tr>
+        <tr><td><strong>📴 Modo offline</strong></td><td>Treino e registro sem internet</td><td>Wi-Fi da academia é instável</td><td><span class="p-high">ALTA</span></td></tr>
+        <tr><td><strong>🧠 Sugestão de carga</strong></td><td>App sugere peso baseado na última sessão</td><td>Economiza tempo do Personal e do aluno</td><td><span class="p-med">MÉDIA</span></td></tr>
+        <tr><td><strong>⏱️ Timer de descanso</strong></td><td>Cronômetro entre séries com notificação</td><td>Melhora qualidade do treino</td><td><span class="p-med">MÉDIA</span></td></tr>
+        <tr><td><strong>🗓️ Reserva de aulas coletivas</strong></td><td>Lista de aulas com vagas disponíveis</td><td>+25 aulas/mês — precisa de gestão</td><td><span class="p-med">MÉDIA</span></td></tr>
+        <tr><td><strong>📄 Download de avaliações</strong></td><td>PDF das avaliações físicas no app</td><td>Substituir envio manual por e-mail</td><td><span class="p-med">MÉDIA</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🚀 Features Inovadoras — Viáveis e Diferenciadas <span class="tag-innov">Inovação</span></div>
+    <table>
+      <thead><tr><th>Feature</th><th>Como funciona</th><th>Benefício real</th><th>Complexidade</th></tr></thead>
+      <tbody>
+        <tr><td><strong>🩺 Mapa de dores pré-treino</strong></td><td>Silhueta corporal interativa onde aluno toca para indicar dor/desconforto antes da sessão</td><td>Personal adapta treino antes de começar. Histórico ajuda avaliações físicas.</td><td><span class="p-med">MÉDIA</span></td></tr>
+        <tr><td><strong>🌡️ Heatmap de ocupação</strong></td><td>Dados de check-ins exibidos como mapa de calor por horário do dia</td><td>Aluno escolhe horários mais tranquilos. Reduz lotação nos picos.</td><td><span class="p-med">MÉDIA</span></td></tr>
+        <tr><td><strong>🎂 Parabéns personalizado</strong></td><td>Push automático no aniversário do aluno + menção no mural (opt-in)</td><td>Senso de pertencimento. Diferencial afetivo de academia boutique.</td><td><span class="p-low">BAIXA</span></td></tr>
+        <tr><td><strong>😴 IA de recuperação</strong></td><td>App analisa frequência + volume + horário e sugere: "Você treinou muito esta semana. Que tal um dia de Wellness amanhã?"</td><td>Reduz risco de lesão. Reforça a filosofia wellness da PG.</td><td><span class="p-high">ALTA</span></td></tr>
+        <tr><td><strong>📊 Relatório mensal automático (WhatsApp)</strong></td><td>No dia 1 de cada mês, app envia PDF resumo de evolução por WhatsApp Business para o aluno</td><td>Encanta o aluno sem ele precisar abrir o app. Viraliza na família.</td><td><span class="p-med">MÉDIA</span></td></tr>
+        <tr><td><strong>🎁 Programa de indicação</strong></td><td>Aluno ganha crédito de Wellness Day ou desconto por indicar amigo que fechar plano</td><td>Crescimento orgânico. Baixo custo de aquisição de cliente.</td><td><span class="p-med">MÉDIA</span></td></tr>
+        <tr><td><strong>⏱️ Cronômetro de permanência</strong></td><td>Check-in registra entrada. Check-out (QR ou GPS ao sair) registra saída. Histórico de tempo na academia.</td><td>Gamificação sutil. Aluno vê "Você passou 3h na academia essa semana." Motivador.</td><td><span class="p-med">MÉDIA</span></td></tr>
+        <tr><td><strong>🌿 Dica de aromaterapia doTerra</strong></td><td>Conteúdo semanal integrado ao Wellness: qual óleo usar antes do treino, depois, para recuperação</td><td>Diferencia a PG de toda concorrência. Exclusivo da identidade da academia.</td><td><span class="p-low">BAIXA</span></td></tr>
+        <tr><td><strong>📸 Fotos de progresso com comparação</strong></td><td>Upload de foto mensal. App permite comparação lado a lado (privado, somente o aluno vê)</td><td>Alta motivação. Prova visual do progresso. Reduz abandono.</td><td><span class="p-med">MÉDIA</span></td></tr>
+        <tr><td><strong>🎯 Desafio do mês compartilhado</strong></td><td>Academia lança desafio (ex: "16 treinos em maio"). Alunos participam e veem quantos aceitaram. Sem ranking individual.</td><td>Senso de comunidade sem pressão competitiva.</td><td><span class="p-low">BAIXA</span></td></tr>
+        <tr><td><strong>🏅 Certificado digital de aniversário de academia</strong></td><td>App gera PDF/imagem comemorativa quando aluno completa 1 ano, 2 anos de PG</td><td>Alto engajamento emocional. Compartilhável no Instagram.</td><td><span class="p-low">BAIXA</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════════ UI ══════════════ -->
+<div class="section" id="ui">
+  <div class="sh"><h2>UI & Sistema de Design — PersonalGroup</h2><p>Montserrat + paleta oficial + componentes premium. App deve parecer extensão natural do site e da identidade boutique da academia.</p></div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">🎨 Cores Oficiais (do site)</div>
+      <div class="color-row"><div class="swatch" style="background:#021141;"></div><div><div class="color-name">Navy #021141</div><div class="color-hex">Texto, header fixo, footer. Cor âncora da marca.</div></div></div>
+      <div class="color-row"><div class="swatch" style="background:#3363a2;"></div><div><div class="color-name">Blue #3363a2</div><div class="color-hex">Títulos de seção, hover de botões. Suporte ao navy.</div></div></div>
+      <div class="color-row"><div class="swatch" style="background:#00b6fd;"></div><div><div class="color-name">Cyan #00b6fd</div><div class="color-hex">Botões CTA (pill), destaques, links, badges. Cor de ação.</div></div></div>
+      <div class="color-row"><div class="swatch" style="background:#f8f9fb;"></div><div><div class="color-name">Off-white #f8f9fb</div><div class="color-hex">Background de seções alternadas e cards.</div></div></div>
+      <div class="color-row"><div class="swatch" style="background:#0b1f4a;"></div><div><div class="color-name">Deep Blue #0b1f4a</div><div class="color-hex">Cards de aulas coletivas, overlay escuro premium.</div></div></div>
+      <div class="color-row"><div class="swatch" style="background:#10b981;"></div><div><div class="color-name">Verde Sucesso</div><div class="color-hex">#10b981 · Check-ins ✓, exercícios concluídos, conquistas.</div></div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🔡 Tipografia — Montserrat</div>
+      <div class="card-sub">Mesma fonte do site. Consistência total entre web e app.</div>
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div><span style="font-family:'Montserrat',sans-serif;font-size:28px;font-weight:900;color:#021141;letter-spacing:-1px;">Título de tela</span><div style="font-size:11px;color:var(--text-muted);">28px / weight 900 / letter-spacing -1px</div></div>
+        <div><span style="font-family:'Montserrat',sans-serif;font-size:20px;font-weight:800;color:#021141;">Header de seção</span><div style="font-size:11px;color:var(--text-muted);">20px / weight 800</div></div>
+        <div><span style="font-family:'Montserrat',sans-serif;font-size:16px;font-weight:700;color:#021141;">Título de card</span><div style="font-size:11px;color:var(--text-muted);">16px / weight 700</div></div>
+        <div><span style="font-family:'Montserrat',sans-serif;font-size:14px;font-weight:600;color:#323232;">Label, botão</span><div style="font-size:11px;color:var(--text-muted);">14px / weight 600</div></div>
+        <div><span style="font-family:'Montserrat',sans-serif;font-size:13px;font-weight:400;color:#323232;">Corpo de texto, descrições</span><div style="font-size:11px;color:var(--text-muted);">13px / weight 400–500</div></div>
+        <div><span style="font-family:'Montserrat',sans-serif;font-size:11px;font-weight:500;color:#7a8ba5;">Legenda, meta-info</span><div style="font-size:11px;color:var(--text-muted);">11px / weight 500</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📐 Componentes Visuais Chave</div>
+    <div class="g3">
+      <div>
+        <div class="badge b-navy" style="margin-bottom:12px;">Botões</div>
+        <div class="fi-list">
+          <div class="fi"><div class="fi-ico">🔵</div><div><div class="fi-txt">Primary (pill)</div><div class="fi-desc">bg:#00b6fd · white · border-radius:9999px · h:52px · Montserrat 700</div></div></div>
+          <div class="fi"><div class="fi-ico">⚪</div><div><div class="fi-txt">Outline</div><div class="fi-desc">border:2px solid #00b6fd · color:#00b6fd · mesmas dimensões</div></div></div>
+          <div class="fi"><div class="fi-ico">🟣</div><div><div class="fi-txt">FAB Central (nav)</div><div class="fi-desc">68px · gradient navy→blue→cyan · shadow 0 8px 24px rgba(0,182,253,.35)</div></div></div>
+        </div>
+      </div>
+      <div>
+        <div class="badge b-cyan" style="margin-bottom:12px;">Cards & Listas</div>
+        <div class="fi-list">
+          <div class="fi"><div class="fi-ico">🃏</div><div><div class="fi-txt">Card padrão</div><div class="fi-desc">white · border 1px #dde4ef · radius 14px · shadow leve</div></div></div>
+          <div class="fi"><div class="fi-ico">🖼️</div><div><div class="fi-txt">Card de exercício</div><div class="fi-desc">Thumbnail 72×72px · radius 10px · overlay gradiente</div></div></div>
+          <div class="fi"><div class="fi-ico">📋</div><div><div class="fi-txt">Item de lista</div><div class="fi-desc">h:min 56px · tap target completo · separador 0.5px</div></div></div>
+        </div>
+      </div>
+      <div>
+        <div class="badge b-green" style="margin-bottom:12px;">Inputs & Feedback</div>
+        <div class="fi-list">
+          <div class="fi"><div class="fi-ico">🔢</div><div><div class="fi-txt">Input numérico coach</div><div class="fi-desc">Teclado nativo · texto 32px 900 · sem casas decimais</div></div></div>
+          <div class="fi"><div class="fi-ico">✅</div><div><div class="fi-txt">Check de exercício</div><div class="fi-desc">56×56px tap · animação spring · cor #10b981</div></div></div>
+          <div class="fi"><div class="fi-ico">🔔</div><div><div class="fi-txt">Toast</div><div class="fi-desc">Topo da tela · 3s · ação "Desfazer" quando possível</div></div></div>
+          <div class="fi"><div class="fi-ico">💀</div><div><div class="fi-txt">Skeleton loading</div><div class="fi-desc">Placeholders animados — nunca spinners isolados</div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ ROADMAP ══════════════ -->
+<div class="section" id="roadmap">
+  <div class="sh"><h2>Roadmap de Implementação</h2><p>3 fases progressivas — do MVP indispensável ao produto completo e diferenciado.</p></div>
+
+  <div class="g3">
+    <div class="road-card" style="border-top:4px solid var(--danger);">
+      <div class="card-title" style="margin-bottom:4px;">🔴 Fase 1 — MVP</div>
+      <div style="font-size:11px;color:var(--text-muted);margin-bottom:16px;">4–8 semanas · O essencial para lançar com valor real</div>
+      <div class="fi-list">
+        <div class="fi"><div class="fi-ico">📱</div><div><div class="fi-txt">Bottom nav 5 pilares (aluno)</div></div></div>
+        <div class="fi"><div class="fi-ico">💪</div><div><div class="fi-txt">Fluxo de treino completo</div></div></div>
+        <div class="fi"><div class="fi-ico">📍</div><div><div class="fi-txt">Check-in QR Code</div></div></div>
+        <div class="fi"><div class="fi-ico">🗄️</div><div><div class="fi-txt">Import de planilha (migração)</div></div></div>
+        <div class="fi"><div class="fi-ico">🏅</div><div><div class="fi-txt">Coach Mode básico (Personal)</div></div></div>
+        <div class="fi"><div class="fi-ico">📢</div><div><div class="fi-txt">Mural de avisos da academia</div></div></div>
+        <div class="fi"><div class="fi-ico">📝</div><div><div class="fi-txt">Caixa de recados aluno ↔ academia</div></div></div>
+        <div class="fi"><div class="fi-ico">🔔</div><div><div class="fi-txt">Notificações push básicas</div></div></div>
+        <div class="fi"><div class="fi-ico">📊</div><div><div class="fi-txt">Gráfico de frequência mensal</div></div></div>
+        <div class="fi"><div class="fi-ico">🔑</div><div><div class="fi-txt">Matriz de permissões (4 perfis)</div></div></div>
+      </div>
+    </div>
+
+    <div class="road-card" style="border-top:4px solid var(--warning);">
+      <div class="card-title" style="margin-bottom:4px;">🟡 Fase 2 — Crescimento</div>
+      <div style="font-size:11px;color:var(--text-muted);margin-bottom:16px;">8–14 semanas · Engajamento e retenção</div>
+      <div class="fi-list">
+        <div class="fi"><div class="fi-ico">📍</div><div><div class="fi-txt">Check-in GPS (geofencing 5m)</div></div></div>
+        <div class="fi"><div class="fi-ico">⏱️</div><div><div class="fi-txt">Timer de permanência</div></div></div>
+        <div class="fi"><div class="fi-ico">🔥</div><div><div class="fi-txt">Streak suave + badges básicos</div></div></div>
+        <div class="fi"><div class="fi-ico">🧘</div><div><div class="fi-txt">Reserva Wellness Day (2×/mês)</div></div></div>
+        <div class="fi"><div class="fi-ico">🗓️</div><div><div class="fi-txt">Reserva de aulas coletivas</div></div></div>
+        <div class="fi"><div class="fi-ico">📺</div><div><div class="fi-txt">Sync com monitor da academia</div></div></div>
+        <div class="fi"><div class="fi-ico">🧠</div><div><div class="fi-txt">Sugestão automática de carga</div></div></div>
+        <div class="fi"><div class="fi-ico">🩺</div><div><div class="fi-txt">Mapa de dores pré-treino</div></div></div>
+        <div class="fi"><div class="fi-ico">💬</div><div><div class="fi-txt">Chat Personal ↔ Aluno</div></div></div>
+        <div class="fi"><div class="fi-ico">🔄</div><div><div class="fi-txt">Sync automático BD (webhook)</div></div></div>
+      </div>
+    </div>
+
+    <div class="road-card" style="border-top:4px solid var(--success);">
+      <div class="card-title" style="margin-bottom:4px;">🟢 Fase 3 — Premium</div>
+      <div style="font-size:11px;color:var(--text-muted);margin-bottom:16px;">14–22 semanas · Diferenciação e wow</div>
+      <div class="fi-list">
+        <div class="fi"><div class="fi-ico">🏆</div><div><div class="fi-txt">PRs automáticos + celebração</div></div></div>
+        <div class="fi"><div class="fi-ico">📸</div><div><div class="fi-txt">Fotos de progresso (antes/depois)</div></div></div>
+        <div class="fi"><div class="fi-ico">🌡️</div><div><div class="fi-txt">Heatmap de ocupação</div></div></div>
+        <div class="fi"><div class="fi-ico">👥</div><div><div class="fi-txt">Comunidade fechada de membros</div></div></div>
+        <div class="fi"><div class="fi-ico">📚</div><div><div class="fi-txt">Biblioteca de conteúdo</div></div></div>
+        <div class="fi"><div class="fi-ico">😴</div><div><div class="fi-txt">IA de recuperação</div></div></div>
+        <div class="fi"><div class="fi-ico">📊</div><div><div class="fi-txt">Relatório mensal automático (WhatsApp)</div></div></div>
+        <div class="fi"><div class="fi-ico">🎁</div><div><div class="fi-txt">Programa de indicação</div></div></div>
+        <div class="fi"><div class="fi-ico">🌿</div><div><div class="fi-txt">Conteúdo aromaterapia doTerra</div></div></div>
+        <div class="fi"><div class="fi-ico">🎂</div><div><div class="fi-txt">Parabéns + certificados digitais</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="alert-g" style="margin-top:12px;">✅ <strong>Recomendação:</strong> Lançar a Fase 1 em beta fechado com apenas os Personais Flex e Coordenadores. Validar o Coach Mode e o import de dados antes de abrir para todos os alunos. Evitar retrabalho de UX com feedback real da equipe.</div>
+</div>
+
+</div><!-- /content -->
+
+<script>
+function showTab(id) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.currentTarget.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>

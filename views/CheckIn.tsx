@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { Icons } from '../constants';
-import { obterLocalizacao, verificarDentroDoRaio, registrarCheckIn } from '../src/services/checkInService';
+import { obterLocalizacao, verificarDentroDoRaio, registrarCheckIn, verificarCheckInHoje } from '../src/services/checkInService';
 
 interface CheckInProps {
   userId: string;
@@ -9,17 +9,34 @@ interface CheckInProps {
   onCancel: () => void;
 }
 
-type Step = 'GPS_CHECK' | 'LOADING' | 'OUTSIDE' | 'ENERGY' | 'LIMITATION' | 'CONFIRMING' | 'DONE' | 'ERROR';
+type Step = 'INITIAL_LOADING' | 'GPS_CHECK' | 'LOADING' | 'OUTSIDE' | 'ENERGY' | 'LIMITATION' | 'CONFIRMING' | 'DONE' | 'ERROR' | 'ALREADY_CHECKED_IN';
 
 const CheckIn: React.FC<CheckInProps> = ({ userId, userName, onSuccess, onCancel }) => {
-  const [step, setStep] = useState<Step>('GPS_CHECK');
+  const [step, setStep] = useState<Step>('INITIAL_LOADING');
   const [energy, setEnergy] = useState<'low' | 'medium' | 'high' | null>(null);
   const [limitation, setLimitation] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [horaCheckIn, setHoraCheckIn] = useState('');
 
   const triggerHaptic = useCallback((pattern: number | number[]) => {
     if ('vibrate' in navigator) navigator.vibrate(pattern);
   }, []);
+
+  React.useEffect(() => {
+    const checkInitialStatus = async () => {
+      try {
+        const jaFez = await verificarCheckInHoje(userId);
+        if (jaFez) {
+          setStep('ALREADY_CHECKED_IN');
+        } else {
+          setStep('GPS_CHECK');
+        }
+      } catch (e) {
+        setStep('GPS_CHECK');
+      }
+    };
+    checkInitialStatus();
+  }, [userId]);
 
   const handleVerificarLocalizacao = async () => {
     setStep('LOADING');
@@ -35,7 +52,9 @@ const CheckIn: React.FC<CheckInProps> = ({ userId, userName, onSuccess, onCancel
         setStep('OUTSIDE');
       }
     } catch (e: any) {
-      setErrorMessage(e.message || 'Erro ao obter localização. Permita o acesso ao GPS.');
+      setErrorMessage(e.message?.includes('denied') 
+        ? 'Precisamos da sua localização para confirmar sua chegada. Por favor, habilite o GPS nas configurações do seu navegador.'
+        : 'Não conseguimos encontrar seu sinal de GPS. Tente novamente em um local mais aberto.');
       setStep('ERROR');
     }
   };
@@ -45,11 +64,13 @@ const CheckIn: React.FC<CheckInProps> = ({ userId, userName, onSuccess, onCancel
     setStep('CONFIRMING');
     try {
       await registrarCheckIn(userId, energy, limitation);
+      const agora = new Date();
+      setHoraCheckIn(agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }));
       triggerHaptic([50, 30, 80]);
       setStep('DONE');
-      setTimeout(() => onSuccess(), 2500);
+      setTimeout(() => onSuccess(), 3000);
     } catch (e: any) {
-      setErrorMessage(e.message || 'Erro ao registrar check-in');
+      setErrorMessage(e.message || 'Erro ao registrar sua chegada');
       setStep('ERROR');
     }
   };
@@ -67,7 +88,7 @@ const CheckIn: React.FC<CheckInProps> = ({ userId, userName, onSuccess, onCancel
           <Icons.X className="w-5 h-5" />
         </button>
         <div className="flex-1 text-center pr-10">
-          <h1 className="text-[10px] font-black uppercase tracking-widest text-cobalt font-display">Check-in</h1>
+          <h1 className="text-[10px] font-black uppercase tracking-widest text-cobalt font-display">Registrar chegada</h1>
         </div>
       </div>
 
@@ -79,23 +100,41 @@ const CheckIn: React.FC<CheckInProps> = ({ userId, userName, onSuccess, onCancel
               <Icons.Target className="w-16 h-16 text-cobalt" />
             </div>
             <div className="text-center space-y-3">
-              <h2 className="text-3xl font-black tracking-tighter uppercase leading-none">Localização</h2>
-              <p className="text-sm text-white/60 font-medium px-4 leading-relaxed">Confirme que você está no raio de 100m da academia.</p>
+              <h2 className="text-3xl font-black tracking-tighter uppercase leading-none">Registrar chegada</h2>
+              <p className="text-sm text-white/60 font-medium px-4 leading-relaxed">
+                Aproxime-se da entrada da academia e toque no botão abaixo para confirmar sua presença.
+              </p>
             </div>
             <button
               onClick={handleVerificarLocalizacao}
               className="w-full h-16 bg-cobalt rounded-2xl text-white font-black text-sm uppercase tracking-widest shadow-lg shadow-cobalt/40 transition-all active:scale-[0.98] mt-8 flex items-center justify-center"
             >
               <Icons.MapPin className="w-5 h-5 mr-2" />
-              Verificar
+              Estou na academia
             </button>
+          </div>
+        )}
+
+        {step === 'INITIAL_LOADING' && (
+          <div className="flex flex-col items-center justify-center space-y-6 animate-in fade-in duration-500">
+            <div className="w-16 h-16 border-4 border-white/10 border-t-cobalt rounded-full animate-spin"></div>
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40">Validando acesso...</p>
           </div>
         )}
 
         {step === 'LOADING' && (
           <div className="flex flex-col items-center justify-center space-y-6 animate-in fade-in duration-500">
-            <div className="w-16 h-16 border-4 border-cobalt border-t-white/10 rounded-full animate-spin"></div>
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-cobalt animate-pulse">Buscando sinal...</p>
+            <div className="relative">
+              <div className="w-20 h-20 border-4 border-cobalt/20 rounded-full"></div>
+              <div className="absolute top-0 left-0 w-20 h-20 border-4 border-cobalt border-t-transparent rounded-full animate-spin"></div>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <Icons.Target className="w-8 h-8 text-cobalt animate-pulse" />
+              </div>
+            </div>
+            <div className="text-center">
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-cobalt animate-pulse">Buscando sinal...</p>
+              <p className="text-[9px] text-white/30 uppercase tracking-widest mt-2 font-medium">Validando sua posição</p>
+            </div>
           </div>
         )}
 
@@ -105,8 +144,8 @@ const CheckIn: React.FC<CheckInProps> = ({ userId, userName, onSuccess, onCancel
               <Icons.Map className="w-12 h-12 text-red-500" />
             </div>
             <div className="space-y-3">
-              <h2 className="text-2xl font-black tracking-tight text-white uppercase">Muito Longe</h2>
-              <p className="text-sm text-white/60 px-2 leading-relaxed">Aproxime-se da recepção para liberar o check-in.</p>
+              <h2 className="text-2xl font-black tracking-tight text-white uppercase">Parece que você não está na academia ainda</h2>
+              <p className="text-sm text-white/60 px-2 leading-relaxed">Certifique-se de estar no local e tente novamente.</p>
             </div>
             <button
               onClick={() => setStep('GPS_CHECK')}
@@ -187,9 +226,20 @@ const CheckIn: React.FC<CheckInProps> = ({ userId, userName, onSuccess, onCancel
         )}
 
         {step === 'CONFIRMING' && (
-          <div className="flex flex-col items-center justify-center space-y-6 animate-in fade-in duration-500">
-            <div className="w-16 h-16 border-4 border-cobalt border-t-transparent rounded-full animate-spin"></div>
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-cobalt animate-pulse">Registrando...</p>
+          <div className="flex flex-col items-center justify-center space-y-8 animate-in fade-in duration-500">
+            <div className="relative">
+              <div className="w-24 h-24 bg-cobalt/10 rounded-[32px] flex items-center justify-center border border-cobalt/30 overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-t from-cobalt/40 to-transparent animate-pulse"></div>
+                <Icons.Check className="w-10 h-10 text-cobalt relative z-10" />
+              </div>
+              <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-deep-blue rounded-full flex items-center justify-center border-2 border-cobalt/30">
+                <div className="w-5 h-5 border-2 border-cobalt border-t-transparent rounded-full animate-spin"></div>
+              </div>
+            </div>
+            <div className="text-center space-y-2">
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-cobalt animate-pulse">Registrando presença...</p>
+              <p className="text-[9px] text-white/30 uppercase tracking-widest font-medium">Preparando seu treino</p>
+            </div>
           </div>
         )}
 
@@ -198,8 +248,24 @@ const CheckIn: React.FC<CheckInProps> = ({ userId, userName, onSuccess, onCancel
             <div className="w-32 h-32 bg-emerald-500/10 rounded-[40px] flex items-center justify-center border-2 border-emerald-500/50 shadow-[0_0_60px_rgba(16,185,129,0.3)] text-emerald-400 mb-8">
               <Icons.Check className="w-16 h-16 animate-in zoom-in duration-300 delay-150" />
             </div>
-            <h2 className="text-4xl font-black tracking-tighter text-white mb-3 text-center uppercase leading-none">Treino<br />Liberado</h2>
-            <p className="text-[10px] font-bold text-emerald-400 uppercase tracking-[0.3em]">Bom treino, {userName.split(' ')[0]}</p>
+            <h2 className="text-4xl font-black tracking-tighter text-white mb-3 text-center uppercase leading-none">Chegada<br />Registrada</h2>
+            <p className="text-[10px] font-bold text-emerald-400 uppercase tracking-[0.3em] text-center">Boa aula! Sua chegada foi registrada às {horaCheckIn}.</p>
+          </div>
+        )}
+
+        {step === 'ALREADY_CHECKED_IN' && (
+          <div className="flex flex-col items-center justify-center h-full animate-in zoom-in-95 duration-500">
+            <div className="w-32 h-32 bg-cobalt/10 rounded-[40px] flex items-center justify-center border-2 border-cobalt/50 shadow-[0_0_60px_rgba(0,182,253,0.2)] text-cobalt mb-8">
+              <Icons.Target className="w-16 h-16" />
+            </div>
+            <h2 className="text-4xl font-black tracking-tighter text-white mb-3 text-center uppercase leading-none">Você já<br />chegou!</h2>
+            <p className="text-[10px] font-bold text-cobalt uppercase tracking-[0.3em] text-center px-8">Sua chegada já foi registrada hoje. Aproveite o treino!</p>
+            <button
+              onClick={onSuccess}
+              className="w-full h-16 bg-cobalt rounded-2xl text-white font-black text-sm uppercase tracking-widest shadow-lg shadow-cobalt/40 transition-all active:scale-[0.98] mt-12 flex items-center justify-center"
+            >
+              Ir para o treino
+            </button>
           </div>
         )}
 
@@ -209,14 +275,14 @@ const CheckIn: React.FC<CheckInProps> = ({ userId, userName, onSuccess, onCancel
               <Icons.AlertTriangle className="w-16 h-16 text-red-500" />
             </div>
             <div className="space-y-3">
-              <h2 className="text-3xl font-black tracking-tighter text-white uppercase leading-none">Erro</h2>
+              <h2 className="text-3xl font-black tracking-tighter text-white uppercase leading-none">Ops!</h2>
               <p className="text-sm text-white/50 px-6 leading-relaxed font-medium">{errorMessage}</p>
             </div>
             <button
               onClick={() => setStep('GPS_CHECK')}
               className="w-full h-16 border-2 border-white/20 bg-white/5 rounded-2xl text-white font-bold text-xs uppercase tracking-widest transition-all active:scale-[0.98] mt-4"
             >
-              Recomeçar
+              Tentar novamente
             </button>
           </div>
         )}

@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>PersonalGroup — Treino Premium</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+/* ── RESET & TOKENS ─────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --cyan:#00b6fd;
+  --cobalt:#0088cc;
+  --sky:#3363a2;
+  --mid:#010b2e;
+  --deep:#021141;
+  --bg:#00060f;
+  --glass:rgba(255,255,255,.06);
+  --glass-border:rgba(255,255,255,.10);
+  --text:#f0f4ff;
+  --muted:rgba(240,244,255,.5);
+  --danger:#ff4d6d;
+  --amber:#ffb84d;
+  --green:#34d399;
+  --radius:20px;
+  --radius-sm:12px;
+  --radius-pill:999px;
+  --font:'Plus Jakarta Sans',sans-serif;
+}
+html,body{
+  height:100%;
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--font);
+  overflow:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ── ANIMATED BG ─────────────────────────────────────────── */
+#bg-layer{
+  position:fixed;inset:0;
+  background:linear-gradient(135deg,#00060f 0%,#021141 25%,#0a1a3e 50%,#010b2e 75%,#001830 100%);
+  background-size:400% 400%;
+  animation:bgAnim 14s ease infinite;
+  z-index:0;
+}
+#bg-layer::after{
+  content:'';
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse 80% 60% at 50% 0%, rgba(0,182,253,.12) 0%, transparent 70%),
+             radial-gradient(ellipse 50% 40% at 80% 80%, rgba(51,99,162,.10) 0%, transparent 60%);
+}
+@keyframes bgAnim{
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
+}
+
+/* ── LAYOUT ──────────────────────────────────────────────── */
+#app{
+  position:relative;z-index:1;
+  width:100%;height:100%;
+  max-width:430px;margin:0 auto;
+  display:flex;flex-direction:column;
+}
+
+/* ── SCREEN SYSTEM ───────────────────────────────────────── */
+.screen{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;
+  opacity:0;
+  transform:translateX(36px) scale(.97);
+  filter:blur(6px);
+  pointer-events:none;
+  transition:opacity .38s cubic-bezier(.4,0,.2,1),
+              transform .38s cubic-bezier(.4,0,.2,1),
+              filter .38s cubic-bezier(.4,0,.2,1);
+}
+.screen.active{
+  opacity:1;
+  transform:none;
+  filter:blur(0);
+  pointer-events:all;
+}
+.screen.exit{
+  opacity:0;
+  transform:translateX(-36px) scale(.97);
+  filter:blur(6px);
+}
+
+/* ── SCROLL ──────────────────────────────────────────────── */
+.scroll{flex:1;overflow-y:auto;overflow-x:hidden;padding:0 16px 120px;}
+.scroll::-webkit-scrollbar{display:none}
+
+/* ── HEADER ──────────────────────────────────────────────── */
+.hdr{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:52px 20px 14px;
+  flex-shrink:0;
+  position:relative;z-index:2;
+}
+.hdr-back{
+  width:40px;height:40px;border-radius:50%;
+  background:var(--glass);border:1px solid var(--glass-border);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:20px;font-weight:700;
+  transition:background .2s,transform .15s;
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+}
+.hdr-back:active{transform:scale(.9);background:rgba(0,182,253,.15)}
+.hdr-title{font-size:17px;font-weight:700;letter-spacing:-.3px}
+.hdr-chip{
+  background:rgba(0,182,253,.12);border:1px solid rgba(0,182,253,.25);
+  border-radius:var(--radius-pill);padding:6px 12px;
+  font-size:12px;font-weight:700;color:var(--cyan);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+}
+
+/* ── RIPPLE ──────────────────────────────────────────────── */
+.btn-ripple{position:relative;overflow:hidden;cursor:pointer;}
+.btn-ripple .ripple{
+  position:absolute;border-radius:50%;
+  background:rgba(255,255,255,.22);
+  transform:scale(0);animation:rippleAnim .55s linear;
+  pointer-events:none;
+}
+@keyframes rippleAnim{to{transform:scale(4);opacity:0}}
+
+/* ── S1: LISTA DE TREINOS ────────────────────────────────── */
+.s1-greeting{padding:0 20px 20px}
+
+.stat-row{display:flex;gap:10px;padding:0 0 20px}
+.stat-box{
+  flex:1;
+  background:var(--glass);
+  border:1px solid var(--glass-border);
+  border-radius:var(--radius-sm);padding:14px 16px;
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+}
+.stat-box .val{font-size:22px;font-weight:800;color:var(--cyan)}
+.stat-box .lbl{font-size:11px;color:var(--muted);margin-top:2px;text-transform:uppercase;letter-spacing:.5px}
+
+.section-label{
+  font-size:12px;font-weight:700;text-transform:uppercase;
+  letter-spacing:1px;color:var(--muted);padding:0 0 12px
+}
+
+.treino-card{
+  position:relative;
+  background:var(--glass);
+  border:1px solid var(--glass-border);
+  border-radius:var(--radius);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  padding:20px;margin-bottom:12px;
+  cursor:pointer;overflow:hidden;
+  transition:transform .2s,border-color .2s;
+}
+.treino-card:active{transform:scale(.98)}
+.treino-card.featured{border-color:rgba(0,182,253,.35)}
+.treino-card .tc-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  background:rgba(0,182,253,.15);border:1px solid rgba(0,182,253,.3);
+  border-radius:var(--radius-pill);padding:4px 10px;
+  font-size:11px;font-weight:700;color:var(--cyan);margin-bottom:10px;
+}
+.treino-card h3{font-size:18px;font-weight:800;letter-spacing:-.3px}
+.treino-card .tc-sub{font-size:13px;color:var(--muted);margin-top:4px}
+.treino-card .tc-meta{display:flex;gap:16px;margin-top:14px}
+.tc-meta-item{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted)}
+.tc-arrow{
+  position:absolute;right:20px;top:50%;transform:translateY(-50%);
+  width:36px;height:36px;border-radius:50%;
+  background:rgba(0,182,253,.15);border:1px solid rgba(0,182,253,.25);
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;color:var(--cyan);
+}
+.treino-card .tc-glow{
+  position:absolute;top:-40px;right:-40px;
+  width:150px;height:150px;border-radius:50%;
+  background:radial-gradient(circle, rgba(0,182,253,.18) 0%, transparent 70%);
+  pointer-events:none;
+}
+
+/* ── S2: SESSÃO ATIVA ────────────────────────────────────── */
+.exercise-hero{
+  position:relative;
+  background:linear-gradient(180deg,rgba(0,182,253,.20) 0%,rgba(1,8,30,.6) 100%);
+  min-height:220px;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  overflow:hidden;
+  flex-shrink:0;
+}
+.hero-pattern{
+  position:absolute;inset:0;
+  background-image:radial-gradient(rgba(0,182,253,.08) 1.5px, transparent 1.5px);
+  background-size:22px 22px;
+}
+.hero-glow{
+  position:absolute;bottom:-50px;left:50%;transform:translateX(-50%);
+  width:220px;height:110px;
+  background:radial-gradient(ellipse, rgba(0,182,253,.3) 0%, transparent 70%);
+}
+.hero-emoji{
+  font-size:74px;line-height:1;
+  animation:float 4s ease-in-out infinite;
+  position:relative;z-index:1;
+  filter:drop-shadow(0 0 22px rgba(0,182,253,.45));
+}
+@keyframes float{
+  0%,100%{transform:translateY(0) rotate(-2deg)}
+  50%{transform:translateY(-14px) rotate(2deg)}
+}
+.hero-name{
+  font-size:20px;font-weight:800;text-align:center;
+  margin-top:10px;letter-spacing:-.4px;
+  position:relative;z-index:1;padding:0 20px;
+}
+.hero-muscle{
+  font-size:13px;color:var(--cyan);font-weight:600;
+  margin-top:4px;position:relative;z-index:1;
+}
+
+/* SET PROGRESS */
+.set-progress{
+  display:flex;align-items:center;gap:8px;
+  padding:16px 0 8px;
+}
+.set-label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-right:4px}
+.set-dot{
+  width:10px;height:10px;border-radius:50%;
+  border:2px solid rgba(255,255,255,.2);
+  transition:all .3s cubic-bezier(.34,1.56,.64,1);
+}
+.set-dot.done{
+  background:var(--cyan);border-color:var(--cyan);
+  box-shadow:0 0 9px rgba(0,182,253,.75);
+  transform:scale(1.25);
+}
+.set-dot.active{
+  background:rgba(0,182,253,.35);border-color:var(--cyan);
+  animation:pulseDot 1.3s ease-in-out infinite;
+}
+@keyframes pulseDot{50%{box-shadow:0 0 13px rgba(0,182,253,.95);transform:scale(1.35)}}
+
+/* AI CHIP */
+.ai-chip{
+  position:relative;overflow:hidden;
+  background:linear-gradient(135deg,rgba(0,182,253,.10),rgba(51,99,162,.10));
+  border:1px solid rgba(0,182,253,.22);
+  border-radius:var(--radius-sm);padding:12px 14px;
+  margin:12px 0;display:flex;align-items:flex-start;gap:10px;
+}
+.ai-chip::before{
+  content:'';
+  position:absolute;top:0;left:-100%;
+  width:60%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(0,182,253,.14),transparent);
+  animation:shimmer 3.5s ease-in-out infinite;
+}
+@keyframes shimmer{0%{left:-100%}100%{left:220%}}
+.ai-icon{font-size:18px;flex-shrink:0;margin-top:1px}
+.ai-text p{font-size:13px;color:rgba(240,244,255,.85);line-height:1.55}
+.ai-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--cyan);margin-bottom:4px}
+
+/* VIDEO CHIP */
+.video-chip{
+  display:flex;align-items:center;gap:10px;
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
+  border-radius:var(--radius-sm);padding:11px 14px;margin:0 0 12px;
+  cursor:pointer;
+  transition:background .2s;
+}
+.video-chip:active{background:rgba(0,182,253,.1)}
+.video-thumb{
+  width:48px;height:36px;border-radius:8px;
+  background:linear-gradient(135deg,rgba(0,182,253,.25),rgba(51,99,162,.3));
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;flex-shrink:0;
+}
+.video-info{}
+.video-title{font-size:13px;font-weight:700}
+.video-sub{font-size:11px;color:var(--muted);margin-top:2px}
+
+/* WEIGHT SELECTOR */
+.weight-row{
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--glass);border:1px solid var(--glass-border);
+  border-radius:var(--radius-sm);padding:14px 18px;margin:12px 0;
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+}
+.weight-label{font-size:13px;color:var(--muted);font-weight:600}
+.weight-ctrl{display:flex;align-items:center;gap:14px}
+.w-btn{
+  width:40px;height:40px;border-radius:50%;
+  background:rgba(0,182,253,.15);border:1px solid rgba(0,182,253,.3);
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;font-weight:700;color:var(--cyan);
+  cursor:pointer;user-select:none;
+  transition:background .15s,transform .1s;
+}
+.w-btn:active{transform:scale(.86);background:rgba(0,182,253,.3)}
+.w-val{
+  font-size:28px;font-weight:800;min-width:60px;text-align:center;
+  transition:color .2s,transform .35s cubic-bezier(.34,1.56,.64,1);
+}
+.w-val.ping{color:var(--cyan);transform:scale(1.2)}
+.w-unit{font-size:13px;color:var(--muted);font-weight:600}
+
+/* REP INPUT */
+.rep-row{display:flex;gap:8px;margin:12px 0}
+.rep-box{
+  flex:1;background:var(--glass);border:1px solid var(--glass-border);
+  border-radius:var(--radius-sm);padding:13px;text-align:center;cursor:pointer;
+  transition:border-color .2s,background .2s,transform .15s;
+}
+.rep-box:active{transform:scale(.95)}
+.rep-box.sel{
+  background:rgba(0,182,253,.15);border-color:rgba(0,182,253,.5);
+  box-shadow:0 0 12px rgba(0,182,253,.2);
+}
+.rep-box .rv{font-size:20px;font-weight:800}
+.rep-box .rl{font-size:10px;color:var(--muted);margin-top:2px;text-transform:uppercase;letter-spacing:.4px}
+
+/* EFFORT SCALE */
+.effort-section{margin:16px 0}
+.effort-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:10px}
+.effort-bar{display:flex;gap:5px;align-items:flex-end;height:36px;}
+.effort-col{
+  flex:1;border-radius:4px 4px 2px 2px;cursor:pointer;
+  transition:transform .25s cubic-bezier(.34,1.56,.64,1),opacity .2s,box-shadow .2s;
+  position:relative;
+}
+.effort-col:hover{transform:scaleY(1.12);transform-origin:bottom}
+.effort-col.active{box-shadow:0 0 12px rgba(0,182,253,.55)}
+.effort-label{display:flex;justify-content:space-between;margin-top:7px;font-size:11px;color:var(--muted)}
+
+/* BOTTOM CTA */
+.bottom-cta{
+  padding:14px 16px 40px;
+  flex-shrink:0;
+  background:linear-gradient(to top,rgba(0,6,15,.95) 60%,transparent);
+}
+.btn-primary{
+  width:100%;padding:17px;
+  background:linear-gradient(135deg,var(--cyan) 0%,var(--cobalt) 100%);
+  border:none;border-radius:var(--radius-pill);
+  font-size:16px;font-weight:800;color:#fff;
+  cursor:pointer;letter-spacing:.2px;
+  box-shadow:0 4px 26px rgba(0,182,253,.38);
+  transition:transform .15s,box-shadow .15s;
+  position:relative;overflow:hidden;
+}
+.btn-primary:active{transform:scale(.97);box-shadow:0 2px 14px rgba(0,182,253,.25)}
+.btn-secondary{
+  width:100%;padding:14px;
+  background:var(--glass);border:1px solid var(--glass-border);
+  border-radius:var(--radius-pill);
+  font-size:15px;font-weight:700;color:var(--text);
+  cursor:pointer;margin-top:10px;
+  transition:background .2s,transform .15s;
+  position:relative;overflow:hidden;
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+}
+.btn-secondary:active{transform:scale(.97);background:rgba(255,255,255,.1)}
+
+/* ── S3: DESCANSO ────────────────────────────────────────── */
+.rest-screen{
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  flex:1;padding:20px 24px 100px;text-align:center;gap:0;
+}
+.rest-title{font-size:24px;font-weight:800;margin-bottom:4px}
+.rest-sub{font-size:14px;color:var(--muted);margin-bottom:32px}
+
+/* CONIC TIMER */
+.timer-wrap{position:relative;width:210px;height:210px;flex-shrink:0;margin-bottom:28px}
+.timer-breathe{
+  position:absolute;inset:-14px;border-radius:50%;
+  background:radial-gradient(circle, rgba(0,182,253,.13) 60%, transparent 100%);
+  animation:breathe 3.5s ease-in-out infinite;
+}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+.timer-ring{
+  width:210px;height:210px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;z-index:1;
+}
+.timer-ring-svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
+.timer-ring-bg{fill:none;stroke:rgba(255,255,255,.06);stroke-width:10}
+.timer-ring-fill{fill:none;stroke-width:10;stroke-linecap:round;stroke:var(--cyan);transition:stroke-dashoffset .2s linear,stroke .4s}
+.timer-inner{
+  width:168px;height:168px;border-radius:50%;
+  background:linear-gradient(145deg,rgba(2,17,65,.95),rgba(0,6,15,.98));
+  border:1px solid rgba(255,255,255,.07);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  position:relative;z-index:2;
+}
+.timer-num{font-size:52px;font-weight:800;line-height:1;letter-spacing:-2px;transition:color .4s}
+.timer-suffix{font-size:13px;color:var(--muted);margin-top:2px;font-weight:600}
+
+.rest-tip{
+  max-width:290px;
+  background:var(--glass);border:1px solid var(--glass-border);
+  border-radius:var(--radius);padding:14px 18px;
+  text-align:left;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  margin-bottom:20px;
+}
+.rest-tip-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--cyan);margin-bottom:5px}
+.rest-tip-text{font-size:13px;color:rgba(240,244,255,.8);line-height:1.55}
+
+.rest-skip{
+  background:rgba(0,182,253,.12);border:1px solid rgba(0,182,253,.25);
+  border-radius:var(--radius-pill);padding:13px 34px;
+  font-size:15px;font-weight:700;color:var(--cyan);
+  cursor:pointer;
+  position:relative;overflow:hidden;
+  transition:background .2s,transform .15s;
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+}
+.rest-skip:active{transform:scale(.96)}
+
+/* ── S4: CONFIRMAR FINALIZAR ─────────────────────────────── */
+.confirm-wrap{
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  flex:1;padding:24px 24px 80px;text-align:center;
+}
+.confirm-icon{font-size:72px;margin-bottom:16px;animation:float 4s ease-in-out infinite}
+.confirm-title{font-size:26px;font-weight:800;margin-bottom:8px}
+.confirm-sub{font-size:14px;color:var(--muted);line-height:1.6;max-width:280px}
+.confirm-stats{
+  display:grid;grid-template-columns:1fr 1fr;gap:12px;
+  width:100%;max-width:320px;margin:28px 0;
+}
+.cs-box{
+  background:var(--glass);border:1px solid var(--glass-border);
+  border-radius:var(--radius-sm);padding:16px;
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+}
+.cs-val{font-size:28px;font-weight:800;color:var(--cyan)}
+.cs-lbl{font-size:11px;color:var(--muted);margin-top:3px;text-transform:uppercase;letter-spacing:.4px}
+.confirm-btns{width:100%;max-width:320px;display:flex;flex-direction:column;gap:10px}
+
+/* ── S5: PARABÉNS ────────────────────────────────────────── */
+canvas#confetti{position:absolute;inset:0;pointer-events:none;z-index:10}
+.finish-wrap{
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  flex:1;padding:24px 24px 80px;text-align:center;
+  position:relative;z-index:11;
+  overflow-y:auto;
+}
+.finish-wrap::-webkit-scrollbar{display:none}
+.trophy{
+  font-size:84px;line-height:1;margin-bottom:8px;
+  animation:trophyBounce .65s cubic-bezier(.34,1.56,.64,1) .12s both;
+}
+@keyframes trophyBounce{
+  0%{transform:scale(0) rotate(-20deg);opacity:0}
+  60%{transform:scale(1.12) rotate(4deg)}
+  80%{transform:scale(.96) rotate(-2deg)}
+  100%{transform:scale(1) rotate(0);opacity:1}
+}
+.finish-title{font-size:30px;font-weight:800;letter-spacing:-.5px;margin-bottom:6px}
+.finish-sub{font-size:14px;color:var(--muted);margin-bottom:28px}
+.finish-stats{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:10px;
+  width:100%;max-width:340px;margin-bottom:20px;
+}
+.fs-box{
+  background:var(--glass);border:1px solid var(--glass-border);
+  border-radius:var(--radius-sm);padding:14px 10px;
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+}
+.fs-val{font-size:22px;font-weight:800;color:var(--cyan)}
+.fs-lbl{font-size:10px;color:var(--muted);margin-top:2px;text-transform:uppercase;letter-spacing:.4px}
+
+/* CONQUISTA CARD */
+.conquista{
+  position:relative;overflow:hidden;
+  background:linear-gradient(135deg,rgba(255,184,77,.13),rgba(255,140,0,.08));
+  border:1px solid rgba(255,184,77,.35);
+  border-radius:var(--radius);padding:16px 20px;
+  display:flex;align-items:center;gap:14px;
+  width:100%;max-width:340px;margin-bottom:22px;
+  animation:conquFadeIn .5s ease .85s both;
+}
+@keyframes conquFadeIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+.conquista::before{
+  content:'';
+  position:absolute;top:0;left:-100%;
+  width:50%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,184,77,.16),transparent);
+  animation:goldShine 3.2s ease 1.6s infinite;
+}
+@keyframes goldShine{0%{left:-100%}100%{left:220%}}
+.conq-icon{font-size:38px;flex-shrink:0}
+.conq-title{font-size:15px;font-weight:800;color:#ffb84d}
+.conq-sub{font-size:12px;color:rgba(255,184,77,.7);margin-top:2px}
+
+/* ── NAV BAR ─────────────────────────────────────────────── */
+.nav-bar{
+  position:fixed;bottom:0;left:50%;transform:translateX(-50%);
+  width:100%;max-width:430px;
+  background:rgba(1,8,30,.88);
+  backdrop-filter:blur(26px);-webkit-backdrop-filter:blur(26px);
+  border-top:1px solid rgba(255,255,255,.07);
+  display:flex;align-items:center;justify-content:space-around;
+  padding:10px 0 28px;z-index:50;
+}
+.nav-item{
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  font-size:10px;color:var(--muted);cursor:pointer;
+  transition:color .2s,transform .2s;padding:4px 12px;
+}
+.nav-item.active{color:var(--cyan)}
+.nav-item.active .nav-icon{transform:translateY(-3px) scale(1.18)}
+.nav-icon{font-size:22px;transition:transform .2s}
+.nav-center{
+  width:70px;height:70px;border-radius:50%;
+  background:linear-gradient(135deg,var(--cyan),var(--cobalt));
+  display:flex;align-items:center;justify-content:center;
+  font-size:28px;margin-top:-22px;
+  box-shadow:0 4px 22px rgba(0,182,253,.48);
+  animation:navGlow 3s ease-in-out infinite;
+  cursor:pointer;
+}
+@keyframes navGlow{50%{box-shadow:0 4px 32px rgba(0,182,253,.72)}}
+
+/* ── PROGRESS BAR (top session) ─────────────────────────── */
+.session-progress{
+  height:3px;background:rgba(255,255,255,.07);
+  flex-shrink:0;margin:0 16px 2px;border-radius:2px;overflow:hidden;
+  position:relative;z-index:2;
+}
+.session-progress-fill{
+  height:100%;border-radius:2px;
+  background:linear-gradient(90deg,var(--cobalt),var(--cyan));
+  transition:width .6s ease;
+  box-shadow:0 0 9px rgba(0,182,253,.65);
+}
+
+/* ── UTIL ────────────────────────────────────────────────── */
+.mt8{margin-top:8px}
+.mt16{margin-top:16px}
+</style>
+</head>
+<body>
+<div id="bg-layer"></div>
+<div id="app">
+
+
+<!-- ════════════════════════════════════════
+     S1 — LISTA DE TREINOS
+═════════════════════════════════════════ -->
+<div class="screen active" id="s1">
+  <div class="hdr">
+    <div>
+      <div style="font-size:13px;color:var(--muted);font-weight:600">Bom dia, Rafael 👋</div>
+      <div style="font-size:22px;font-weight:800;margin-top:2px;letter-spacing:-.4px">Meus Treinos</div>
+    </div>
+    <div class="hdr-chip">Plano Platinum</div>
+  </div>
+
+  <div class="scroll">
+    <!-- stats -->
+    <div class="stat-row">
+      <div class="stat-box"><div class="val" id="st1">0</div><div class="lbl">Dias seguidos</div></div>
+      <div class="stat-box"><div class="val" id="st2">0</div><div class="lbl">Treinos mês</div></div>
+      <div class="stat-box"><div class="val" id="st3">0h</div><div class="lbl">Horas ativas</div></div>
+    </div>
+
+    <div class="section-label">Próximos</div>
+
+    <!-- card featured -->
+    <div class="treino-card featured btn-ripple" onclick="goTo('s1','s2')">
+      <div class="tc-glow"></div>
+      <div class="tc-badge">⚡ Hoje</div>
+      <h3>Peito, Ombro & Tríceps</h3>
+      <div class="tc-sub">Personal Marcos · Protocolo A</div>
+      <div class="tc-meta">
+        <div class="tc-meta-item">🏋️ 8 exercícios</div>
+        <div class="tc-meta-item">⏱️ ~55 min</div>
+        <div class="tc-meta-item">🔥 Intenso</div>
+      </div>
+      <div class="tc-arrow">›</div>
+    </div>
+
+    <!-- card B -->
+    <div class="treino-card btn-ripple">
+      <div class="tc-badge" style="color:var(--muted);background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.1)">🗓️ Quarta</div>
+      <h3>Costas & Bíceps</h3>
+      <div class="tc-sub">Personal Marcos · Protocolo B</div>
+      <div class="tc-meta">
+        <div class="tc-meta-item">🏋️ 7 exercícios</div>
+        <div class="tc-meta-item">⏱️ ~50 min</div>
+        <div class="tc-meta-item">💪 Moderado</div>
+      </div>
+      <div class="tc-arrow" style="color:var(--muted);background:var(--glass);border-color:var(--glass-border)">›</div>
+    </div>
+
+    <!-- card C -->
+    <div class="treino-card btn-ripple">
+      <div class="tc-badge" style="color:var(--muted);background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.1)">🗓️ Sexta</div>
+      <h3>Pernas Completo</h3>
+      <div class="tc-sub">Personal Marcos · Protocolo C</div>
+      <div class="tc-meta">
+        <div class="tc-meta-item">🏋️ 9 exercícios</div>
+        <div class="tc-meta-item">⏱️ ~65 min</div>
+        <div class="tc-meta-item">🏋️ Pesado</div>
+      </div>
+      <div class="tc-arrow" style="color:var(--muted);background:var(--glass);border-color:var(--glass-border)">›</div>
+    </div>
+
+    <div class="section-label mt16">Esta semana</div>
+    <div class="treino-card" style="opacity:.5;pointer-events:none">
+      <div class="tc-badge" style="color:var(--green);background:rgba(52,211,153,.1);border-color:rgba(52,211,153,.28)">✅ Segunda</div>
+      <h3>Peito, Ombro & Tríceps</h3>
+      <div class="tc-sub">42 min · Protocolo A · 1.680 kg volume</div>
+    </div>
+  </div>
+
+  <div class="nav-bar">
+    <div class="nav-item"><div class="nav-icon">🏠</div>Início</div>
+    <div class="nav-item"><div class="nav-icon">💬</div>Recados</div>
+    <div class="nav-center">🏋️</div>
+    <div class="nav-item active"><div class="nav-icon">📈</div>Saúde</div>
+    <div class="nav-item"><div class="nav-icon">⭐</div>Hub</div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+     S2 — SESSÃO ATIVA
+═════════════════════════════════════════ -->
+<div class="screen" id="s2">
+  <div class="hdr">
+    <div class="hdr-back btn-ripple" onclick="goTo('s2','s1')">‹</div>
+    <div style="text-align:center">
+      <div class="hdr-title">Sessão Ativa</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:2px">Exercício 2 de 8</div>
+    </div>
+    <div class="hdr-chip" id="timer-hdr">00:00</div>
+  </div>
+
+  <div class="session-progress"><div class="session-progress-fill" id="sess-prog" style="width:25%"></div></div>
+
+  <!-- hero exercise -->
+  <div class="exercise-hero">
+    <div class="hero-pattern"></div>
+    <div class="hero-glow"></div>
+    <div class="hero-emoji" id="hero-emo">🏋️</div>
+    <div class="hero-name">Supino Reto com Barra</div>
+    <div class="hero-muscle">Peitoral maior · deltóide anterior · tríceps</div>
+  </div>
+
+  <div class="scroll" style="padding-top:2px">
+    <!-- set dots -->
+    <div class="set-progress">
+      <div class="set-label">Série</div>
+      <div class="set-dot done"   id="d1"></div>
+      <div class="set-dot active" id="d2"></div>
+      <div class="set-dot"        id="d3"></div>
+      <div class="set-dot"        id="d4"></div>
+      <div style="margin-left:auto;font-size:13px;font-weight:700;color:var(--cyan)">2 / 4</div>
+    </div>
+
+    <!-- video chip -->
+    <div class="video-chip btn-ripple">
+      <div class="video-thumb">▶️</div>
+      <div class="video-info">
+        <div class="video-title">Ver execução correta</div>
+        <div class="video-sub">1 min 24 seg · vídeo demonstrativo</div>
+      </div>
+    </div>
+
+    <!-- AI chip -->
+    <div class="ai-chip">
+      <div class="ai-icon">🤖</div>
+      <div class="ai-text">
+        <div class="ai-label">IA · Dica de execução</div>
+        <p>Mantenha as escápulas retraídas e desça a barra até tocar levemente o peitoral. Expire na fase concêntrica para maior ativação.</p>
+      </div>
+    </div>
+
+    <!-- weight -->
+    <div class="weight-row">
+      <div>
+        <div class="weight-label">Carga</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">Última vez: 60 kg</div>
+      </div>
+      <div class="weight-ctrl">
+        <div class="w-btn btn-ripple" onclick="changeWeight(-2.5)">−</div>
+        <div><span class="w-val" id="wval">62</span><span class="w-unit"> kg</span></div>
+        <div class="w-btn btn-ripple" onclick="changeWeight(2.5)">+</div>
+      </div>
+    </div>
+
+    <!-- reps -->
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin:4px 0 8px">Repetições realizadas</div>
+    <div class="rep-row">
+      <div class="rep-box btn-ripple" onclick="selectRep(this)"><div class="rv">8</div><div class="rl">Prescrição</div></div>
+      <div class="rep-box sel btn-ripple" onclick="selectRep(this)"><div class="rv">10</div><div class="rl">Realizado</div></div>
+      <div class="rep-box btn-ripple" onclick="selectRep(this)"><div class="rv">12</div><div class="rl">+2 extra</div></div>
+      <div class="rep-box btn-ripple" onclick="selectRep(this)" style="flex:.55"><div class="rv">+</div><div class="rl">Outro</div></div>
+    </div>
+
+    <!-- effort -->
+    <div class="effort-section">
+      <div class="effort-title">Esforço percebido</div>
+      <div class="effort-bar" id="effort-bar"></div>
+      <div class="effort-label"><span>Fácil</span><span>Moderado</span><span>Máximo</span></div>
+    </div>
+  </div>
+
+  <div class="bottom-cta">
+    <button class="btn-primary btn-ripple" onclick="goTo('s2','s3')">✓ Série concluída — Descansar</button>
+    <button class="btn-secondary btn-ripple" onclick="goTo('s2','s4')">Encerrar treino</button>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+     S3 — DESCANSO
+═════════════════════════════════════════ -->
+<div class="screen" id="s3">
+  <div class="hdr">
+    <div class="hdr-back btn-ripple" onclick="goTo('s3','s2')">‹</div>
+    <div class="hdr-title">Descanso</div>
+    <div style="width:40px"></div>
+  </div>
+  <div class="rest-screen">
+    <div class="rest-title">Recuperando ⚡</div>
+    <div class="rest-sub">Próximo: Supino Reto — Série 3 de 4</div>
+
+    <!-- SVG ring timer -->
+    <div class="timer-wrap">
+      <div class="timer-breathe"></div>
+      <div class="timer-ring">
+        <svg class="timer-ring-svg" viewBox="0 0 210 210">
+          <circle class="timer-ring-bg" cx="105" cy="105" r="96"/>
+          <circle class="timer-ring-fill" id="timer-fill" cx="105" cy="105" r="96"
+                  stroke-dasharray="603.19" stroke-dashoffset="0"/>
+        </svg>
+        <div class="timer-inner">
+          <div class="timer-num" id="rest-num">60</div>
+          <div class="timer-suffix">segundos</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rest-tip">
+      <div class="rest-tip-lbl">🤖 IA · Aproveite o descanso</div>
+      <div class="rest-tip-text">Hidrate-se agora. Para hipertrofia, 60–90 s entre séries maximiza o estímulo hormonal e permite recuperação ideal das fibras musculares.</div>
+    </div>
+
+    <div class="rest-skip btn-ripple" onclick="goTo('s3','s2')">Pular descanso →</div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+     S4 — CONFIRMAR FINALIZAR
+═════════════════════════════════════════ -->
+<div class="screen" id="s4">
+  <div class="hdr">
+    <div class="hdr-back btn-ripple" onclick="goTo('s4','s2')">‹</div>
+    <div class="hdr-title">Encerrar</div>
+    <div style="width:40px"></div>
+  </div>
+  <div class="confirm-wrap">
+    <div class="confirm-icon">🏁</div>
+    <div class="confirm-title">Encerrar treino?</div>
+    <div class="confirm-sub">Você completou 2 de 8 exercícios. Seu progresso será salvo.</div>
+    <div class="confirm-stats">
+      <div class="cs-box"><div class="cs-val">18</div><div class="cs-lbl">Min. ativo</div></div>
+      <div class="cs-box"><div class="cs-val">6</div><div class="cs-lbl">Séries</div></div>
+      <div class="cs-box"><div class="cs-val">372</div><div class="cs-lbl">Volume kg</div></div>
+      <div class="cs-box"><div class="cs-val">82%</div><div class="cs-lbl">Esforço médio</div></div>
+    </div>
+    <div class="confirm-btns">
+      <button class="btn-primary btn-ripple" onclick="goTo('s4','s5')">Sim, salvar e encerrar</button>
+      <button class="btn-secondary btn-ripple" onclick="goTo('s4','s2')">Continuar treinando</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+     S5 — PARABÉNS
+═════════════════════════════════════════ -->
+<div class="screen" id="s5">
+  <canvas id="confetti"></canvas>
+  <div class="finish-wrap">
+    <div class="trophy">🏆</div>
+    <div class="finish-title">Treino concluído!</div>
+    <div class="finish-sub">Peito, Ombro & Tríceps · 42 min</div>
+
+    <div class="finish-stats">
+      <div class="fs-box"><div class="fs-val" id="fs1">0</div><div class="fs-lbl">Exercícios</div></div>
+      <div class="fs-box"><div class="fs-val" id="fs2">0</div><div class="fs-lbl">Séries</div></div>
+      <div class="fs-box"><div class="fs-val" id="fs3">0 kg</div><div class="fs-lbl">Volume</div></div>
+    </div>
+
+    <div class="conquista">
+      <div class="conq-icon">🥇</div>
+      <div>
+        <div class="conq-title">Conquista desbloqueada!</div>
+        <div class="conq-sub">5 dias seguidos · "Constância é tudo"</div>
+      </div>
+    </div>
+
+    <div style="width:100%;max-width:320px;display:flex;flex-direction:column;gap:10px">
+      <button class="btn-primary btn-ripple" onclick="goTo('s5','s1')">🏠 Voltar ao início</button>
+      <button class="btn-secondary btn-ripple">📊 Ver relatório completo</button>
+    </div>
+  </div>
+</div>
+
+
+</div><!-- #app -->
+
+<script>
+/* ══════════════════════════════════════════════
+   SCREEN TRANSITIONS
+══════════════════════════════════════════════ */
+let currentScreen = 's1';
+
+function goTo(from, to) {
+  const fromEl = document.getElementById(from);
+  const toEl   = document.getElementById(to);
+
+  // exit current
+  fromEl.classList.add('exit');
+  fromEl.classList.remove('active');
+  setTimeout(() => fromEl.classList.remove('exit'), 400);
+
+  // prepare next off-screen right
+  toEl.style.transition = 'none';
+  toEl.style.opacity   = '0';
+  toEl.style.transform = 'translateX(36px) scale(.97)';
+  toEl.style.filter    = 'blur(6px)';
+  toEl.classList.add('active');
+
+  // trigger animation on next frame
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      toEl.style.transition = '';
+      toEl.style.opacity    = '';
+      toEl.style.transform  = '';
+      toEl.style.filter     = '';
+    });
+  });
+
+  currentScreen = to;
+  if (to === 's3') startRestTimer();
+  if (to === 's5') { startConfetti(); scheduleCountUp(); }
+  if (to === 's1') animateStats();
+}
+
+/* ══════════════════════════════════════════════
+   RIPPLE
+══════════════════════════════════════════════ */
+document.querySelectorAll('.btn-ripple').forEach(btn => {
+  btn.addEventListener('pointerdown', function(e) {
+    const r    = document.createElement('span');
+    r.className = 'ripple';
+    const rect = this.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height) * 2.2;
+    r.style.cssText = `width:${size}px;height:${size}px;`
+      + `left:${e.clientX - rect.left - size/2}px;`
+      + `top:${e.clientY - rect.top  - size/2}px`;
+    this.appendChild(r);
+    setTimeout(() => r.remove(), 620);
+  });
+});
+
+/* ══════════════════════════════════════════════
+   COUNT-UP UTILITY
+══════════════════════════════════════════════ */
+function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+
+function countUp(el, target, suffix, dur, delay) {
+  setTimeout(() => {
+    const start = performance.now();
+    (function tick(now) {
+      const prog = Math.min((now - start) / dur, 1);
+      const val  = Math.round(easeOutCubic(prog) * target);
+      el.textContent = val + suffix;
+      if (prog < 1) requestAnimationFrame(tick);
+    })(performance.now());
+  }, delay);
+}
+
+/* ── S1 stat count-up ─────────────────────── */
+function animateStats() {
+  countUp(document.getElementById('st1'), 5,  '',  900, 200);
+  countUp(document.getElementById('st2'), 14, '', 1000, 360);
+  countUp(document.getElementById('st3'), 8,  'h', 900, 520);
+}
+animateStats();
+
+/* ── S5 finish count-up ───────────────────── */
+function scheduleCountUp() {
+  countUp(document.getElementById('fs1'), 8,  '',      850, 450);
+  countUp(document.getElementById('fs2'), 28, '',      950, 600);
+  setTimeout(() => {
+    const el  = document.getElementById('fs3');
+    const st  = performance.now();
+    const dur = 1100;
+    (function tick(now) {
+      const prog = Math.min((now - st) / dur, 1);
+      el.textContent = Math.round(easeOutCubic(prog) * 1680) + ' kg';
+      if (prog < 1) requestAnimationFrame(tick);
+    })(performance.now());
+  }, 800);
+}
+
+/* ══════════════════════════════════════════════
+   EFFORT BAR
+══════════════════════════════════════════════ */
+const effortColors = [
+  '#34d399','#4ade80','#86efac',
+  '#facc15','#fbbf24','#f59e0b',
+  '#fb923c','#f87171','#ef4444','#dc2626'
+];
+let selectedEffort = 7;
+
+function buildEffort() {
+  const bar = document.getElementById('effort-bar');
+  bar.innerHTML = '';
+  for (let i = 0; i < 10; i++) {
+    const h   = 12 + i * 2.4;
+    const col = document.createElement('div');
+    col.className = 'effort-col' + (i === selectedEffort ? ' active' : '');
+    col.style.cssText = `height:${h}px;background:${effortColors[i]};opacity:${i <= selectedEffort ? 1 : .18}`;
+    const idx = i;
+    col.addEventListener('click', () => { selectedEffort = idx; buildEffort(); });
+    bar.appendChild(col);
+  }
+}
+buildEffort();
+
+/* ══════════════════════════════════════════════
+   WEIGHT SELECTOR
+══════════════════════════════════════════════ */
+let weight = 62;
+const wvalEl = document.getElementById('wval');
+
+function changeWeight(delta) {
+  weight = Math.max(0, Math.round((weight + delta) * 10) / 10);
+  wvalEl.textContent = weight % 1 === 0 ? weight : weight.toFixed(1);
+  wvalEl.classList.remove('ping');
+  void wvalEl.offsetWidth;            // force reflow
+  wvalEl.classList.add('ping');
+  setTimeout(() => wvalEl.classList.remove('ping'), 360);
+}
+
+/* ══════════════════════════════════════════════
+   REP SELECTOR
+══════════════════════════════════════════════ */
+function selectRep(el) {
+  document.querySelectorAll('.rep-box').forEach(b => b.classList.remove('sel'));
+  el.classList.add('sel');
+}
+
+/* ══════════════════════════════════════════════
+   SESSION HEADER TIMER
+══════════════════════════════════════════════ */
+let sessionSecs = 0;
+setInterval(() => {
+  sessionSecs++;
+  const m = String(Math.floor(sessionSecs / 60)).padStart(2,'0');
+  const s = String(sessionSecs % 60).padStart(2,'0');
+  document.getElementById('timer-hdr').textContent = `${m}:${s}`;
+}, 1000);
+
+/* ══════════════════════════════════════════════
+   REST TIMER  (SVG stroke-dashoffset)
+══════════════════════════════════════════════ */
+const CIRCUMFERENCE = 2 * Math.PI * 96; // ≈ 603.19
+let restInterval = null;
+let restSecs     = 60;
+
+function startRestTimer() {
+  clearInterval(restInterval);
+  restSecs = 60;
+  const numEl  = document.getElementById('rest-num');
+  const fillEl = document.getElementById('timer-fill');
+  numEl.textContent  = restSecs;
+  numEl.style.color  = 'var(--cyan)';
+  fillEl.style.stroke = 'var(--cyan)';
+  fillEl.style.strokeDashoffset = 0;
+
+  restInterval = setInterval(() => {
+    restSecs--;
+    if (restSecs < 0) { clearInterval(restInterval); return; }
+
+    numEl.textContent = restSecs;
+
+    // progress: offset goes from 0 → circumference
+    const progress = restSecs / 60;
+    fillEl.style.strokeDashoffset = CIRCUMFERENCE * (1 - progress);
+
+    // color phases
+    if (restSecs <= 10) {
+      numEl.style.color   = 'var(--danger)';
+      fillEl.style.stroke = 'var(--danger)';
+    } else if (restSecs <= 20) {
+      numEl.style.color   = 'var(--amber)';
+      fillEl.style.stroke = 'var(--amber)';
+    } else {
+      numEl.style.color   = 'var(--cyan)';
+      fillEl.style.stroke = 'var(--cyan)';
+    }
+  }, 1000);
+}
+
+/* ══════════════════════════════════════════════
+   SET DOTS DEMO  (auto-cycle)
+══════════════════════════════════════════════ */
+let dotState = 1; // 0-based index of active dot
+setInterval(() => {
+  if (currentScreen !== 's2') return;
+  dotState = (dotState + 1) % 5;
+  ['d1','d2','d3','d4'].forEach((id, i) => {
+    const d = document.getElementById(id);
+    d.className = 'set-dot';
+    if (i < dotState)     d.classList.add('done');
+    else if (i === dotState) d.classList.add('active');
+  });
+}, 2000);
+
+/* ══════════════════════════════════════════════
+   CANVAS CONFETTI
+══════════════════════════════════════════════ */
+class Particle {
+  constructor(cx) {
+    this.x = cx + (Math.random() - .5) * 80;
+    this.y = -20;
+    this.vx = (Math.random() - .5) * 11;
+    this.vy = -(Math.random() * 7 + 2);
+    this.gravity = .32;
+    this.size    = Math.random() * 9 + 3;
+    this.color   = ['#00b6fd','#3363a2','#34d399','#ffb84d','#f472b6','#a78bfa','#ffffff','#6ee7b7'][Math.floor(Math.random()*8)];
+    this.angle   = Math.random() * 360;
+    this.spin    = (Math.random() - .5) * 9;
+    this.alpha   = 1;
+    this.shape   = Math.random() > .45 ? 'rect' : 'circle';
+  }
+  update() {
+    this.vx *= .99;
+    this.vy += this.gravity;
+    this.x  += this.vx;
+    this.y  += this.vy;
+    this.angle += this.spin;
+    if (this.y > 900) this.alpha -= .045;
+    this.alpha = Math.max(0, this.alpha);
+  }
+  draw(ctx) {
+    ctx.save();
+    ctx.globalAlpha = this.alpha;
+    ctx.fillStyle   = this.color;
+    ctx.translate(this.x, this.y);
+    ctx.rotate(this.angle * Math.PI / 180);
+    if (this.shape === 'rect') {
+      ctx.fillRect(-this.size / 2, -this.size / 4, this.size, this.size / 2);
+    } else {
+      ctx.beginPath();
+      ctx.arc(0, 0, this.size / 2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+}
+
+let particles = [];
+let confAF    = null;
+
+function startConfetti() {
+  const canvas  = document.getElementById('confetti');
+  const wrapper = document.getElementById('s5');
+  canvas.width  = wrapper.offsetWidth  || 430;
+  canvas.height = wrapper.offsetHeight || 844;
+  const ctx = canvas.getContext('2d');
+  const cx  = canvas.width / 2;
+
+  cancelAnimationFrame(confAF);
+  particles = [];
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // spawn 90 particles with stagger
+  for (let i = 0; i < 90; i++) {
+    setTimeout(() => particles.push(new Particle(cx)), i * 38);
+  }
+
+  function loop() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => { p.update(); p.draw(ctx); });
+    particles = particles.filter(p => p.alpha > 0);
+    if (particles.length > 0) confAF = requestAnimationFrame(loop);
+    else ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+  loop();
+
+  // hard stop after 7s
+  setTimeout(() => {
+    cancelAnimationFrame(confAF);
+    particles = [];
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }, 7000);
+}
+</script>
+</body>
+</html>

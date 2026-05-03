@@ -1,6 +1,6 @@
 import { doc, getDoc, setDoc, updateDoc, addDoc, serverTimestamp, increment, deleteField, arrayUnion, arrayRemove, onSnapshot, query, where, orderBy, limit, getDocs, collection } from "firebase/firestore";
 import { db, sessoesCol, timelineCol, avaliacoesCol, wellnessCol, checkInsCol, liveSessionsCol } from "./firebaseCore";
-import { User, TrainingCycle, SessionLog, Assessment, HealthStatus, WellnessBooking, LiveSession } from "../types";
+import { User, TrainingCycle, SessionLog, Assessment, HealthStatus, WellnessBooking, LiveSession, SugestaoIA } from "../types";
 import { triggerSystemAlert } from "./adminService";
 import { evolutionCol } from "./firebaseCore";
 
@@ -323,10 +323,9 @@ export const endLiveSession = async (studentId: string): Promise<void> => {
 
 export const getLastTrainerSession = async (studentId: string) => {
     const q = query(
-        collection(db, "sessions"),
-        where("alunoUid", "==", studentId),
-        where("status", "==", "DONE"),
-        orderBy("endTime", "desc"),
+        sessoesCol,
+        where("userId", "==", studentId),
+        orderBy("timestamp", "desc"),
         limit(1)
     );
     const snap = await getDocs(q);
@@ -334,3 +333,100 @@ export const getLastTrainerSession = async (studentId: string) => {
     const docSnap = snap.docs[0];
     return { id: docSnap.id, ...docSnap.data() };
 };
+
+export const salvarObservacao = async (sessionId: string, observacao: string, trainerId: string, trainerName: string) => {
+    try {
+        const obsCol = collection(db, "sessoes", sessionId, "observacoes");
+        await addDoc(obsCol, {
+            texto: observacao,
+            trainerId,
+            trainerNome: trainerName,
+            timestamp: serverTimestamp()
+        });
+        
+        // Also update a flag in the session for quick reference if needed
+        const sessionRef = doc(db, "sessoes", sessionId);
+        await updateDoc(sessionRef, {
+            temObservacao: true
+        });
+    } catch (error) {
+        console.error("Erro salvarObservacao:", error);
+        throw error;
+    }
+};
+
+export const getObservacoesDaSessao = async (sessionId: string) => {
+    try {
+        const obsCol = collection(db, "sessoes", sessionId, "observacoes");
+        const q = query(obsCol, orderBy("timestamp", "desc"));
+        const snap = await getDocs(q);
+        return snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    } catch (error) {
+        console.error("Erro getObservacoesDaSessao:", error);
+        return [];
+    }
+};
+
+export const getRecentObservationsGlobal = async (limitCount: number = 5) => {
+    try {
+        // Since we can't easily query across subcollections in a simple way without collectionGroup
+        // and we want 'recent' sessions that have observations, we'll query sessions with temObservacao: true
+        const q = query(
+            sessoesCol,
+            where("temObservacao", "==", true),
+            orderBy("timestamp", "desc"),
+            limit(limitCount)
+        );
+        const snap = await getDocs(q);
+        
+        const sessions = await Promise.all(snap.docs.map(async (docSnap) => {
+            const sessionData = docSnap.data();
+            const obs = await getObservacoesDaSessao(docSnap.id);
+            return {
+                id: docSnap.id,
+                ...sessionData,
+                observacoes: obs
+            };
+        }));
+        
+        return sessions;
+    } catch (error) {
+        console.error("Erro getRecentObservationsGlobal:", error);
+        return [];
+    }
+};
+
+// Gerar sugestão de carga baseada no histórico do exercício
+export async function gerarSugestaoIA(
+  exercicioId: string,
+  userId: string
+): Promise<SugestaoIA | null> {
+  try {
+    // Stub: buscar histórico real quando disponível
+    // Por enquanto retorna null para não quebrar o fluxo
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+// Gerar feedback da IA pós-treino
+export function gerarFeedbackPosTreino(params: {
+  volumeAtual: number;
+  volumeAnterior: number;
+  totalExercicios: number;
+  diasSeguidos: number;
+}): string {
+  const diff = params.volumeAtual - params.volumeAnterior;
+  const pct = params.volumeAnterior > 0
+    ? Math.round((diff / params.volumeAnterior) * 100)
+    : 0;
+
+  if (pct > 0) {
+    return `Você aumentou seu volume total em ${pct}% em relação à última sessão. Continue nesse ritmo e em breve você avança de nível!`;
+  } else if (pct === 0) {
+    return `Volume igual à última sessão — consistência é a chave! Seu personal vai adorar ver essa regularidade.`;
+  } else {
+    return `Treino mais leve hoje, e tudo bem! Ouvir o corpo é parte do progresso. Amanhã você retoma com ainda mais energia.`;
+  }
+}

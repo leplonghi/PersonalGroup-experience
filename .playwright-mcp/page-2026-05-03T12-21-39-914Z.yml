@@ -1,0 +1,26 @@
+- generic [ref=e4]:
+  - generic [ref=e5]:
+    - img "Personal Group Logo" [ref=e9]
+    - generic [ref=e10]:
+      - heading "Transforme seu Corpo e sua Mente" [level=1] [ref=e11]:
+        - text: Transforme seu Corpo
+        - text: e sua Mente
+      - paragraph [ref=e12]: Experiência Exclusive
+  - generic [ref=e13]:
+    - paragraph [ref=e16]: Acesso ao Sistema
+    - generic [ref=e17]:
+      - generic [ref=e18]:
+        - text: E-mail
+        - textbox "seu@email.com" [ref=e20]
+      - generic [ref=e21]:
+        - text: Senha
+        - textbox "••••••••" [ref=e23]
+      - button "Acessar" [ref=e24] [cursor=pointer]: Acessar
+      - button "Acesso Biométrico" [ref=e26] [cursor=pointer]:
+        - img [ref=e27]
+        - generic [ref=e29]: Acesso Biométrico
+    - button "Entrar com Google" [ref=e30] [cursor=pointer]:
+      - img [ref=e31]
+      - generic [ref=e36]: Entrar com Google
+    - button "Novo membro? Criar conta" [ref=e38] [cursor=pointer]
+    - button "🧪 Acessos de Teste ▼" [ref=e40] [cursor=pointer]

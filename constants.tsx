@@ -1,5 +1,5 @@
-
 import React from 'react';
+import { Heart, MessageCircle, MoreVertical, Layout, Bell, MessageSquare, Send, X, Camera, Zap, AlertTriangle, AlertCircle, Circle, FileSpreadsheet, CheckCircle, Copy, Info, Sparkles, Gift } from 'lucide-react';
 
 export const COLORS = {
   primary: '#002B54',
@@ -534,5 +534,45 @@ export const Icons = {
         <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
         <circle cx="12" cy="13" r="3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
+  ),
+  MessageCircle: ({ className }: { className?: string }) => (
+    <MessageCircle className={className} />
+  ),
+  MoreVertical: ({ className }: { className?: string }) => (
+    <MoreVertical className={className} />
+  ),
+  Layout: ({ className }: { className?: string }) => (
+    <Layout className={className} />
+  ),
+  MessageSquare: ({ className }: { className?: string }) => (
+    <MessageSquare className={className} />
+  ),
+  Send: ({ className }: { className?: string }) => (
+    <Send className={className} />
+  ),
+  AlertCircle: ({ className }: { className?: string }) => (
+    <AlertCircle className={className} />
+  ),
+  Circle: ({ className }: { className?: string }) => (
+    <Circle className={className} />
+  ),
+  FileSpreadsheet: ({ className }: { className?: string }) => (
+    <FileSpreadsheet className={className} />
+  ),
+  CheckCircle: ({ className }: { className?: string }) => (
+    <CheckCircle className={className} />
+  ),
+  Copy: ({ className }: { className?: string }) => (
+    <Copy className={className} />
+  ),
+  Info: ({ className }: { className?: string }) => (
+    <Info className={className} />
+  ),
+  Sparkles: ({ className }: { className?: string }) => (
+    <Sparkles className={className} />
+  ),
+  Gift: ({ className }: { className?: string }) => (
+    <Gift className={className} />
   )
 };
+

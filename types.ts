@@ -144,6 +144,14 @@ export interface User {
     totalSessions: number;
     totalCheckins: number;
   };
+
+  // Novos campos (Expansão)
+  anotacoes?: AnotacaoAluno[];
+  recadosNaoLidos?: number;     // contador para badge de notificação
+  progresso?: Progresso;        // novo sistema de gamificação
+  showInRanking?: boolean;      // controle de privacidade para o Mural da Constância
+  importacaoId?: string;        // se veio de planilha, referência ao registro
+  onboardingCompleto?: boolean; // controle de primeiro acesso
 }
 
 // --- New Interfaces (Etapas 2-5) ---
@@ -432,3 +440,154 @@ export interface HealthInsight {
   message: string;
   timestamp: any;
 }
+
+// --- Expansão de Tipos (Coordenador Flex, Gamificação, Mural, Importação) ---
+
+// Permissões do Coordenador Flex (CHEFE) — mais limitado que ADMIN
+export interface ChefePermissions {
+  podeVerAlunos: boolean;           // ver lista de alunos: sim
+  podeEditarAlunos: boolean;        // editar cadastro de alunos: não (somente ADMIN)
+  podeVerFinanceiro: boolean;       // ver status de planos: sim (somente leitura)
+  podeGerarRelatorios: boolean;     // gerar relatórios de frequência: sim
+  podeGerenciarPersonals: boolean;  // gerenciar equipe de personais: sim
+  podeVerComunidade: boolean;       // moderar mural da turma: sim
+  podeAlterarPlanos: boolean;       // alterar planos de alunos: não (somente ADMIN)
+  podeExcluirCadastros: boolean;    // excluir cadastros: não (somente ADMIN)
+}
+
+// Anotação pessoal do aluno (privada, somente ele lê)
+export interface AnotacaoAluno {
+  id: string;
+  alunoId: string;
+  conteudo: string;
+  criadaEm: Date;
+  atualizadaEm: Date;
+}
+
+// Recado bidirecional: academia → aluno ou aluno → academia/personal
+export type RemetenteTipo = 'ACADEMIA' | 'PERSONAL' | 'ALUNO';
+export interface Recado {
+  id: string;
+  paraId: string;         // ID do destinatário
+  deId: string;           // ID do remetente
+  remetenteRole: RemetenteTipo;
+  titulo: string;
+  mensagem: string;
+  lido: boolean;
+  lidoEm?: Date;
+  criadoEm: Date;
+  fixado: boolean;        // recados importantes ficam fixados no topo
+}
+
+export type PostTipo = 'CONQUISTA' | 'PROGRESSO' | 'AVISO_ACADEMIA' | 'MOTIVACAO' | 'GERAL';
+
+export interface PostMural {
+  id: string;
+  autorId: string;
+  autorNome: string;
+  autorFoto?: string;
+  autorRole: UserRole;
+  tipo: PostTipo;
+  conteudo: string;
+  imagemUrl?: string;
+  curtidas: string[];     // array de userIds
+  comentarios: ComentarioPost[];
+  criadoEm: Date;
+  fixado: boolean;        // somente ADMIN/CHEFE podem fixar
+  visivel: boolean;       // moderação
+}
+
+export interface ComentarioPost {
+  id: string;
+  autorId: string;
+  autorNome: string;
+  autorFoto?: string;
+  conteudo: string;
+  curtidas: string[];     // array de userIds
+  criadoEm: Date;
+}
+
+export type CategoriaAluno = 'INICIANTE' | 'DEDICADO' | 'CONSTANTE' | 'DESTAQUE' | 'REFERENCIA';
+// Nota: "REFERENCIA" equivale ao nível mais alto — o aluno vira referência para a turma
+
+export interface Progresso {
+  categoria: CategoriaAluno;
+  pontos: number;
+  pontosTotalMes: number;
+  diasSeguidos: number;           // em vez de "streak"
+  maiorSequencia: number;         // recorde pessoal de dias seguidos
+  treinosNoMes: number;
+  treinosTotais: number;
+  conquistasDesbloqueadas: string[];  // IDs das conquistas (em vez de "badges")
+  ultimaAtividade: Date;
+}
+
+export interface Conquista {
+  id: string;
+  titulo: string;                 // Ex: "Primeiro treino do mês"
+  descricao: string;              // Ex: "Você completou seu primeiro treino em março"
+  icone: string;                  // nome do ícone Lucide
+  cor: string;                    // cor hex
+  pontosRecompensa: number;
+  condicao: string;               // descrição da condição para desbloquear
+  desbloqueadaEm?: Date;
+}
+
+export interface ImportacaoAluno {
+  id: string;
+  nomeCompleto: string;
+  cpf?: string;
+  telefone?: string;
+  email?: string;
+  plano: string;
+  dataInicio?: string;
+  dataVencimento?: string;
+  personalResponsavel?: string;
+  status: 'ATIVO' | 'INATIVO' | 'PENDENTE';
+  origem: 'IMPORTACAO_PLANILHA' | 'CADASTRO_APP' | 'MANUAL';
+  importadoEm: Date;
+}
+
+export interface LogImportacao {
+  id: string;
+  arquivo: string;
+  totalLinhas: number;
+  importadosComSucesso: number;
+  mesclados?: number;
+  erros: { linha: number; motivo: string }[];
+  realizadoEm: Date | any;
+  realizadoPor: string;
+}
+
+export interface ImportConflict {
+  index: number;
+  existingUser: User;
+  newUserData: Partial<User>;
+  differences: {
+    field: string;
+    oldValue: any;
+    newValue: any;
+  }[];
+}
+
+export interface SugestaoIA {
+  cargaSugerida: number;
+  razao: string;
+  ultimaCarga: number;
+  ultimasReps: number;
+  confianca: 'ALTA' | 'MEDIA' | 'BAIXA';
+}
+
+export interface DicaExecucao {
+  exercicioId: string;
+  texto: string;
+  fonte: 'IA' | 'PERSONAL' | 'SISTEMA';
+}
+
+export const ESCALA_ESFORCO = [
+  { id: 1, emoji: '😄', label: 'Muito\nleve', descricao: 'Treino leve, quase sem esforço.' },
+  { id: 2, emoji: '🙂', label: 'Leve', descricao: 'Tranquilo e controlado — ótimo ritmo.' },
+  { id: 3, emoji: '😊', label: 'Ideal', descricao: 'Equilíbrio perfeito de esforço e controle.' },
+  { id: 4, emoji: '😅', label: 'Pesado', descricao: 'Treino intenso — deu bastante trabalho!' },
+  { id: 5, emoji: '🔥', label: 'Máximo', descricao: 'No limite! Amanhã vai sentir.' },
+] as const;

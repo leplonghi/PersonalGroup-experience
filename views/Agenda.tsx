@@ -49,23 +49,28 @@ const Agenda: React.FC<AgendaProps> = ({ user, onBack }) => {
     setIsProcessing(false);
   };
 
+  const jumpToTab = (tab: 'WELLNESS' | 'CLASSES' | 'SESSIONS') => {
+    setActiveTab(tab);
+    setStep('SERVICES');
+  };
+
   const renderTabs = () => (
-    <div className="flex p-1 bg-slate-100 dark:bg-white/5 rounded-xl border border-slate-200 dark:border-white/10 mb-4">
+    <div className="flex p-1 bg-white/5 rounded-xl border border-white/[0.06] mb-6">
       <button
         onClick={() => { setActiveTab('WELLNESS'); setStep('SERVICES'); }}
-        className={`flex-1 py-3 text-[9px] font-bold uppercase tracking-[0.2em] rounded-lg transition-all ${activeTab === 'WELLNESS' ? 'bg-white dark:bg-white/10 text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'}`}
+        className={`flex-1 py-3 text-[10px] font-bold uppercase tracking-[0.2em] rounded-lg transition-all ${activeTab === 'WELLNESS' ? 'bg-white/10 text-pg-cobalt shadow-sm' : 'text-white/40 hover:text-white/70'}`}
       >
-        Spa & Recovery
+        Bem-estar
       </button>
       <button
         onClick={() => { setActiveTab('CLASSES'); setStep('SERVICES'); }}
-        className={`flex-1 py-3 text-[9px] font-bold uppercase tracking-[0.2em] rounded-lg transition-all ${activeTab === 'CLASSES' ? 'bg-white dark:bg-white/10 text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'}`}
+        className={`flex-1 py-3 text-[10px] font-bold uppercase tracking-[0.2em] rounded-lg transition-all ${activeTab === 'CLASSES' ? 'bg-white/10 text-pg-cobalt shadow-sm' : 'text-white/40 hover:text-white/70'}`}
       >
-        Aulas
+        Aulas em grupo
       </button>
       <button
         onClick={() => setActiveTab('SESSIONS')}
-        className={`flex-1 py-3 text-[9px] font-bold uppercase tracking-[0.2em] rounded-lg transition-all ${activeTab === 'SESSIONS' ? 'bg-white dark:bg-white/10 text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'}`}
+        className={`flex-1 py-3 text-[10px] font-bold uppercase tracking-[0.2em] rounded-lg transition-all ${activeTab === 'SESSIONS' ? 'bg-white/10 text-pg-cobalt shadow-sm' : 'text-white/40 hover:text-white/70'}`}
       >
         Meus Treinos
       </button>
@@ -74,11 +79,11 @@ const Agenda: React.FC<AgendaProps> = ({ user, onBack }) => {
 
   const renderServices = () => (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <div className="px-1 border-l-4 border-blue-600 pl-4">
-        <h3 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight uppercase">
-          {activeTab === 'WELLNESS' ? 'Selecionar Serviço' : 'Escolher Modalidade'}
+      <div className="px-1 border-l-4 border-pg-cobalt pl-4">
+        <h3 className="text-2xl font-bold text-white tracking-tight uppercase">
+          {activeTab === 'WELLNESS' ? 'Escolher serviço' : 'Escolher aula'}
         </h3>
-        <p className="text-[9px] font-bold text-blue-500 uppercase tracking-[0.3em] mt-2 leading-none">
+        <p className="text-[9px] font-bold text-pg-cobalt uppercase tracking-[0.3em] mt-2 leading-none">
           {activeTab === 'WELLNESS' ? 'Recuperação e Bem-estar' : 'Treinos em Grupo'}
         </p>
       </div>
@@ -92,22 +97,23 @@ const Agenda: React.FC<AgendaProps> = ({ user, onBack }) => {
             <div
               key={service.id}
               onClick={() => { setSelectedService(service as unknown as WellnessService); setStep('SCHEDULE'); }}
-              className="glass-panel p-4 group relative overflow-hidden active:scale-[0.99] transition-all border-white/5 cursor-pointer"
+              className="p-4 rounded-2xl border border-white/[0.06] group relative overflow-hidden active:scale-[0.99] transition-all cursor-pointer"
+              style={{ background: 'linear-gradient(145deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01))' }}
             >
               <div className="flex items-center space-x-6 relative z-10">
-                <div className={`w-14 h-14 border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 flex items-center justify-center shadow-xl group-hover:border-blue-600 transition-all ${isClass ? 'text-orange-500' : 'text-blue-500'}`}>
+                <div className={`w-14 h-14 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center shadow-xl group-hover:border-pg-cobalt/50 transition-all ${isClass ? 'text-orange-400' : 'text-pg-cobalt'}`}>
                   <IconComponent className="w-7 h-7" />
                 </div>
                 <div className="flex-1">
-                  <h4 className="text-base font-bold text-slate-900 dark:text-white tracking-tight uppercase">{service.name}</h4>
-                  <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-1 mb-2">{service.description}</p>
+                  <h4 className="text-base font-bold text-white tracking-tight uppercase">{service.name}</h4>
+                  <p className="text-[11px] text-white/50 mt-1 mb-2">{service.description}</p>
 
                   <div className="flex items-center space-x-4">
-                    <div className="flex items-center text-[9px] font-bold text-slate-500 uppercase tracking-widest leading-none">
+                    <div className="flex items-center text-[9px] font-bold text-white/40 uppercase tracking-widest leading-none">
                       <Icons.Clock className="w-3 h-3 mr-2" /> {service.duration}
                     </div>
                     {isClass && (service as any).capacity && (
-                      <div className="flex items-center text-[9px] font-bold text-orange-500 uppercase tracking-widest leading-none">
+                      <div className="flex items-center text-[9px] font-bold text-orange-400 uppercase tracking-widest leading-none">
                         <Icons.Users className="w-3 h-3 mr-2" /> { (service as any).instructor }
                       </div>
                     )}
@@ -126,46 +132,46 @@ const Agenda: React.FC<AgendaProps> = ({ user, onBack }) => {
 
   const renderPersonalSessions = () => (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <div className="px-1 border-l-4 border-blue-600 pl-4">
-        <h3 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight uppercase">Minha Agenda</h3>
-        <p className="text-[9px] font-bold text-blue-500 uppercase tracking-[0.3em] mt-2 leading-none">Sessões Programadas com Trainer</p>
+      <div className="px-1 border-l-4 border-pg-cobalt pl-4">
+        <h3 className="text-xl font-bold text-white tracking-tight uppercase">Minha Agenda</h3>
+        <p className="text-[9px] font-bold text-pg-cobalt uppercase tracking-[0.3em] mt-2 leading-none">Sessões Programadas com Trainer</p>
       </div>
 
       <div className="space-y-4">
         {TRAINING_SESSIONS_DATA.map(session => (
-          <div key={session.id} className="glass-panel p-4 border-white/10 relative overflow-hidden group">
+          <div key={session.id} className="p-4 rounded-2xl border border-white/[0.06] relative overflow-hidden group"
+               style={{ background: 'linear-gradient(145deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01))' }}>
             <div className="flex items-start justify-between relative z-10">
               <div className="flex-1">
                 <div className="flex items-center space-x-3 mb-4">
-                  <div className="px-3 py-1 bg-blue-600/10 border border-blue-600/20 text-blue-600 text-[9px] font-black uppercase tracking-widest rounded-full">
-                    Sessão Confirmada
+                  <div className="px-3 py-1 bg-pg-cobalt/10 border border-pg-cobalt/20 text-pg-cobalt text-[9px] font-black uppercase tracking-widest rounded-full">
+                    Agendado ✓
                   </div>
                 </div>
-                <h4 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight uppercase mb-2">{session.title}</h4>
+                <h4 className="text-lg font-bold text-white tracking-tight uppercase mb-2">{session.title}</h4>
                 <div className="grid grid-cols-2 gap-4 mt-6">
-                  <div className="flex items-center text-[10px] font-bold text-slate-500 uppercase tracking-widest leading-none">
-                    <Icons.Calendar className="w-4 h-4 mr-3 text-blue-600" /> {session.date}
+                  <div className="flex items-center text-[10px] font-bold text-white/40 uppercase tracking-widest leading-none">
+                    <Icons.Calendar className="w-4 h-4 mr-3 text-pg-cobalt" /> {session.date}
                   </div>
-                  <div className="flex items-center text-[10px] font-bold text-slate-500 uppercase tracking-widest leading-none">
-                    <Icons.Clock className="w-4 h-4 mr-3 text-blue-600" /> {session.time}
+                  <div className="flex items-center text-[10px] font-bold text-white/40 uppercase tracking-widest leading-none">
+                    <Icons.Clock className="w-4 h-4 mr-3 text-pg-cobalt" /> {session.time}
                   </div>
                 </div>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-6 flex items-center">
-                  <Icons.User className="w-3 h-3 mr-2 text-slate-300" /> {session.instructor}
+                <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest mt-6 flex items-center">
+                  <Icons.User className="w-3 h-3 mr-2 text-white/20" /> {session.instructor}
                 </p>
               </div>
-              <div className="w-12 h-12 border border-slate-200 dark:border-white/10 flex items-center justify-center bg-slate-50 dark:bg-white/5 shadow-inner">
-                <Icons.Target className="w-6 h-6 text-slate-400" />
+              <div className="w-12 h-12 rounded-xl border border-white/10 flex items-center justify-center bg-white/5 shadow-inner">
+                <Icons.Target className="w-6 h-6 text-white/30" />
               </div>
             </div>
-            {/* Design detail */}
-            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-600/5 blur-3xl rounded-full translate-x-12 -translate-y-12"></div>
+            <div className="absolute top-0 right-0 w-32 h-32 bg-pg-cobalt/5 blur-3xl rounded-full translate-x-12 -translate-y-12"></div>
           </div>
         ))}
 
-        <button className="w-full py-5 border-2 border-dashed border-slate-200 dark:border-white/10 rounded-2xl flex flex-col items-center justify-center space-y-2 group hover:border-blue-600/50 transition-all active:scale-[0.98]">
-           <Icons.Plus className="w-5 h-5 text-slate-300 group-hover:text-blue-600 transition-colors" />
-           <span className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.3em] group-hover:text-slate-600 dark:group-hover:text-white transition-colors">Solicitar Nova Sessão</span>
+        <button className="w-full py-5 border-2 border-dashed border-white/10 rounded-2xl flex flex-col items-center justify-center space-y-2 group hover:border-pg-cobalt/30 transition-all active:scale-[0.98]">
+           <Icons.Plus className="w-5 h-5 text-white/20 group-hover:text-pg-cobalt transition-colors" />
+           <span className="text-[9px] font-bold text-white/30 uppercase tracking-[0.3em] group-hover:text-white/60 transition-colors">Solicitar Nova Sessão</span>
         </button>
       </div>
     </div>
@@ -174,19 +180,19 @@ const Agenda: React.FC<AgendaProps> = ({ user, onBack }) => {
   const renderSchedule = () => (
     <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-700">
       <header className="flex items-center space-x-4">
-        <button onClick={() => setStep('SERVICES')} className="w-12 h-12 border border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-900 dark:text-white active:scale-95 transition-all">
+        <button onClick={() => setStep('SERVICES')} className="w-12 h-12 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-white active:scale-95 transition-all">
           <Icons.ChevronRight className="w-5 h-5 rotate-180" />
         </button>
         <div>
-          <h3 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight uppercase leading-none">{selectedService?.name}</h3>
-          <p className="text-[9px] font-bold text-blue-600 dark:text-blue-500 uppercase tracking-[0.3em] mt-3 leading-none">Agendar Sessão</p>
+          <h3 className="text-xl font-bold text-white tracking-tight uppercase leading-none">{selectedService?.name}</h3>
+          <p className="text-[9px] font-bold text-pg-cobalt uppercase tracking-[0.3em] mt-3 leading-none">Agendar Sessão</p>
         </div>
       </header>
 
       <section className="space-y-6">
         <div className="flex items-baseline justify-between px-1">
-          <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.3em]">Escolha do Período</h4>
-          <span className="text-[8px] font-bold text-blue-600 uppercase tracking-widest">Janeiro 2026</span>
+          <h4 className="text-[10px] font-bold text-white/40 uppercase tracking-[0.3em]">Escolha do Período</h4>
+          <span className="text-[8px] font-bold text-pg-cobalt uppercase tracking-widest">Janeiro 2026</span>
         </div>
         <div className="flex space-x-3 overflow-x-auto no-scrollbar pb-4 snap-x">
           {dates.map(d => (
@@ -194,8 +200,8 @@ const Agenda: React.FC<AgendaProps> = ({ user, onBack }) => {
               key={d.day}
               onClick={() => setSelectedDate(d.day)}
               className={`snap-center min-w-[64px] h-20 flex flex-col items-center justify-center rounded-2xl border transition-all duration-300 relative group overflow-hidden ${selectedDate === d.day
-                ? 'bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-600/30 scale-105'
-                : 'bg-white border-slate-200 text-slate-500 dark:bg-white/5 dark:text-slate-400 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/10'
+                ? 'bg-pg-cobalt border-pg-cobalt text-white shadow-lg shadow-pg-cobalt/30 scale-105'
+                : 'bg-white/5 border-white/10 text-white/40 hover:bg-white/10'
                 }`}
             >
               {selectedDate === d.day && (
@@ -209,15 +215,15 @@ const Agenda: React.FC<AgendaProps> = ({ user, onBack }) => {
       </section>
 
       <section className="space-y-6">
-        <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.3em] px-1">Horários Disponíveis</h4>
+        <h4 className="text-[10px] font-bold text-white/40 uppercase tracking-[0.3em] px-1">Horários Disponíveis</h4>
         <div className="grid grid-cols-4 gap-3">
           {timeSlots.map(time => (
             <button
               key={time}
               onClick={() => setSelectedTime(time)}
               className={`py-4 rounded-xl border text-[10px] font-bold transition-all relative overflow-hidden ${selectedTime === time
-                ? 'bg-blue-600 border-blue-500 text-white shadow-md shadow-blue-500/30 scale-[1.02]'
-                : 'bg-white border-slate-200 text-slate-600 dark:bg-white/5 dark:text-slate-400 dark:border-white/10 hover:border-blue-400/50'
+                ? 'bg-pg-cobalt border-pg-cobalt text-white shadow-md shadow-pg-cobalt/30 scale-[1.02]'
+                : 'bg-white/5 border-white/10 text-white/50 hover:border-pg-cobalt/40'
                 }`}
             >
               <span className="relative z-10">{time}</span>
@@ -230,17 +236,17 @@ const Agenda: React.FC<AgendaProps> = ({ user, onBack }) => {
         <button
           disabled={!selectedTime || isProcessing}
           onClick={handleBooking}
-          className={`w-full h-16 font-black text-[11px] uppercase tracking-[0.6em] transition-all relative overflow-hidden group ${selectedTime && !isProcessing
-            ? 'bg-blue-600 text-white active:scale-[0.98]'
-            : 'bg-slate-100 dark:bg-white/5 text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-white/5 cursor-not-allowed'
+          className={`w-full h-16 font-black text-[11px] uppercase tracking-[0.6em] transition-all relative overflow-hidden group rounded-2xl ${selectedTime && !isProcessing
+            ? 'bg-pg-cobalt text-white active:scale-[0.98]'
+            : 'bg-white/5 text-white/30 border border-white/[0.06] cursor-not-allowed'
             }`}
         >
           {isProcessing ? (
-            <div className="w-6 h-6 border-2 border-white/30 border-t-white animate-spin"></div>
+            <div className="w-6 h-6 border-2 border-white/30 border-t-white animate-spin mx-auto"></div>
           ) : (
             <div className="flex items-center justify-center space-x-4 relative z-10">
               <Icons.Calendar className="w-5 h-5" />
-              <span>Confirmar Reserva</span>
+              <span>Agendar</span>
             </div>
           )}
         </button>
@@ -250,48 +256,127 @@ const Agenda: React.FC<AgendaProps> = ({ user, onBack }) => {
 
   const renderConfirm = () => (
     <div className="flex flex-col items-center justify-center py-20 text-center animate-in zoom-in-95 fade-in duration-1000">
-      <div className="w-32 h-32 border-4 border-blue-600 bg-white/5 flex items-center justify-center mb-12 shadow-[0_0_50px_rgba(37,99,235,0.3)] relative">
-        <div className="absolute inset-0 border border-blue-600/50 animate-ping opacity-20"></div>
-        <Icons.Shield className="w-14 h-14 text-blue-600" />
+      <div className="w-32 h-32 rounded-3xl border-4 border-pg-cobalt bg-white/5 flex items-center justify-center mb-12 shadow-[0_0_50px_rgba(0,182,253,0.3)] relative">
+        <div className="absolute inset-0 border border-pg-cobalt/50 animate-ping opacity-20 rounded-3xl"></div>
+        <Icons.Shield className="w-14 h-14 text-pg-cobalt" />
       </div>
-      <h3 className="text-5xl font-bold text-slate-900 dark:text-white tracking-tight leading-none mb-10 uppercase">Reserva<br /><span className="text-blue-600">Consolidada</span></h3>
-      <div className="glass-panel p-10 w-full max-w-[340px] mb-16 border-white/10">
-        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.3em] mb-6 leading-none">Voucher de Identidade</p>
-        <h4 className="text-lg font-bold text-slate-900 dark:text-white leading-tight mb-4 uppercase">{selectedService?.name}</h4>
-        <div className="flex items-center justify-center space-x-4 mt-6 text-blue-500">
+      <h3 className="text-5xl font-bold text-white tracking-tight leading-none mb-10 uppercase">Sessão<br /><span className="text-pg-cobalt">agendada! ✓</span></h3>
+      <div className="p-10 w-full max-w-[340px] mb-16 rounded-3xl border border-white/[0.06]"
+           style={{ background: 'linear-gradient(145deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01))' }}>
+        <p className="text-[10px] font-bold text-white/40 uppercase tracking-[0.3em] mb-6 leading-none">Voucher de Identidade</p>
+        <h4 className="text-lg font-bold text-white leading-tight mb-4 uppercase">{selectedService?.name}</h4>
+        <div className="flex items-center justify-center space-x-4 mt-6 text-pg-cobalt">
           <Icons.Calendar className="w-5 h-5" />
           <p className="text-sm font-bold uppercase tracking-[0.2em]">DIA {selectedDate} • {selectedTime}</p>
         </div>
       </div>
-      <button onClick={onBack} className="w-full max-w-[300px] h-20 bg-blue-600 text-white font-black text-[11px] uppercase tracking-[0.6em] transition-all hover:bg-blue-500 active:scale-[0.98] shadow-2xl">
+      <button onClick={onBack} className="w-full max-w-[300px] h-20 bg-pg-cobalt text-white font-black text-[11px] uppercase tracking-[0.6em] transition-all hover:bg-pg-cobalt/80 active:scale-[0.98] shadow-2xl rounded-2xl">
         Concluir Operação
       </button>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-app flex flex-col transition-colors duration-500 grain-overlay relative px-6">
-      <div className="precision-bg absolute inset-0 z-0 opacity-40"></div>
-      <div className="flex-1 pb-40 pt-0 relative z-10 no-scrollbar overflow-y-auto">
+    <div className="min-h-screen p-5 pb-32 space-y-6 animate-in fade-in duration-700"
+         style={{ background: 'linear-gradient(180deg, #010b2e 0%, #00060f 40%, #010e35 100%)' }}>
+
+      {/* Header */}
+      <div className="pt-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-black text-white uppercase tracking-tight">Agenda<span className="text-pg-cobalt">.</span></h1>
+          <p className="text-[10px] text-white/40 font-bold uppercase tracking-[0.4em] mt-1">Seus compromissos e bem-estar</p>
+        </div>
+        <button onClick={onBack} className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">
+          <Icons.ChevronLeft className="w-5 h-5 text-white/60" />
+        </button>
+      </div>
+
+      {/* Quick Access Cards */}
+      <div className="grid grid-cols-3 gap-3">
+        <button
+          onClick={() => jumpToTab('WELLNESS')}
+          className="p-4 rounded-2xl border border-white/[0.06] text-left transition-all active:scale-[0.98] hover:border-white/[0.12]"
+          style={{ background: 'linear-gradient(145deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01))' }}
+        >
+          <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-3">
+            <Icons.Droplet className="w-5 h-5 text-emerald-400" />
+          </div>
+          <p className="text-sm font-bold text-white">Wellness</p>
+          <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mt-0.5">Spa e recuperação</p>
+        </button>
+
+        <button
+          onClick={() => jumpToTab('CLASSES')}
+          className="p-4 rounded-2xl border border-white/[0.06] text-left transition-all active:scale-[0.98] hover:border-white/[0.12]"
+          style={{ background: 'linear-gradient(145deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01))' }}
+        >
+          <div className="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center mb-3">
+            <Icons.Users className="w-5 h-5 text-orange-400" />
+          </div>
+          <p className="text-sm font-bold text-white">Aulas</p>
+          <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mt-0.5">Coletivas</p>
+        </button>
+
+        <button
+          onClick={() => jumpToTab('SESSIONS')}
+          className="p-4 rounded-2xl border border-white/[0.06] text-left transition-all active:scale-[0.98] hover:border-white/[0.12]"
+          style={{ background: 'linear-gradient(145deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01))' }}
+        >
+          <div className="w-10 h-10 rounded-xl bg-pg-cobalt/10 border border-pg-cobalt/20 flex items-center justify-center mb-3">
+            <Icons.Target className="w-5 h-5 text-pg-cobalt" />
+          </div>
+          <p className="text-sm font-bold text-white">Treinos</p>
+          <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mt-0.5">Meus agendados</p>
+        </button>
+      </div>
+
+      {/* Main Content */}
+      <div className="relative z-10">
         {step !== 'CONFIRM' && renderTabs()}
 
         {/* Status Quota for Wellness */}
         {step === 'SERVICES' && activeTab === 'WELLNESS' && (
-          <div className="glass-panel p-4 border-white/10 mb-4">
-            <div className="flex justify-between items-center mb-4">
-              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-[0.3em]">Créditos Disponíveis</span>
-              <Icons.Leaf className="w-6 h-6 text-blue-600" />
+          <div className="p-6 rounded-3xl border border-white/[0.06] mb-6 relative overflow-hidden"
+               style={{ background: 'linear-gradient(145deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01))' }}>
+            <div className="flex justify-between items-start mb-6">
+              <div>
+                <span className="text-[10px] font-bold text-pg-cobalt uppercase tracking-[0.3em] block mb-1">Seu Momento Wellness</span>
+                <h4 className="text-lg font-bold text-white tracking-tight">
+                  {quotaExceeded 
+                    ? "Cota do mês completa!" 
+                    : sessionsUsed === 0 
+                      ? "Você tem 2 sessões este mês" 
+                      : "Você ainda tem 1 sessão!"}
+                </h4>
+              </div>
+              <Icons.Leaf className={`w-8 h-8 ${quotaExceeded ? 'text-white/20' : 'text-pg-cobalt animate-pulse'}`} />
             </div>
-            <div className="flex items-baseline space-x-3">
-              <span className={`text-5xl font-bold tracking-tight ${quotaExceeded ? 'text-red-400' : 'text-slate-900 dark:text-white'}`}>0{sessionsLeft}</span>
-              <span className="text-lg font-bold text-slate-700 tracking-tight">/ 02 DISPONÍVEIS</span>
+            
+            <div className="flex items-center gap-4 mb-6">
+              <div className="flex -space-x-2">
+                {[1, 2].map((i) => (
+                  <div 
+                    key={i}
+                    className={`w-10 h-10 rounded-full border-2 border-[#010b2e] flex items-center justify-center ${
+                      i <= sessionsUsed ? 'bg-pg-cobalt text-[#010b2e]' : 'bg-white/5 text-white/20'
+                    }`}
+                  >
+                    {i <= sessionsUsed ? <Icons.Check className="w-5 h-5" /> : <Icons.Circle className="w-4 h-4" />}
+                  </div>
+                ))}
+              </div>
+              <p className="text-[11px] text-white/40 font-medium italic">
+                {quotaExceeded 
+                  ? "Aproveite seus resultados e relaxe." 
+                  : "Reserve um tempo para cuidar de você."}
+              </p>
             </div>
-            {quotaExceeded && (
-              <p className="text-[9px] font-bold text-red-400 uppercase tracking-widest mt-4">Cota mensal atingida — Bloqueado até próximo mês</p>
-            )}
-            <div className="w-full h-1 bg-white/10 mt-10 relative">
-               <div className={`h-full ${quotaExceeded ? 'bg-red-500' : 'bg-blue-600'} transition-all duration-1000`} style={{ width: `${(sessionsUsed / 2) * 100}%` }}></div>
+
+            <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
+               <div className={`h-full ${quotaExceeded ? 'bg-white/20' : 'bg-pg-cobalt'} transition-all duration-1000`} style={{ width: `${(sessionsUsed / 2) * 100}%` }}></div>
             </div>
+            
+            <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-pg-cobalt/5 blur-2xl rounded-full"></div>
           </div>
         )}
 

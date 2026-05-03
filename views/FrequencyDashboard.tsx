@@ -164,14 +164,14 @@ const FrequencyDashboard: React.FC<FrequencyDashboardProps> = ({ user, onBack })
                         </div>
                     </div>
 
-                    {/* Recent Check-ins */}
+                    {/* Recent Registros */}
                     <div className="space-y-3">
                         <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em]">
-                            Últimos Check-ins
+                            Últimos Registros
                         </p>
                         {report.checkIns.length === 0 ? (
                             <div className="bg-white/5 border border-white/10 rounded-xl p-6 text-center">
-                                <p className="text-[10px] text-slate-500 font-bold">Nenhum check-in no período.</p>
+                                <p className="text-[10px] text-slate-500 font-bold">Nenhum registro no período.</p>
                             </div>
                         ) : (
                             report.checkIns.slice(0, 10).map((ci, idx) => (

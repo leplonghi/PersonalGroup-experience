@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
 import { User } from '../types';
 import { Icons } from '../constants';
 
@@ -9,16 +10,11 @@ interface FrequencyTrackerProps {
 const FrequencyTracker: React.FC<FrequencyTrackerProps> = ({ user }) => {
     const target = user.weeklyFrequency || 0;
     const missed = user.missedThisWeek || 0;
-
-    // Count check-ins this week (simplified: use checkedIn status + missedThisWeek)
     const [completedThisWeek, setCompleted] = useState(0);
 
     useEffect(() => {
-        // In a real scenario we'd query checkins for this week.
-        // For now, derive from target minus missed (clamp to 0)
-        const dayOfWeek = new Date().getDay(); // 0=Sun
+        const dayOfWeek = new Date().getDay();
         const daysSinceMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
-        // Rough estimate: days passed so far this week * (target/5)
         const expectedSoFar = Math.min(daysSinceMonday, target);
         const done = Math.max(0, expectedSoFar - missed);
         setCompleted(done);
@@ -30,60 +26,83 @@ const FrequencyTracker: React.FC<FrequencyTrackerProps> = ({ user }) => {
     const isBehind = missed >= 2;
 
     return (
-        <div className="rounded-xl border border-blue-200/50 dark:border-white/10 bg-white/40 dark:bg-white/5 p-4 space-y-3">
+        <motion.div 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="rounded-2xl glass-panel border-white/5 p-5 space-y-5 relative overflow-hidden"
+        >
+            <div className="absolute top-0 right-0 w-24 h-24 bg-pg-cobalt/5 blur-3xl rounded-full"></div>
+            
             {/* Header */}
-            <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                    <Icons.Activity className="w-4 h-4 text-blue-400" />
-                    <span className="text-[11px] font-black text-slate-800 dark:text-slate-300 uppercase tracking-[0.2em]">
-                        Frequência Semanal
+            <div className="flex items-center justify-between relative z-10">
+                <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 rounded-lg bg-pg-cobalt/10 flex items-center justify-center border border-pg-cobalt/20">
+                        <Icons.Activity className="w-4 h-4 text-pg-cobalt" />
+                    </div>
+                    <div>
+                        <h4 className="text-[10px] font-black text-white uppercase tracking-[0.2em] leading-none">Frequência Semanal</h4>
+                        <p className="text-[8px] font-bold text-pg-text-muted uppercase tracking-widest mt-1">Sua meta de consistência</p>
+                    </div>
+                </div>
+                <div className="text-right">
+                    <span className="text-xl font-black text-white font-display tabular-nums">
+                        {completedThisWeek}<span className="text-xs text-pg-text-muted mx-1">/</span>{target}
                     </span>
                 </div>
-                <span className="text-[11px] font-black text-blue-800 dark:text-blue-400 tabular-nums">
-                    {completedThisWeek}/{target}
-                </span>
             </div>
 
-            {/* Progress bar */}
-            <div className="h-2 bg-white/5 rounded-full overflow-hidden">
-                <div
-                    className={`h-full rounded-full transition-all duration-700 ${isBehind
-                        ? 'bg-gradient-to-r from-amber-500 to-red-500'
-                        : 'bg-gradient-to-r from-cobalt to-sky'
-                        }`}
-                    style={{ width: `${progressPct}%` }}
-                />
-            </div>
-
-            {/* Dots */}
-            <div className="flex items-center justify-between">
-                {Array.from({ length: target }).map((_, i) => (
-                    <div
-                        key={i}
-                        className={`w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-black transition-all ${i < completedThisWeek
-                            ? 'bg-cobalt text-white shadow-cobalt'
-                            : 'bg-white/10 dark:bg-white/5 text-slate-600 dark:text-slate-500 border border-blue-100 dark:border-white/10'
+            {/* Progress bar container */}
+            <div className="space-y-4 relative z-10">
+                <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                    <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${progressPct}%` }}
+                        transition={{ duration: 1.5, ease: [0.2, 0.8, 0.2, 1] }}
+                        className={`h-full rounded-full ${isBehind
+                            ? 'bg-gradient-to-r from-amber-500 to-red-500'
+                            : 'bg-gradient-to-r from-pg-cobalt to-indigo-500 shadow-[0_0_10px_rgba(0,182,253,0.3)]'
                             }`}
-                    >
-                        {i < completedThisWeek ? (
-                            <Icons.Check className="w-3.5 h-3.5" />
-                        ) : (
-                            i + 1
-                        )}
-                    </div>
-                ))}
+                    />
+                </div>
+
+                {/* Day Dots */}
+                <div className="flex items-center justify-between px-1">
+                    {Array.from({ length: target }).map((_, i) => (
+                        <motion.div
+                            key={i}
+                            initial={{ scale: 0.8, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            transition={{ delay: i * 0.1 }}
+                            className={`w-9 h-9 rounded-xl flex items-center justify-center text-[11px] font-black transition-all ${i < completedThisWeek
+                                ? 'bg-pg-cobalt text-pg-midnight shadow-lg shadow-pg-cobalt/20'
+                                : 'bg-white/5 text-pg-text-muted border border-white/5'
+                                }`}
+                        >
+                            {i < completedThisWeek ? (
+                                <Icons.Check className="w-4 h-4" />
+                            ) : (
+                                i + 1
+                            )}
+                        </motion.div>
+                    ))}
+                </div>
             </div>
 
-            {/* Alert */}
+            {/* Premium Alert */}
             {isBehind && (
-                <div className="flex items-center space-x-2 bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-2 mt-1">
-                    <Icons.ExclamationCircle className="w-4 h-4 text-amber-400 flex-shrink-0" />
-                    <p className="text-[9px] font-bold text-amber-300 tracking-wide">
-                        Você tem {missed} falta{missed > 1 ? 's' : ''} esta semana. Mantenha a regularidade!
+                <motion.div 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex items-center space-x-3 bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3"
+                >
+                    <Icons.AlertCircle className="w-5 h-5 text-red-500" />
+                    <p className="text-[10px] font-bold text-red-200 tracking-wide leading-tight">
+                        Atenção: Você tem {missed} {missed > 1 ? 'faltas' : 'falta'} acumulada{missed > 1 ? 's' : ''}. <br/>
+                        <span className="opacity-60">Consistência é o segredo da evolução.</span>
                     </p>
-                </div>
+                </motion.div>
             )}
-        </div>
+        </motion.div>
     );
 };
 

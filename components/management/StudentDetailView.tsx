@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { User, UserRole } from '../../types';
 import { Icons } from '../../constants';
 import { getEvolutionEntries } from '../../firebase';
+import { getLastTrainerSession, salvarObservacao, getObservacoesDaSessao } from '../../services/sessionService';
 
 export const StudentDetailView: React.FC<{
     currentUser: User;
@@ -14,20 +15,48 @@ export const StudentDetailView: React.FC<{
 }> = ({ currentUser, student, onClose, onStartAssessment, onStartCycle, onJoinSession, onViewEvolution }) => {
     const [evolutionData, setEvolutionData] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [observacao, setObservacao] = useState('');
+    const [historicoObservacoes, setHistoricoObservacoes] = useState<any[]>([]);
+    const [lastSessionId, setLastSessionId] = useState<string | null>(null);
+    const [isSaving, setIsSaving] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const entries = await getEvolutionEntries(student.id);
-                setEvolutionData(entries.reverse()); // Chronological for charts
+                const [entries, lastSession] = await Promise.all([
+                    getEvolutionEntries(student.id),
+                    getLastTrainerSession(student.id)
+                ]);
+                setEvolutionData(entries.reverse());
+                if (lastSession) {
+                    setLastSessionId(lastSession.id);
+                    const obs = await getObservacoesDaSessao(lastSession.id);
+                    setHistoricoObservacoes(obs);
+                }
             } catch (error) {
-                console.error("Error fetching evolution:", error);
+                console.error("Error fetching student details:", error);
             } finally {
                 setLoading(false);
             }
         };
         fetchData();
     }, [student.id]);
+
+    const handleSaveObservacao = async () => {
+        if (!lastSessionId || !observacao.trim()) return;
+        setIsSaving(true);
+        try {
+            await salvarObservacao(lastSessionId, observacao, currentUser.id, currentUser.name);
+            setObservacao('');
+            // Refresh history
+            const obs = await getObservacoesDaSessao(lastSessionId);
+            setHistoricoObservacoes(obs);
+        } catch (error) {
+            console.error("Erro ao salvar observação:", error);
+        } finally {
+            setIsSaving(false);
+        }
+    };
 
     return (
         <div className="fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm flex items-end justify-center animate-in fade-in duration-300">
@@ -124,6 +153,52 @@ export const StudentDetailView: React.FC<{
                                         <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Nenhuma série prescrita.</p>
                                     </div>
                                 )}
+                            </div>
+
+                            <div className="mt-4 p-6 rounded-[32px] bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5">
+                                <header className="flex items-center justify-between mb-4">
+                                    <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest">
+                                        Observações do Treino
+                                    </p>
+                                    <Icons.MessageSquare className="w-4 h-4 text-slate-400" />
+                                </header>
+                                
+                                {historicoObservacoes.length > 0 && (
+                                    <div className="space-y-3 mb-6 max-h-[150px] overflow-y-auto no-scrollbar">
+                                        {historicoObservacoes.map((obs) => (
+                                            <div key={obs.id} className="p-3 bg-white dark:bg-white/5 rounded-2xl border border-slate-100 dark:border-white/10">
+                                                <div className="flex justify-between items-center mb-1">
+                                                    <span className="text-[8px] font-black text-amber-500 uppercase tracking-tighter">{obs.trainerNome}</span>
+                                                    <span className="text-[8px] text-slate-400">
+                                                        {obs.timestamp?.toDate ? obs.timestamp.toDate().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : 'Agora'}
+                                                    </span>
+                                                </div>
+                                                <p className="text-xs text-slate-700 dark:text-slate-300 leading-tight">{obs.texto}</p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+
+                                <textarea
+                                    value={observacao}
+                                    onChange={e => setObservacao(e.target.value)}
+                                    placeholder="Descreva o desempenho ou ajustes realizados..."
+                                    className="w-full bg-white dark:bg-midnight border border-slate-200 dark:border-white/10 rounded-2xl p-4 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-amber-500 transition-colors min-h-[80px] resize-none"
+                                />
+                                <button
+                                    onClick={handleSaveObservacao}
+                                    disabled={isSaving || !lastSessionId || !observacao.trim()}
+                                    className="mt-4 w-full h-12 bg-amber-500 text-white text-[10px] font-black uppercase tracking-[0.2em] hover:bg-amber-600 transition-all rounded-xl disabled:opacity-50 disabled:grayscale flex items-center justify-center space-x-2 shadow-lg shadow-amber-500/20"
+                                >
+                                    {isSaving ? (
+                                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                                    ) : (
+                                        <>
+                                            <Icons.Save className="w-3 h-3" />
+                                            <span>Registrar Observação</span>
+                                        </>
+                                    )}
+                                </button>
                             </div>
 
                             <button

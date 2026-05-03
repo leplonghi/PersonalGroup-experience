@@ -1,161 +1,157 @@
 
 import React, { useState } from 'react';
-import { User, AppMessage, MessageType } from '../types';
+import { User, Recado, AnotacaoAluno } from '../types';
 import Card from '../components/Card';
 import { Icons } from '../constants';
+import RecadosAluno from '../components/RecadosAluno';
+import ChatDireto from '../components/ChatDireto';
+import AnotacoesAluno from '../components/AnotacoesAluno';
 
 interface MessagesProps {
   user: User;
 }
 
+type MessageTab = 'RECADOS' | 'CONVERSA' | 'ANOTACOES';
+
 const Messages: React.FC<MessagesProps> = ({ user }) => {
-  const [filter, setFilter] = useState<'ALL' | MessageType>('ALL');
-  const [selectedMsg, setSelectedMsg] = useState<AppMessage | null>(null);
+  const [activeTab, setActiveTab] = useState<MessageTab>('RECADOS');
 
-  const mockMessages: AppMessage[] = [
+  // MOCK DATA
+  const [recados, setRecados] = useState<Recado[]>([
     {
-      id: '1',
-      userId: user.id,
-      type: 'MOTIVATIONAL',
-      title: 'Dica do Dia',
-      content: 'Lembre-se: seu ciclo de "Volume Adaptativo" foi desenhado para testar seus limites neurais hoje. Foco total na cadência 4-0-2.',
-      date: 'Hoje, 08:30',
-      read: false,
-      author: 'Sistema Exclusive'
+      id: 'r1',
+      paraId: user.id,
+      deId: 'system',
+      remetenteRole: 'ACADEMIA',
+      titulo: 'Novos Equipamentos',
+      mensagem: 'Chegaram os novos bancos reguláveis na Pista 01. Venha conferir a ergonomia superior do sistema Flex.',
+      lido: false,
+      criadoEm: new Date(),
+      fixado: true
     },
     {
-      id: '2',
-      userId: 'PUBLIC',
-      type: 'INSTITUTIONAL',
-      title: 'Manutenção Pista 02',
-      content: 'Prezado aluno, informamos que a Pista 02 passará por calibração técnica biomecânica amanhã das 10h às 14h. Utilize a Pista Principal.',
-      date: 'Ontem, 16:45',
-      read: true,
-      author: 'Governança Personal Group'
-    },
+      id: 'r2',
+      paraId: user.id,
+      deId: 'personal-1',
+      remetenteRole: 'PERSONAL',
+      titulo: 'Ajuste de Carga',
+      mensagem: 'Vi seu último registro. Vamos subir 5kg no leg press na próxima sessão. Seu volume adaptativo está pronto.',
+      lido: true,
+      criadoEm: new Date(Date.now() - 86400000),
+      fixado: false
+    }
+  ]);
+
+  const [anotacoes, setAnotacoes] = useState<AnotacaoAluno[]>([
     {
-      id: '3',
-      userId: user.id,
-      type: 'SEGMENTED',
-      title: 'Resultado de Avaliação',
-      content: 'Sua última Bioimpedância mostrou um ganho de 1.2kg de massa magra. Excelente resposta ao estímulo metabólico do ciclo anterior.',
-      date: '12 Abr',
-      read: true,
-      author: 'Coord. Felipe'
+      id: 'a1',
+      alunoId: user.id,
+      conteudo: 'Senti um leve desconforto no joelho esquerdo durante o agachamento hoje. Tentar focar mais na descida.',
+      criadaEm: new Date(Date.now() - 172800000),
+      atualizadaEm: new Date(Date.now() - 172800000)
     }
-  ];
+  ]);
 
-  const filteredMessages = filter === 'ALL'
-    ? mockMessages
-    : mockMessages.filter(m => m.type === filter);
-
-  const getTypeStyle = (type: MessageType) => {
-    switch (type) {
-      case 'INSTITUTIONAL': return 'bg-blue-500/10 text-deep-blue dark:text-blue-400 border-blue-500/20';
-      case 'SEGMENTED': return 'bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20';
-      case 'MOTIVATIONAL': return 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20';
-    }
+  const handleReadRecado = (id: string) => {
+    setRecados(prev => prev.map(r => r.id === id ? { ...r, lido: true, lidoEm: new Date() } : r));
   };
 
-  const getTypeName = (type: MessageType) => {
-    switch (type) {
-      case 'INSTITUTIONAL': return 'Avisos';
-      case 'SEGMENTED': return 'Evolução';
-      case 'MOTIVATIONAL': return 'Dicas';
-    }
+  const handleSaveAnotacao = (conteudo: string) => {
+    const nova: AnotacaoAluno = {
+      id: Date.now().toString(),
+      alunoId: user.id,
+      conteudo,
+      criadaEm: new Date(),
+      atualizadaEm: new Date()
+    };
+    setAnotacoes([nova, ...anotacoes]);
+  };
+
+  const handleDeleteAnotacao = (id: string) => {
+    setAnotacoes(prev => prev.filter(a => a.id !== id));
   };
 
   return (
     <div className="space-y-8 animate-in fade-in duration-1000 pb-32 pt-0 relative px-6">
-
-
-      {/* Quote Card Impactante */}
-      <Card variant="blue" className="p-8 relative overflow-hidden group rounded-[40px] shadow-2xl shadow-blue-900/40">
-        <div className="absolute top-0 right-0 w-48 h-48 mesh-gradient opacity-20 rounded-full -mr-24 -mt-24 group-hover:scale-150 transition-transform duration-[20s]"></div>
-        <div className="relative z-10">
-          <div className="flex items-center space-x-2 mb-4">
-            <div className="w-8 h-8 rounded-xl mesh-gradient flex items-center justify-center text-slate-950 dark:text-white shadow-lg">
-              <Icons.Logo className="w-4 h-4" />
-            </div>
-            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-950 dark:text-white/60">Foco do Dia</p>
-          </div>
-          <p className="text-xl font-black text-slate-950 dark:text-white leading-tight italic tracking-tight">"A consistência é o único atalho para a alta performance. Cada RPE validado é um tijolo no seu legado físico."</p>
-        </div>
-        <Icons.Plus className="absolute -bottom-6 -left-6 w-32 h-32 opacity-10 rotate-12" />
-      </Card>
-
-      {/* Filter Strip Premium */}
-      <div className="flex space-x-3 overflow-x-auto no-scrollbar py-2 -mx-2 px-2">
-        {(['ALL', 'INSTITUTIONAL', 'SEGMENTED', 'MOTIVATIONAL'] as const).map(f => (
+      
+      {/* Tab Navigation Premium */}
+      <div className="flex p-1.5 bg-slate-100 dark:bg-white/5 rounded-[24px] border border-slate-200 dark:border-white/10 sticky top-4 z-50 backdrop-blur-xl">
+        {(['RECADOS', 'CONVERSA', 'ANOTACOES'] as MessageTab[]).map((tab) => (
           <button
-            key={f}
-            onClick={() => setFilter(f)}
-            className={`px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] whitespace-nowrap transition-all border duration-500 ${filter === f
-              ? 'mesh-gradient text-white border-transparent shadow-2xl shadow-blue-900/40 scale-105'
-              : 'glass-panel text-slate-600 dark:text-slate-400 border-slate-200 dark:border-white/5 active:scale-95'
-              }`}
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            className={`flex-1 py-3.5 rounded-[18px] text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-500 relative overflow-hidden ${
+              activeTab === tab 
+                ? 'text-white shadow-2xl' 
+                : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-300'
+            }`}
           >
-            {f === 'ALL' ? 'Todas' : getTypeName(f as MessageType)}
+            {activeTab === tab && (
+              <div className="absolute inset-0 mesh-gradient animate-pulse opacity-100 transition-opacity duration-500"></div>
+            )}
+            <span className="relative z-10">
+              {tab === 'RECADOS' ? 'Recados' : tab === 'CONVERSA' ? 'Conversa' : 'Anotações'}
+              {tab === 'RECADOS' && recados.some(r => !r.lido) && (
+                <span className="absolute -top-1 -right-4 w-1.5 h-1.5 rounded-full bg-blue-500 animate-ping"></span>
+              )}
+            </span>
           </button>
         ))}
       </div>
 
-      {/* Grid de Mensagens */}
-      <div className="space-y-4">
-        {filteredMessages.map(msg => (
-          <div
-            key={msg.id}
-            onClick={() => setSelectedMsg(msg)}
-            className={`glass-panel rounded-[32px] p-6 border transition-all active:scale-[0.98] cursor-pointer group relative overflow-hidden ${msg.read ? 'border-slate-200 dark:border-white/5' : 'border-blue-500/30 ring-1 ring-blue-500/10'}`}
-          >
-            {!msg.read && (
-              <div className="absolute top-0 left-0 bottom-0 w-1.5 mesh-gradient shadow-[0_0_15px_rgba(59,130,246,0.4)]"></div>
-            )}
-            <div className="flex justify-between items-center mb-4">
-              <span className={`text-[9px] font-black uppercase px-3 py-1 rounded-xl border ${getTypeStyle(msg.type)}`}>
-                {getTypeName(msg.type)}
-              </span>
-              <span className="text-[9px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-widest">{msg.date}</span>
-            </div>
-            <h4 className={`text-base font-black mb-2 tracking-tight uppercase ${msg.read ? 'text-slate-950 dark:text-white/80' : 'text-gradient'}`}>{msg.title}</h4>
-            <p className="text-xs text-slate-500 dark:text-slate-600 dark:text-slate-400 font-bold line-clamp-2 leading-relaxed tracking-wide">
-              {msg.content}
-            </p>
-            <div className="mt-4 pt-4 border-t border-slate-100/30 dark:border-white/5 flex items-center justify-between">
-              <p className="text-[9px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-widest">{msg.author}</p>
-              <Icons.ChevronRight className="w-4 h-4 text-deep-blue dark:text-blue-400 group-hover:translate-x-1 transition-transform" />
-            </div>
-          </div>
-        ))}
+      {/* Header Contextual */}
+      <div className="space-y-2">
+        <h2 className="text-2xl font-black text-slate-950 dark:text-white uppercase tracking-tighter italic">
+          {activeTab === 'RECADOS' && 'Central de Avisos'}
+          {activeTab === 'CONVERSA' && 'Chat Exclusivo'}
+          {activeTab === 'ANOTACOES' && 'Diário de Performance'}
+        </h2>
+        <p className="text-[10px] font-black text-blue-500 uppercase tracking-[0.4em]">
+          {activeTab === 'RECADOS' && 'Fique por dentro de tudo'}
+          {activeTab === 'CONVERSA' && 'Fale direto com seu personal'}
+          {activeTab === 'ANOTACOES' && 'Registre sua evolução pessoal'}
+        </p>
       </div>
 
-      {/* Message Modal Experience */}
-      {selectedMsg && (
-        <div className="fixed inset-0 z-[100] bg-deep-blue/40 dark:bg-ocean/80 backdrop-blur-xl flex items-end animate-in fade-in duration-500">
-          <div className="w-full bg-white dark:bg-ocean rounded-t-[48px] p-10 pb-16 border-t border-slate-200 dark:border-white/20 animate-in slide-in-from-bottom-20 duration-700 shadow-2xl shadow-black/30">
-            <div className="flex justify-between items-start mb-8">
-              <div>
-                <span className={`text-[10px] font-black uppercase px-4 py-1.5 rounded-2xl border ${getTypeStyle(selectedMsg.type)}`}>
-                  {getTypeName(selectedMsg.type)}
-                </span>
-                <p className="text-[10px] text-slate-600 dark:text-slate-400 font-black uppercase mt-4 tracking-[0.3em]">{selectedMsg.date} • {selectedMsg.author}</p>
+      {/* Render Content based on Tab */}
+      <div className="min-h-[50vh]">
+        {activeTab === 'RECADOS' && (
+          <RecadosAluno 
+            user={user} 
+            recados={recados} 
+            onRead={handleReadRecado} 
+          />
+        )}
+        {activeTab === 'CONVERSA' && (
+          <ChatDireto 
+            user={user} 
+          />
+        )}
+        {activeTab === 'ANOTACOES' && (
+          <AnotacoesAluno 
+            user={user} 
+            anotacoes={anotacoes} 
+            onSave={handleSaveAnotacao}
+            onDelete={handleDeleteAnotacao}
+          />
+        )}
+      </div>
+
+      {/* Quote Card (only on Recados to keep focus) */}
+      {activeTab === 'RECADOS' && (
+        <Card variant="blue" className="p-8 mt-12 relative overflow-hidden group rounded-[40px] shadow-2xl shadow-blue-900/40">
+          <div className="absolute top-0 right-0 w-48 h-48 mesh-gradient opacity-20 rounded-full -mr-24 -mt-24 group-hover:scale-150 transition-transform duration-[20s]"></div>
+          <div className="relative z-10">
+            <div className="flex items-center space-x-2 mb-4">
+              <div className="w-8 h-8 rounded-xl mesh-gradient flex items-center justify-center text-slate-950 dark:text-white shadow-lg">
+                <Icons.Logo className="w-4 h-4" />
               </div>
-              <button onClick={() => setSelectedMsg(null)} className="w-12 h-12 glass-panel rounded-2xl flex items-center justify-center text-slate-600 dark:text-slate-400 active:scale-90 transition-all">
-                <Icons.Plus className="w-6 h-6 rotate-45" />
-              </button>
+              <p className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-950 dark:text-white/60">Foco do Dia</p>
             </div>
-            <h3 className="text-3xl font-black text-slate-950 dark:text-white mb-6 uppercase tracking-tight italic">{selectedMsg.title}</h3>
-            <p className="text-base text-slate-600 dark:text-slate-600 dark:text-slate-400 font-bold leading-relaxed whitespace-pre-wrap tracking-wide">
-              {selectedMsg.content}
-            </p>
-            <button
-              onClick={() => setSelectedMsg(null)}
-              className="w-full h-16 mt-12 mesh-gradient text-white rounded-[24px] font-black text-xs uppercase tracking-[0.4em] shadow-2xl shadow-blue-900/40 active:scale-[0.97] transition-all"
-            >
-              Entendi
-            </button>
+            <p className="text-xl font-black text-slate-950 dark:text-white leading-tight italic tracking-tight">"A consistência é o único atalho para a alta performance. Cada RPE validado é um tijolo no seu legado físico."</p>
           </div>
-        </div>
+          <Icons.Plus className="absolute -bottom-6 -left-6 w-32 h-32 opacity-10 rotate-12" />
+        </Card>
       )}
     </div>
   );

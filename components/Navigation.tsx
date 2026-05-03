@@ -6,9 +6,10 @@ import { Icons } from '../constants';
 interface NavigationProps {
   role: UserRole;
   isDarkMode: boolean;
+  recadosNaoLidos?: number;
 }
 
-const Navigation: React.FC<NavigationProps> = ({ role, isDarkMode }) => {
+const Navigation: React.FC<NavigationProps> = ({ role, isDarkMode, recadosNaoLidos }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const currentPath = location.pathname;
@@ -25,6 +26,9 @@ const Navigation: React.FC<NavigationProps> = ({ role, isDarkMode }) => {
       >
         <div className={`transition-all duration-500 transform ${isActive ? 'scale-110 translate-y-[-4px]' : 'opacity-70'}`}>
           <Icon className={`w-6 h-6 object-contain ${isActive ? 'text-pg-cobalt drop-shadow-[0_0_12px_rgba(37,99,235,0.4)]' : 'text-current'}`} />
+          {path === '/messages' && recadosNaoLidos ? recadosNaoLidos > 0 && (
+            <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-pg-cobalt animate-pulso-suave border-2 border-midnight" />
+          ) : null}
         </div>
         <span className={`text-[9px] font-bold uppercase tracking-wider mt-1.5 transition-all duration-300 font-display ${isActive ? 'opacity-100 text-pg-cobalt' : 'opacity-60'}`}>
           {label}
@@ -37,18 +41,19 @@ const Navigation: React.FC<NavigationProps> = ({ role, isDarkMode }) => {
   };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-[150] transition-all duration-500 glass-surface pb-safe border-t border-pg-border-main/20">
+    <div className="fixed bottom-0 left-0 right-0 z-[150] transition-all duration-500 glass-surface pb-safe border-t border-pg-border-main/20 animate-entrada-baixo">
       <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-pg-cobalt/20 to-transparent"></div>
       <div className="h-20 max-w-[480px] md:max-w-2xl lg:max-w-4xl mx-auto px-4">
         <nav className="h-full flex items-center justify-around relative z-10">
           {isManagementRole ? (
             <>
               <NavItem path="/management" icon={Icons.Home} label="Painel" />
-              <NavItem path="/messages" icon={Icons.Users} label="Equipe" />
+              <NavItem path="/comunidade" icon={Icons.MessageCircle} label="Mural" />
 
               {/* Central Button Pattern */}
               <button
-                onClick={() => navigate('/protocol-edit')}
+                onClick={() => navigate('/floor-view')}
+                aria-label="Vista da academia"
                 className="relative -top-7 flex flex-col items-center justify-center p-0 bg-transparent hover:scale-110 active:scale-95 transition-all outline-none"
               >
                 <div className="relative group">
@@ -59,17 +64,22 @@ const Navigation: React.FC<NavigationProps> = ({ role, isDarkMode }) => {
                 </div>
               </button>
 
-              <NavItem path="/timeline" icon={Icons.Chart} label="Dados" />
-              <NavItem path="/admin" icon={Icons.FileText} label="Gestão" />
+              <NavItem path="/messages" icon={Icons.Message} label="Recados" />
+              {role === UserRole.ADMIN ? (
+                <NavItem path="/admin-requests" icon={Icons.ShieldCheck} label="Admin" />
+              ) : (
+                <NavItem path="/timeline" icon={Icons.Chart} label="Dados" />
+              )}
             </>
           ) : (
             <>
               <NavItem path="/home" icon={Icons.Home} label="Início" />
-              <NavItem path="/messages" icon={Icons.Message} label="Mensagens" />
+              <NavItem path="/explore" icon={Icons.Star} label="Explorar" />
 
               {/* Botão Central de Treino (Destaque Premium) */}
               <button
                 onClick={() => navigate('/session')}
+                aria-label="Iniciar treino"
                 className="relative -top-7 flex flex-col items-center justify-center p-0 bg-transparent hover:scale-110 active:scale-90 transition-all outline-none"
               >
                 <div className="relative group">
@@ -80,8 +90,8 @@ const Navigation: React.FC<NavigationProps> = ({ role, isDarkMode }) => {
                 </div>
               </button>
 
-              <NavItem path="/evolution" icon={Icons.Activity} label="Saúde" />
-              <NavItem path="/student-hub" icon={Icons.Star} label="Hub" />
+              <NavItem path="/agenda" icon={Icons.Calendar} label="Agenda" />
+              <NavItem path="/student-hub" icon={Icons.User} label="Perfil" />
             </>
           )}
         </nav>

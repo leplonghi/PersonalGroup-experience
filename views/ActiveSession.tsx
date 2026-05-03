@@ -1,6 +1,8 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Icons } from '../constants';
-import { RPEValue, SessionLog, User, Protocol, LiveSession } from '../types';
+import { PlayCircle, X, Shield, TrendingUp, ChevronRight, AlertCircle, Repeat } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { RPEValue, SessionLog, User, Protocol, LiveSession, ESCALA_ESFORCO } from '../types';
 import { INITIAL_EXERCISES } from '../data/exercises';
 import { 
   getProtocolById, 
@@ -41,6 +43,27 @@ const isSessionStorageValid = () => {
   const ts = localStorage.getItem('pg-session-ts');
   if (!ts) return false;
   return Date.now() - parseInt(ts) < SESSION_MAX_AGE_MS;
+};
+
+const ModalVideo: React.FC<{ url: string; onClose: () => void }> = ({ url, onClose }) => {
+  return (
+    <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/90 p-4 animate-in fade-in duration-300">
+      <div className="relative w-full max-w-2xl aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl border border-white/10 animate-in zoom-in-95 duration-300">
+        <button 
+          onClick={onClose}
+          className="absolute top-4 right-4 z-10 p-2 bg-black/50 text-white rounded-full hover:bg-red-500 transition-colors backdrop-blur-md"
+        >
+          <X className="w-5 h-5" />
+        </button>
+        <iframe 
+          src={url} 
+          className="w-full h-full" 
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+          allowFullScreen 
+        />
+      </div>
+    </div>
+  );
 };
 
 const ActiveSession: React.FC<ActiveSessionProps> = ({ user, executor, onFinish }) => {
@@ -98,7 +121,7 @@ const ActiveSession: React.FC<ActiveSessionProps> = ({ user, executor, onFinish 
 
   const [isFinishing, setIsFinishing] = useState(false);
   const [isResting, setIsResting] = useState(false);
-  const [showingVideo, setShowingVideo] = useState(false);
+  const [videoAberto, setVideoAberto] = useState<string | null>(null);
   const [restTime, setRestTime] = useState(60);
   const [trackingMode, setTrackingMode] = useState<'REPS' | 'TIME'>('REPS');
 
@@ -107,8 +130,20 @@ const ActiveSession: React.FC<ActiveSessionProps> = ({ user, executor, onFinish 
   const [rpe, setRpe] = useState<RPEValue>(7);
   const [isLiveSessionActive, setIsLiveSessionActive] = useState(false);
 
+  const [esforco, setEsforco] = useState<number | null>(null);
+  const [observacoes, setObservacoes] = useState('');
+  const [treinoConcluido, setTreinoConcluido] = useState(false);
+  const [sessionStartTime] = useState(Date.now());
+  const restIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const [salvando, setSalvando] = useState(false);
+
   const isStaff = executor.role === 'PERSONAL' || executor.role === 'CHEFE' || executor.role === 'ADMIN';
   const hasControl = isStaff || (executor.role === 'ALUNO' && !isLiveSessionActive);
+  const navigate = useNavigate();
+
+  const duracaoMinutos = () => Math.floor((Date.now() - sessionStartTime) / 60000);
+  const volumeTotal = () => sessionLogs.reduce((acc, log) => acc + (log.weight || 0) * (log.value || 0), 0);
+  const totalSeries = () => sessionLogs.length;
 
   // --- Real-time Sync Logic ---
   useEffect(() => {
@@ -184,14 +219,22 @@ const ActiveSession: React.FC<ActiveSessionProps> = ({ user, executor, onFinish 
   }, []);
 
   useEffect(() => {
-    let timer: any;
+    if (restIntervalRef.current) {
+      clearInterval(restIntervalRef.current);
+      restIntervalRef.current = null;
+    }
     if (isResting && restTime > 0) {
-      timer = setInterval(() => setRestTime(prev => prev - 1), 1000);
+      restIntervalRef.current = setInterval(() => setRestTime(prev => prev - 1), 1000);
     } else if (restTime === 0) {
       setIsResting(false);
       triggerHaptic(50);
     }
-    return () => clearInterval(timer);
+    return () => {
+      if (restIntervalRef.current) {
+        clearInterval(restIntervalRef.current);
+        restIntervalRef.current = null;
+      }
+    };
   }, [isResting, restTime, triggerHaptic]);
 
   const handleLogSet = () => {
@@ -239,6 +282,27 @@ const ActiveSession: React.FC<ActiveSessionProps> = ({ user, executor, onFinish 
     }
   };
 
+  const handleFinish = async () => {
+    setSalvando(true);
+    if (!user) return;
+    try {
+      if (isStaff) {
+        if (sessionLogs.length > 0 && user.currentCycle) {
+          await logSession(user.id, user.currentCycle.id, sessionLogs);
+        }
+        await endLiveSession(user.id);
+      }
+      clearSessionStorage();
+      setTreinoConcluido(true);
+      setIsFinishing(false);
+    } catch (error) {
+      console.error("Erro ao finalizar sessão:", error);
+      alert("Erro ao finalizar sessão. Tente novamente.");
+    } finally {
+      setSalvando(false);
+    }
+  };
+
   const getRPEColor = (val: number) => {
     if (val < 6) return 'text-blue-400';
     if (val < 9) return 'text-cyan-500';
@@ -267,7 +331,7 @@ const ActiveSession: React.FC<ActiveSessionProps> = ({ user, executor, onFinish 
                     className="w-full h-full rounded-full object-cover"
                     alt="Coach"
                   />
-                ) : <Icons.TrendingUp className="w-5 h-5 text-white" />}
+                ) : <TrendingUp className="w-5 h-5 text-white" />}
               </div>
               <div className="flex flex-col">
                 <p className={`text-[11px] font-black uppercase tracking-widest leading-tight italic ${!hasControl ? 'text-emerald-900 dark:text-emerald-300' : 'text-blue-900 dark:text-blue-300'}`}>
@@ -282,7 +346,7 @@ const ActiveSession: React.FC<ActiveSessionProps> = ({ user, executor, onFinish 
                 </span>}
                 {hasControl && !isStaff && <span className="text-[9px] font-bold text-blue-600/70 uppercase flex items-center">
                   <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mr-2"></span>
-                  Mondo Solo
+                  Modo Solo
                 </span>}
               </div>
             </div>
@@ -299,192 +363,168 @@ const ActiveSession: React.FC<ActiveSessionProps> = ({ user, executor, onFinish 
               ))}
             </div>
 
-            {/* VISUAL IMAGE CARD - PRECISION CUT */}
-            <div className="relative w-full aspect-[4/5] border border-white/10 overflow-hidden group shadow-2xl rounded-sm bg-card">
-              <div className="absolute inset-0 z-10 pointer-events-none border-[1px] border-white/10 rounded-sm"></div>
+            {/* Progresso da sessão */}
+            <div className="px-5 pb-3 flex-shrink-0">
+              <div className="flex justify-between items-center text-xs text-pg-text-muted font-semibold mb-1.5">
+                <span>Exercício {currentExerciseIdx + 1} de {exercises.length}</span>
+                <span className="text-pg-cobalt font-bold">
+                  {Math.round(((currentExerciseIdx) / exercises.length) * 100)}% concluído
+                </span>
+              </div>
+              <div className="h-1 bg-white/7 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-sky-400 to-pg-cobalt rounded-full transition-all duration-500"
+                  style={{ width: `${(currentExerciseIdx / exercises.length) * 100}%` }}
+                />
+              </div>
+            </div>
 
-              {/* VIDEO OVERLAY */}
-              {!showingVideo ? (
-                <>
-                  <img src={currentExercise.image || 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1470&auto=format&fit=crop'} className="w-full h-full object-cover grayscale-[20%] opacity-90 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-105 transition-all duration-[10s]" alt={currentExercise.name} />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-20"></div>
-
-                  <div className="absolute inset-0 p-6 z-30 flex flex-col justify-end">
-                    <div className="flex justify-between items-end">
-                      <div className="flex-1 min-w-0 pr-4">
-                        <span className="text-[9px] font-black text-blue-400 uppercase tracking-[0.3em] mb-1 block">Exercício {currentExerciseIdx + 1} de {exercises.length}</span>
-                        <h2 className="text-3xl font-black text-white mb-3 leading-none font-display uppercase italic tracking-tight drop-shadow-lg">{currentExercise.name}</h2>
-                        <div className="flex flex-wrap gap-2">
-                          <div className="px-3 py-1.5 border border-white/20 bg-white/10 backdrop-blur-md text-white font-black text-[10px] uppercase tracking-widest inline-flex items-center rounded-lg">
-                            <Icons.Repeat className="w-3 h-3 mr-1.5 text-blue-400" />
-                            {currentExercise.reps} Reps
-                          </div>
-                          {currentExercise.videoUrl && (
-                            <button
-                              onClick={() => setShowingVideo(true)}
-                              className="px-3 py-1.5 border border-blue-500 bg-blue-600 backdrop-blur-md text-white font-black text-[10px] uppercase tracking-widest inline-flex items-center rounded-lg hover:bg-blue-500 transition-all active:scale-95"
-                            >
-                              <Icons.Play className="w-3 h-3 mr-1.5" /> Técnica
-                            </button>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="w-16 h-16 border-2 border-blue-500 bg-black/80 flex flex-col items-center justify-center shadow-[0_0_30px_rgba(59,130,246,0.5)] rounded-2xl backdrop-blur-sm transform rotate-3">
-                        <span className="text-[8px] font-black uppercase text-blue-400 mb-0.5 tracking-tighter">Série</span>
-                        <span className="text-3xl font-black tracking-tight text-white leading-none font-display italic">{currentSet}</span>
-                      </div>
-                    </div>
-                  </div>
-                </>
+            {/* Área do exercício */}
+            <div className="mx-5 mb-3.5 relative rounded-2xl overflow-hidden border border-pg-cobalt/10"
+                 style={{ aspectRatio: '16/9' }}>
+              {currentExercise.image ? (
+                <img src={currentExercise.image} alt={currentExercise.name}
+                     className="w-full h-full object-cover"/>
               ) : (
-                <div className="absolute inset-0 bg-black z-40 flex flex-col">
-                  <iframe
-                    src={currentExercise.videoUrl}
-                    title={currentExercise.name}
-                    className="w-full h-full"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  ></iframe>
-                  <button
-                    onClick={() => setShowingVideo(false)}
-                    className="absolute top-4 right-4 w-10 h-10 bg-black/50 text-white flex items-center justify-center rounded-full backdrop-blur-md border border-white/20 hover:bg-red-600/80 transition-colors"
-                  >
-                    <Icons.X className="w-5 h-5" />
-                  </button>
+                <div className="w-full h-full bg-gradient-to-br from-[#0b246e] to-[#0d3082]
+                                flex items-center justify-center">
+                  <span className="text-6xl opacity-20">🏋️</span>
+                </div>
+              )}
+
+              {/* Badge de série */}
+              <div className="absolute top-3 right-3 px-3 py-1.5 rounded-full
+                              bg-black/55 backdrop-blur-sm text-xs font-black text-white">
+                Série {currentSet} de {currentExercise.sets}
+              </div>
+
+              {/* Badge de grupo muscular */}
+              {currentExercise.muscleGroup && (
+                <div className="absolute bottom-3 left-3 flex items-center gap-1.5 px-3 py-1
+                                rounded-full bg-sky-500/50 backdrop-blur-sm border border-sky-500/50
+                                text-[11px] font-bold text-blue-200">
+                  💪 {currentExercise.muscleGroup}
                 </div>
               )}
             </div>
 
-            {/* PERFORMANCE CONTROLS - OBSIDIAN HUD */}
-            <div className="glass-panel p-6 space-y-8 border-app rounded-sm bg-surface/50">
+            {currentExercise.videoUrl && (
+              <button
+                onClick={() => setVideoAberto(currentExercise.videoUrl!)}
+                className="mx-5 mb-3 flex items-center gap-3 p-3 rounded-xl
+                           bg-white/[0.04] border border-white/[0.08] active:bg-pg-cobalt/10 transition-colors"
+              >
+                <div className="w-12 h-9 rounded-lg bg-gradient-to-br from-pg-cobalt/25 to-sky-500/30
+                                flex items-center justify-center text-lg flex-shrink-0">▶️</div>
+                <div className="text-left">
+                  <div className="text-[13px] font-bold text-white">Ver execução correta</div>
+                  <div className="text-[11px] text-pg-text-muted mt-0.5">Vídeo demonstrativo</div>
+                </div>
+              </button>
+            )}
 
-              {/* TRACKING MODE TOGGLE */}
-              <div className={`flex border border-app bg-surface/80 rounded-lg overflow-hidden p-1 ${!hasControl ? 'opacity-50 pointer-events-none' : ''}`}>
+            <div className="mx-5 mb-3 flex gap-2.5 p-3 rounded-xl
+                            bg-gradient-to-br from-pg-cobalt/10 to-sky-500/10 border border-pg-cobalt/20 relative overflow-hidden">
+              <span className="text-lg flex-shrink-0 mt-0.5">🤖</span>
+              <div className="text-[12px] text-amber-300/90 leading-relaxed">
+                <strong className="font-black block mb-0.5 text-[12.5px]">Dica de execução</strong>
+                Mantenha a técnica correta e controle a respiração. Qualidade sempre acima da quantidade.
+              </div>
+            </div>
+
+            {currentExercise.weight !== undefined && (
+              <div className="mx-5 mb-3 flex items-center gap-3.5 p-4 rounded-2xl
+                              bg-white/5 border border-white/[0.08]">
                 <button
-                  onClick={() => { triggerHaptic(5); setTrackingMode('REPS'); }}
-                  className={`flex-1 py-4 text-xs font-bold uppercase tracking-widest transition-all relative rounded-md ${trackingMode === 'REPS' ? 'text-app bg-app shadow-sm' : 'text-app-muted hover:text-app'}`}
-                >
-                  Peso e Repetições
-                  {trackingMode === 'REPS' && <div className="absolute bottom-1 w-1 h-1 bg-cobalt rounded-full left-1/2 -translate-x-1/2 shadow-[0_0_10px_#2563EB]"></div>}
-                </button>
+                  onClick={() => setWeight(w => Math.max(0, w - 2.5))}
+                  className="w-11 h-11 rounded-xl bg-pg-cobalt/10 border border-pg-cobalt/20 text-pg-cobalt
+                             text-2xl font-bold flex items-center justify-center
+                             transition-all hover:bg-pg-cobalt/20 active:scale-90"
+                >−</button>
+
+                <div className="flex-1">
+                  <div className="text-[10px] font-bold text-pg-text-muted uppercase tracking-wider mb-0.5">
+                    Carga selecionada
+                  </div>
+                  <div className="text-3xl font-black text-white leading-none">
+                    {weight} <span className="text-sm text-pg-text-muted font-semibold">kg</span>
+                  </div>
+                </div>
+
                 <button
-                  onClick={() => { triggerHaptic(5); setTrackingMode('TIME'); }}
-                  className={`flex-1 py-4 text-xs font-bold uppercase tracking-widest transition-all relative rounded-md ${trackingMode === 'TIME' ? 'text-app bg-app shadow-sm' : 'text-app-muted hover:text-app'}`}
+                  onClick={() => setWeight(w => w + 2.5)}
+                  className="w-11 h-11 rounded-xl bg-pg-cobalt/10 border border-pg-cobalt/20 text-pg-cobalt
+                             text-2xl font-bold flex items-center justify-center
+                             transition-all hover:bg-pg-cobalt/20 active:scale-90"
+                >+</button>
+              </div>
+            )}
+
+            <div className="mx-5 mb-3">
+              <div className="text-[11px] font-bold text-pg-text-muted uppercase tracking-wider mb-2">
+                Repetições realizadas
+              </div>
+              <div className="flex gap-2">
+                {[currentExercise.reps - 2, currentExercise.reps, currentExercise.reps + 2].filter(r => r > 0).map((r) => (
+                  <button
+                    key={r}
+                    onClick={() => setVolumeValue(r)}
+                    className={`flex-1 py-3 rounded-xl border text-center transition-all active:scale-95
+                      ${volumeValue === r
+                        ? 'bg-pg-cobalt/15 border-pg-cobalt/50 shadow-[0_0_12px_rgba(37,99,235,0.2)]'
+                        : 'bg-white/5 border-white/[0.08] hover:border-white/20'
+                      }`}
+                  >
+                    <div className="text-xl font-black text-white">{r}</div>
+                    <div className="text-[10px] text-pg-text-muted mt-1 uppercase tracking-wider">
+                      {r === currentExercise.reps ? 'Prescrição' : r > currentExercise.reps ? '+ extra' : 'Menos'}
+                    </div>
+                  </button>
+                ))}
+                <button
+                  onClick={() => {
+                    const val = prompt('Quantas repetições você fez?');
+                    if (val) setVolumeValue(parseInt(val) || 0);
+                  }}
+                  className="flex-[0.55] py-3 rounded-xl border bg-white/5 border-white/[0.08]
+                             text-center transition-all active:scale-95 hover:border-white/20"
                 >
-                  Peso e Tempo
-                  {trackingMode === 'TIME' && <div className="absolute bottom-1 w-1 h-1 bg-cobalt rounded-full left-1/2 -translate-x-1/2 shadow-[0_0_10px_#2563EB]"></div>}
+                  <div className="text-xl font-black text-white">+</div>
+                  <div className="text-[10px] text-pg-text-muted mt-1 uppercase tracking-wider">Outro</div>
                 </button>
               </div>
+            </div>
 
-              <div className="space-y-8">
-                {/* CARGA (KG) */}
-                <div className="space-y-4">
-                  <div className="flex justify-between items-end px-2">
-                    <div className="flex flex-col">
-                      <span className="text-xs font-bold text-app uppercase tracking-widest leading-none mb-2">Peso</span>
-                      <span className="text-xs font-bold text-cobalt uppercase tracking-wider leading-none">
-                        Última: {Math.max(10, weight - 5)}kg (12 Abr)
-                      </span>
-                    </div>
-                    <div className="flex items-baseline space-x-2">
-                      <h4 className="text-6xl font-bold text-app tracking-tighter tabular-nums leading-none font-display">{weight}</h4>
-                      <span className="text-sm font-bold text-cobalt uppercase">KG</span>
-                    </div>
-                  </div>
-                  <div className={`flex items-center space-x-4 ${!hasControl ? 'opacity-50 pointer-events-none' : ''}`}>
-                    <button
-                      aria-label="Diminuir peso"
-                      onClick={() => { triggerHaptic(5); setWeight(w => Math.max(0, w - 5)); }}
-                      className="w-14 h-14 border border-app bg-surface hover:bg-app rounded-xl flex items-center justify-center text-app font-medium text-2xl active:scale-95 transition-all">
-                      −
-                    </button>
-                    <div className="flex-1 px-2">
-                      <input
-                        type="range" min="0" max="400" step="1"
-                        value={weight}
-                        disabled={!hasControl}
-                        onChange={e => { triggerHaptic(5); setWeight(parseInt(e.target.value)); }}
-                        className="w-full h-2 bg-surface rounded-full appearance-none accent-cobalt cursor-pointer shadow-inner"
-                      />
-                    </div>
-                    <button
-                      aria-label="Aumentar peso"
-                      onClick={() => { triggerHaptic(5); setWeight(w => w + 5); }}
-                      className="w-14 h-14 border border-app bg-surface hover:bg-app rounded-xl flex items-center justify-center text-app font-medium text-2xl active:scale-95 transition-all">
-                      +
-                    </button>
-                  </div>
-                </div>
-
-                {/* VOLUME */}
-                <div className="space-y-4">
-                  <div className="flex justify-between items-end px-2">
-                    <div className="flex flex-col">
-                      <span className="text-xs font-bold text-app uppercase tracking-widest leading-none mb-2">
-                        {trackingMode === 'REPS' ? 'Repetições' : 'Duração (seg)'}
-                      </span>
-                      <span className="text-xs font-bold text-cobalt uppercase tracking-wider leading-none">Total</span>
-                    </div>
-                    <div className="flex items-baseline space-x-2">
-                      <h4 className="text-6xl font-bold text-app tracking-tighter tabular-nums leading-none font-display">{volumeValue}</h4>
-                      <span className="text-sm font-bold text-cobalt uppercase">{trackingMode === 'REPS' ? 'Reps' : 'Segs'}</span>
-                    </div>
-                  </div>
-                  <div className={`flex items-center space-x-4 ${!hasControl ? 'opacity-50 pointer-events-none' : ''}`}>
-                    <button
-                      aria-label="Diminuir volume"
-                      onClick={() => { triggerHaptic(5); setVolumeValue(v => Math.max(1, v - 1)); }}
-                      className="w-14 h-14 border border-app bg-surface hover:bg-app rounded-xl flex items-center justify-center text-app font-medium text-2xl active:scale-95 transition-all">
-                      −
-                    </button>
-                    <div className="flex-1 px-2">
-                      <input
-                        type="range" min="1" max={trackingMode === 'REPS' ? 100 : 300} step="1"
-                        value={volumeValue}
-                        disabled={!hasControl}
-                        onChange={e => { triggerHaptic(5); setVolumeValue(parseInt(e.target.value)); }}
-                        className="w-full h-2 bg-surface rounded-full appearance-none accent-cobalt cursor-pointer shadow-inner"
-                      />
-                    </div>
-                    <button
-                      aria-label="Aumentar volume"
-                      onClick={() => { triggerHaptic(5); setVolumeValue(v => v + 1); }}
-                      className="w-14 h-14 border border-app bg-surface hover:bg-app rounded-xl flex items-center justify-center text-app font-medium text-2xl active:scale-95 transition-all">
-                      +
-                    </button>
-                  </div>
-                </div>
-
-                {/* RPE SLIDER */}
-                <div className="pt-8 border-t border-app">
-                  <div className="flex justify-between items-center mb-6">
-                    <div className="flex flex-col">
-                      <span className="text-xs font-bold text-app uppercase tracking-widest leading-none mb-2">Esforço</span>
-                      <span className="text-xs font-bold text-cobalt uppercase tracking-wider leading-none">Nível (1-10)</span>
-                    </div>
-                    <span className={`text-4xl font-bold tracking-tight tabular-nums font-display ${getRPEColor(rpe)}`}>{rpe}</span>
-                  </div>
-                  <input
-                    type="range" min="1" max="10"
-                    value={rpe}
-                    disabled={!hasControl}
-                    onChange={e => { triggerHaptic(5); setRpe(parseInt(e.target.value) as RPEValue); }}
-                    className="w-full h-3 bg-surface rounded-full appearance-none accent-cobalt cursor-pointer shadow-inner mb-6"
-                  />
-                  <div className="flex justify-between px-1">
-                    {[...Array(10)].map((_, i) => (
-                      <div
-                        key={i}
-                        className={`w-1.5 h-6 rounded-full transition-all duration-500 ${i + 1 <= rpe
-                          ? (i + 1 > 8 ? 'bg-red-600 shadow-[0_0_10px_#DC2626]' : i + 1 > 5 ? 'bg-cyan-500 shadow-[0_0_10px_#06b6d4]' : 'bg-cobalt shadow-[0_0_10px_#2563EB]')
-                          : 'bg-surface'
-                          }`}
-                      />
-                    ))}
-                  </div>
-                </div>
+            <div className="mx-5 mb-3">
+              <div className="text-[12px] font-bold text-pg-text-muted uppercase tracking-wider mb-2.5">
+                Esforço percebido
               </div>
+              <div className="flex gap-1.5 justify-between mb-1">
+                {ESCALA_ESFORCO.map((e) => (
+                  <button
+                    key={e.id}
+                    onClick={() => setEsforco(e.id)}
+                    className={`flex-1 aspect-square rounded-2xl flex flex-col items-center justify-center gap-1
+                                border-2 transition-all active:scale-95
+                                ${esforco === e.id
+                                  ? 'border-pg-cobalt bg-pg-cobalt/10 scale-105'
+                                  : 'border-transparent bg-white/5 hover:bg-white/[0.08]'
+                                }`}
+                  >
+                    <span className="text-2xl leading-none">{e.emoji}</span>
+                    <span className={`text-[8px] font-bold text-center leading-tight ${
+                      esforco === e.id ? 'text-pg-cobalt' : 'text-pg-text-muted'
+                    }`}>
+                      {e.label}
+                    </span>
+                  </button>
+                ))}
+              </div>
+              {esforco && (
+                <p className="text-center text-xs text-pg-text-muted transition-all">
+                  {ESCALA_ESFORCO.find(e => e.id === esforco)?.descricao}
+                </p>
+              )}
             </div>
           </div>
         )}
@@ -501,14 +541,14 @@ const ActiveSession: React.FC<ActiveSessionProps> = ({ user, executor, onFinish 
               >
                 <div className="flex items-center justify-center space-x-4 relative z-10 italic">
                   <span>{currentSet === currentExercise.sets ? 'Próximo Exercício' : 'Finalizar Série'}</span>
-                  <Icons.ChevronRight className="w-5 h-5 group-hover/finish:translate-x-1 transition-transform" />
+                  <ChevronRight className="w-5 h-5 group-hover/finish:translate-x-1 transition-transform" />
                 </div>
               </button>
               <button
                 onClick={handleReportIssue}
                 className="flex-1 h-14 bg-surface border border-app text-red-500 font-black text-[10px] uppercase tracking-widest flex flex-col items-center justify-center rounded-2xl hover:bg-red-500/10 transition-all active:scale-95"
               >
-                <Icons.ExclamationCircle className="w-5 h-5 mb-1" />
+                <AlertCircle className="w-5 h-5 mb-1" />
                 <span>Pular</span>
               </button>
             </>
@@ -522,62 +562,208 @@ const ActiveSession: React.FC<ActiveSessionProps> = ({ user, executor, onFinish 
         </div>
       </footer>
 
-      {/* REST OVERLAY - CLINICIAL TECH */}
       {isResting && (
-        <div className="fixed inset-0 z-[200] bg-app/95 backdrop-blur-3xl flex flex-col items-center justify-center p-8 animate-in fade-in duration-500 font-display">
-          <div className="precision-bg absolute inset-0 z-0 opacity-20"></div>
+        <div className="fixed inset-0 z-[200] bg-pg-midnight flex flex-col
+                        items-center justify-center p-6 gap-6 animate-in fade-in duration-300">
+          <div className="text-center">
+            <p className="text-xl font-black text-white mb-1">⏸ Recuperando</p>
+            <p className="text-sm text-pg-text-muted">Respire fundo. Você está indo bem!</p>
+          </div>
 
-          <div className="relative w-80 h-80 flex items-center justify-center z-10 my-12">
-            <svg className="absolute inset-0 w-full h-full -rotate-90">
-              <circle cx="160" cy="160" r="156" stroke="currentColor" strokeWidth="2" fill="transparent" className="text-app/5" />
-              <circle
-                cx="160" cy="160" r="156" stroke="currentColor" strokeWidth="6" fill="transparent"
-                className="text-cobalt shadow-[0_0_30px_#2563EB] transition-all duration-1000 ease-linear"
-                strokeDasharray={980}
-                strokeDashoffset={980 - (980 * restTime) / 60}
-                strokeLinecap="round"
-              />
-            </svg>
-            <div className="flex flex-col items-center">
-              <span className="text-9xl font-bold tabular-nums text-app leading-none tracking-tighter">{restTime}</span>
-              <span className="text-xs font-bold text-cobalt uppercase tracking-[0.5em] mt-2 bg-surface px-4 py-1 rounded-full border border-cobalt/30 shadow-md">Intervalo</span>
+          <div className="relative w-52 h-52">
+            <div className="absolute inset-[-14px] rounded-full
+                            bg-[radial-gradient(circle,rgba(0,182,253,0.13)_60%,transparent_100%)]
+                            animate-pulse" />
+            <div className="w-52 h-52 rounded-full flex items-center justify-center relative">
+              <svg width="208" height="208" viewBox="0 0 208 208" className="-rotate-90 absolute inset-0"
+                   style={{ filter: 'drop-shadow(0 0 20px rgba(0,182,253,0.25))' }}>
+                <circle cx="104" cy="104" r="92" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="10"/>
+                <circle cx="104" cy="104" r="92" fill="none"
+                  stroke="url(#restGrad)" strokeWidth="10"
+                  strokeDasharray="578"
+                  strokeDashoffset={578 * (restTime / 60)}
+                  strokeLinecap="round"
+                  style={{ transition: 'stroke-dashoffset 1s linear' }}
+                />
+                <defs>
+                  <linearGradient id="restGrad">
+                    <stop offset="0%" stopColor="#3363a2"/>
+                    <stop offset="100%" stopColor="#00b6fd"/>
+                  </linearGradient>
+                </defs>
+              </svg>
+              <div className="w-40 h-40 rounded-full bg-gradient-to-br from-[#021141]/95 to-[#00060f]/98
+                              border border-white/[0.07] flex flex-col items-center justify-center">
+                <div className="text-5xl font-black text-white">{restTime}</div>
+                <div className="text-xs text-pg-text-muted font-semibold mt-1">segundos</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="w-full p-4 rounded-2xl bg-white/5 border border-white/[0.08]">
+            <span className="text-[10px] font-black text-pg-cobalt uppercase tracking-wider block mb-1">
+              {currentSet >= currentExercise.sets ? 'Próximo exercício' : 'Próxima série'}
+            </span>
+            <div className="text-base font-bold text-white">
+              {currentSet >= currentExercise.sets
+                ? (exercises[currentExerciseIdx + 1]?.name || 'Fim do treino')
+                : `Série ${currentSet + 1} de ${currentExercise.sets}`}
             </div>
           </div>
 
           <button
-            onClick={() => { if (hasControl) { triggerHaptic(10); setIsResting(false); } }}
-            disabled={!hasControl}
-            className={`relative z-10 w-full max-w-xs py-5 border border-app bg-surface text-xs font-bold uppercase tracking-[0.3em] text-app hover:bg-app transition-all shadow-xl rounded-none active:scale-95 ${!hasControl ? 'opacity-50 cursor-not-allowed' : ''}`}
+            onClick={() => { setIsResting(false); clearInterval(restIntervalRef.current); }}
+            className="text-pg-text-muted text-sm font-semibold underline underline-offset-2
+                       hover:text-white transition-colors"
           >
-            {hasControl ? 'Pular Intervalo' : 'Em Recuperação...'}
+            Pular descanso →
           </button>
         </div>
       )}
 
-      {/* FINISH OVERLAY */}
       {isFinishing && (
-        <div className="fixed inset-0 z-[300] bg-app flex flex-col items-center justify-center p-8 animate-in slide-in-from-bottom-full duration-700">
-          <div className="precision-bg absolute inset-0 z-0 opacity-40"></div>
+        <div className="fixed inset-0 z-[200] bg-pg-midnight overflow-y-auto">
+          <div className="px-5 pt-5 pb-8">
+            <button onClick={() => setIsFinishing(false)} className="text-pg-text-muted text-lg mb-3">←</button>
+            <h2 className="text-2xl font-black text-white">Como foi o treino?</h2>
+            <p className="text-sm text-pg-text-muted mt-1 mb-5">
+              {exercises.length} de {exercises.length} exercícios ✓
+            </p>
 
-          <div className="w-40 h-40 border border-cobalt/30 bg-cobalt/10 rounded-full flex items-center justify-center mb-12 shadow-[0_0_60px_rgba(37,99,235,0.2)] relative z-10 animate-bounce">
-            <Icons.Shield className="w-20 h-20 text-cobalt drop-shadow-[0_0_15px_rgba(37,99,235,0.8)]" />
+            <div className="grid grid-cols-3 gap-2.5 mb-5">
+              {[
+                { v: `${duracaoMinutos()} min`, u: 'duração' },
+                { v: totalSeries(), u: 'séries' },
+                { v: `${volumeTotal()} kg`, u: 'volume' },
+              ].map(s => (
+                <div key={s.u} className="p-3 rounded-2xl bg-white/5 border border-white/[0.08] text-center">
+                  <div className="text-xl font-black text-white">{s.v}</div>
+                  <div className="text-[10px] text-pg-text-muted font-semibold mt-1">{s.u}</div>
+                </div>
+              ))}
+            </div>
+
+            <p className="text-sm font-bold text-white mb-1.5">Qual foi o esforço?</p>
+            <p className="text-xs text-pg-text-muted mb-4 leading-relaxed">
+              Sua avaliação ajuda a calibrar cargas e descanso nas próximas sessões.
+            </p>
+            <div className="flex gap-2 justify-between mb-2">
+              {ESCALA_ESFORCO.map(e => (
+                <button
+                  key={e.id}
+                  onClick={() => setEsforco(e.id)}
+                  className={`flex-1 aspect-square rounded-2xl flex flex-col items-center justify-center gap-1.5
+                              border-2 transition-all active:scale-95 ${
+                                esforco === e.id
+                                  ? 'border-pg-cobalt bg-pg-cobalt/10 scale-105'
+                                  : 'border-transparent bg-white/5'
+                              }`}
+                >
+                  <span className="text-2xl leading-none">{e.emoji}</span>
+                  <span className={`text-[8px] font-bold text-center leading-tight ${
+                    esforco === e.id ? 'text-pg-cobalt' : 'text-pg-text-muted'
+                  }`}>
+                    {e.label}
+                  </span>
+                </button>
+              ))}
+            </div>
+            {esforco && (
+              <p className="text-center text-xs text-pg-text-muted mb-5 transition-all">
+                {ESCALA_ESFORCO.find(e => e.id === esforco)?.descricao}
+              </p>
+            )}
+
+            <p className="text-sm font-bold text-white mb-2">Observações (opcional)</p>
+            <textarea
+              value={observacoes}
+              onChange={e => setObservacoes(e.target.value)}
+              placeholder="Ex: joelho esquerdo sensível, adaptei o agachamento..."
+              className="w-full h-24 rounded-2xl bg-white/5 border border-white/[0.08] p-3.5
+                         text-white text-sm resize-none outline-none placeholder:text-pg-text-muted
+                         focus:border-pg-cobalt/30 mb-5 transition-colors"
+              maxLength={400}
+            />
+
+            <button
+              onClick={handleFinish}
+              disabled={salvando}
+              className="w-full py-4 rounded-full bg-pg-cobalt text-pg-midnight font-black text-base mb-3
+                         transition-all hover:scale-[1.02] hover:shadow-pg-cobalt
+                         disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {salvando ? 'Salvando...' : '✓ Registrar treino'}
+            </button>
+            <button
+              onClick={() => setIsFinishing(false)}
+              className="w-full py-3.5 rounded-full border border-white/[0.08] text-pg-text-muted
+                         text-sm font-semibold transition-all hover:border-white/[0.18] hover:text-white"
+            >
+              Voltar ao treino
+            </button>
+          </div>
+        </div>
+      )}
+
+      {treinoConcluido && (
+        <div className="fixed inset-0 z-[200] flex flex-col items-center justify-center
+                        p-6 gap-5 animate-in fade-in duration-500"
+             style={{ background: 'linear-gradient(160deg, #010e35, #021141, #010922)' }}>
+          <span className="text-7xl animate-bounce">💪</span>
+          <div className="text-center">
+            <h2 className="text-3xl font-black text-white mb-2">Treino concluído!</h2>
+            <p className="text-sm text-pg-text-muted leading-relaxed">
+              Mais um dia de cuidado com você mesmo.<br/>Isso faz toda a diferença.
+            </p>
           </div>
 
-          <h3 className="relative z-10 text-5xl md:text-6xl font-bold text-app mb-8 tracking-tighter text-center leading-none uppercase font-display">
-            Treino<br /><span className="text-transparent bg-clip-text bg-gradient-to-r from-cobalt to-laser">Finalizado</span>
-          </h3>
+          {user.progresso?.diasSeguidos > 0 && (
+            <div className="flex items-center gap-2.5 px-5 py-2.5 rounded-full
+                            bg-pg-cobalt/10 border border-pg-cobalt/20">
+              <span className="text-xl">🔥</span>
+              <span className="text-sm font-bold text-pg-cobalt">
+                {user.progresso.diasSeguidos} dias seguidos de treino
+                {user.progresso.diasSeguidos === user.progresso.maiorSequencia ? ' — seu recorde!' : ''}
+              </span>
+            </div>
+          )}
 
-          <p className="relative z-10 text-app-muted text-sm text-center mb-24 max-w-xs font-medium uppercase tracking-widest leading-relaxed">
-            Ótimo trabalho! Treino registrado.
-          </p>
+          <div className="grid grid-cols-2 gap-2.5 w-full">
+            <div className="p-4 rounded-2xl bg-white/5 border border-white/[0.08] text-center">
+              <div className="text-2xl font-black text-pg-cobalt">{duracaoMinutos()} min</div>
+              <div className="text-xs text-pg-text-muted mt-1">Duração</div>
+            </div>
+            <div className="p-4 rounded-2xl bg-white/5 border border-white/[0.08] text-center">
+              <div className="text-2xl font-black text-pg-cobalt">{exercises.length}</div>
+              <div className="text-xs text-pg-text-muted mt-1">Exercícios</div>
+            </div>
+          </div>
 
-          <button
-            onClick={handleFinishSession}
-            className="relative z-10 w-full max-w-sm h-16 bg-cobalt text-white font-bold text-sm uppercase tracking-[0.4em] transition-all hover:bg-blue-600 shadow-2xl rounded-none active:scale-[0.98]"
-          >
-            {hasControl ? (isStaff ? 'Salvar e Sair' : 'Concluir') : 'Concluir'}
-          </button>
+          <div className="w-full flex flex-col gap-2.5">
+            <button
+              onClick={() => { setTreinoConcluido(false); onFinish(); }}
+              className="w-full py-4 rounded-full bg-pg-cobalt text-pg-midnight font-black text-base
+                         hover:scale-[1.02] hover:shadow-pg-cobalt transition-all"
+            >
+              Voltar ao início
+            </button>
+            <button
+              onClick={() => navigate('/evolution')}
+              className="w-full py-3.5 rounded-full border border-pg-cobalt/20 text-pg-cobalt
+                         text-sm font-semibold hover:bg-pg-cobalt/8 transition-all"
+            >
+              Ver minha evolução →
+            </button>
+          </div>
         </div>
+      )}
+
+      {/* Video Modal */}
+      {videoAberto && (
+        <ModalVideo 
+          url={videoAberto} 
+          onClose={() => setVideoAberto(null)} 
+        />
       )}
     </div>
   );

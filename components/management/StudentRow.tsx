@@ -29,7 +29,8 @@ export const StudentRow: React.FC<{
                     </div>
                     <p className="text-[9px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-widest mt-2 flex items-center">
                         <span className={`w-1.5 h-1.5 rounded-full mr-2 ${student.isCheckedIn ? 'bg-emerald-500' : 'bg-slate-500 opacity-30'}`}></span>
-                        {student.isCheckedIn ? 'Treinando Agora' : 'Offline'} • {student.currentCycle ? student.currentCycle.name : 'Sem ciclo'}
+                        {student.isCheckedIn ? 'Treinando Agora' : 'Offline'} • {student.currentCycle ? `Protocolo: ${student.currentCycle.name}` : 'Sem protocolo definido'}
+                        {student.lastCheckIn && ` • Último treino: ${new Date(student.lastCheckIn.seconds * 1000).toLocaleDateString('pt-BR')}`}
                     </p>
                 </div>
             </div>

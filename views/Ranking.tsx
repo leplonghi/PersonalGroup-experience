@@ -14,15 +14,16 @@ interface RankedUser {
     sessions: number;
     streak: number;
     score: number;
+    isHighlight?: boolean;
 }
 
-// Mock ranking data — in production, fetched from a leaderboard collection
+// Mock ranking data — transforming to "Destaques"
 const mockRanking: RankedUser[] = [
-    { id: '1', name: 'Marina Costa', sessions: 24, streak: 12, score: 980 },
-    { id: '2', name: 'Rafael Mendes', sessions: 22, streak: 10, score: 920 },
-    { id: '3', name: 'Ana Beatriz', sessions: 21, streak: 15, score: 910 },
-    { id: '4', name: 'Lucas Ferreira', sessions: 20, streak: 8, score: 870 },
-    { id: '5', name: 'Juliana Ribeiro', sessions: 19, streak: 7, score: 840 },
+    { id: '1', name: 'Marina Costa', sessions: 24, streak: 12, score: 980, isHighlight: true },
+    { id: '2', name: 'Rafael Mendes', sessions: 22, streak: 10, score: 920, isHighlight: true },
+    { id: '3', name: 'Ana Beatriz', sessions: 21, streak: 15, score: 910, isHighlight: true },
+    { id: '4', name: 'Lucas Ferreira', sessions: 20, streak: 8, score: 870, isHighlight: true },
+    { id: '5', name: 'Juliana Ribeiro', sessions: 19, streak: 7, score: 840, isHighlight: true },
     { id: '6', name: 'Pedro Oliveira', sessions: 18, streak: 9, score: 810 },
     { id: '7', name: 'Camila Souza', sessions: 17, streak: 6, score: 780 },
     { id: '8', name: 'Thiago Alves', sessions: 16, streak: 5, score: 740 },
@@ -30,25 +31,17 @@ const mockRanking: RankedUser[] = [
     { id: '10', name: 'Gabriel Santos', sessions: 14, streak: 4, score: 690 },
 ];
 
-const medalColors = ['from-yellow-400 to-amber-500', 'from-slate-300 to-slate-400', 'from-amber-600 to-amber-700'];
-const medalEmoji = ['🥇', '🥈', '🥉'];
-
 const Ranking: React.FC<RankingProps> = ({ user, onBack }) => {
     const [period, setPeriod] = useState<'month' | 'year'>('month');
-    const [myStats, setMyStats] = useState({ sessions: 0, rank: 0 });
+    const [myStats, setMyStats] = useState({ sessions: 0, status: 'Ativo' });
 
     useEffect(() => {
-        // Simulate finding user's position
-        const myIndex = mockRanking.findIndex(r => r.name.includes(user.name.split(' ')[0]));
-        if (myIndex >= 0) {
-            setMyStats({ sessions: mockRanking[myIndex].sessions, rank: myIndex + 1 });
-        } else {
-            setMyStats({ sessions: 12, rank: 15 });
-        }
+        // Simular stats do usuário
+        setMyStats({ sessions: 12, status: 'Habitual' });
     }, [user.name, period]);
 
-    const topThree = mockRanking.slice(0, 3);
-    const rest = mockRanking.slice(3);
+    const highlights = mockRanking.filter(r => r.isHighlight);
+    const others = mockRanking.filter(r => !r.isHighlight);
 
     return (
         <div className="min-h-screen bg-app p-6 pb-32 space-y-6">
@@ -58,27 +51,22 @@ const Ranking: React.FC<RankingProps> = ({ user, onBack }) => {
                     <Icons.ChevronLeft className="w-5 h-5 text-slate-500 dark:text-slate-400" />
                 </button>
                 <div className="text-center">
-                    <h1 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-widest">Ranking</h1>
-                    <p className="text-[9px] text-blue-600 dark:text-blue-400 font-black uppercase tracking-[0.4em] mt-0.5">Leaderboard</p>
+                    <h1 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-widest">Mural da Constância</h1>
+                    <p className="text-[9px] text-pg-cobalt font-black uppercase tracking-[0.4em] mt-0.5">Comunidade em Movimento</p>
                 </div>
                 <div className="w-10" />
             </div>
 
-            {/* Your Position */}
-            <div className="bg-gradient-to-r from-blue-600/20 to-blue-900/10 border border-blue-500/20 rounded-xl p-4">
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                        <div className="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-white font-black text-lg shadow-lg">
-                            {myStats.rank}º
-                        </div>
-                        <div>
-                            <p className="text-[10px] font-black text-blue-800 dark:text-blue-300 uppercase tracking-[0.2em]">Sua Posição</p>
-                            <p className="text-[9px] text-slate-500 dark:text-slate-400 mt-0.5">{myStats.sessions} sessões este mês</p>
-                        </div>
-                    </div>
-                    <div className="text-right">
-                        <p className="text-2xl font-black text-slate-900 dark:text-white tabular-nums">{myStats.rank}º</p>
-                        <p className="text-[7px] text-slate-500 font-black uppercase tracking-widest">de {mockRanking.length + 5}</p>
+            {/* Your Status Summary */}
+            <div className="bg-gradient-to-r from-pg-cobalt/20 to-pg-midnight/10 border border-pg-cobalt/20 rounded-2xl p-6 relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-4 opacity-10">
+                    <Icons.Activity className="w-12 h-12 text-pg-cobalt" />
+                </div>
+                <div className="flex items-center justify-between relative z-10">
+                    <div className="space-y-1">
+                        <p className="text-[10px] font-black text-pg-cobalt uppercase tracking-[0.2em]">Sua Jornada</p>
+                        <h3 className="text-xl font-bold text-slate-900 dark:text-white uppercase tracking-tight">Constância {myStats.status}</h3>
+                        <p className="text-[9px] text-slate-500 dark:text-slate-400 font-medium uppercase tracking-widest">{myStats.sessions} sessões realizadas no período</p>
                     </div>
                 </div>
             </div>
@@ -89,7 +77,7 @@ const Ranking: React.FC<RankingProps> = ({ user, onBack }) => {
                     <button
                         key={p}
                         onClick={() => setPeriod(p)}
-                        className={`flex-1 py-2.5 text-[9px] font-black uppercase tracking-[0.2em] rounded-lg transition-all ${period === p ? 'bg-white/10 text-blue-400' : 'text-slate-500'
+                        className={`flex-1 py-2.5 text-[9px] font-black uppercase tracking-[0.2em] rounded-lg transition-all ${period === p ? 'bg-pg-cobalt/20 text-pg-cobalt shadow-lg' : 'text-slate-500'
                             }`}
                     >
                         {p === 'month' ? 'Este Mês' : 'Este Ano'}
@@ -97,66 +85,68 @@ const Ranking: React.FC<RankingProps> = ({ user, onBack }) => {
                 ))}
             </div>
 
-            {/* Podium — Top 3 */}
-            <div className="flex items-end justify-center space-x-3 pt-4">
-                {[1, 0, 2].map(idx => {
-                    const r = topThree[idx];
-                    if (!r) return null;
-                    const isFirst = idx === 0;
-                    return (
-                        <div key={r.id} className="flex flex-col items-center space-y-2">
-                            <span className="text-2xl">{medalEmoji[idx]}</span>
-                            <div className={`${isFirst ? 'w-16 h-16' : 'w-14 h-14'} rounded-full bg-gradient-to-br ${medalColors[idx]} flex items-center justify-center text-white font-black text-lg shadow-xl`}>
-                                {r.name.charAt(0)}
+            {/* Highlights Section */}
+            <section className="space-y-4">
+                <div className="flex items-center space-x-3">
+                    <div className="w-6 h-[1px] bg-pg-cobalt"></div>
+                    <h4 className="text-[10px] font-black text-pg-cobalt uppercase tracking-[0.2em]">Destaques em Foco</h4>
+                    <Icons.Sparkles className="w-3 h-3 text-pg-cobalt animate-pulse" />
+                </div>
+                
+                <div className="grid grid-cols-2 gap-3">
+                    {highlights.map(r => (
+                        <div key={r.id} className="glass-panel p-4 border-white/5 bg-gradient-to-b from-white/[0.03] to-transparent rounded-xl flex flex-col items-center text-center">
+                            <div className="w-12 h-12 rounded-full border border-pg-cobalt/30 p-0.5 mb-3">
+                                <div className="w-full h-full rounded-full bg-pg-midnight flex items-center justify-center text-pg-cobalt font-bold">
+                                    {r.name.charAt(0)}
+                                </div>
                             </div>
-                            <p className="text-[9px] font-black text-slate-900 dark:text-white uppercase tracking-wider text-center max-w-[70px] truncate">{r.name.split(' ')[0]}</p>
-                            <div className={`${isFirst ? 'h-24 bg-gradient-to-t from-yellow-600/30 to-yellow-400/10' : idx === 1 ? 'h-16 bg-gradient-to-t from-slate-600/20 to-slate-400/5' : 'h-12 bg-gradient-to-t from-amber-700/20 to-amber-500/5'} w-20 rounded-t-xl border border-slate-200 dark:border-white/10 flex flex-col items-center justify-center`}>
-                                <p className="text-lg font-black text-slate-900 dark:text-white tabular-nums">{r.score}</p>
-                                <p className="text-[6px] text-slate-500 dark:text-slate-400 font-black uppercase tracking-widest">pontos</p>
-                            </div>
-                        </div>
-                    );
-                })}
-            </div>
-
-            {/* Rest of ranking */}
-            <div className="space-y-2">
-                {rest.map((r, idx) => (
-                    <div key={r.id} className="flex items-center justify-between bg-white/5 border border-white/10 rounded-xl px-4 py-3">
-                        <div className="flex items-center space-x-3">
-                            <span className="text-[11px] font-black text-slate-500 w-6 text-center tabular-nums">{idx + 4}</span>
-                            <div className="w-9 h-9 rounded-full bg-blue-600/10 dark:bg-white/10 flex items-center justify-center text-blue-600 dark:text-white font-bold text-sm">
-                                {r.name.charAt(0)}
-                            </div>
-                            <div>
-                                <p className="text-[10px] font-bold text-slate-900 dark:text-white">{r.name}</p>
-                                <p className="text-[8px] text-slate-500 dark:text-slate-400">{r.sessions} sessões • {r.streak} 🔥</p>
-                            </div>
-                        </div>
-                        <p className="text-sm font-black text-slate-400 tabular-nums">{r.score}</p>
-                    </div>
-                ))}
-            </div>
-
-            {/* Score Info */}
-            <div className="bg-white/5 border border-white/10 rounded-xl p-4 space-y-2">
-                <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em]">📊 Como funciona o Score</p>
-                <div className="grid grid-cols-2 gap-2">
-                    {[
-                        { label: 'Presença', pts: '+30 pts/sessão' },
-                        { label: 'Streak', pts: '+10 pts/dia consecutivo' },
-                        { label: 'Avaliação', pts: '+50 pts' },
-                        { label: 'Pontualidade', pts: '+5 pts' },
-                    ].map(item => (
-                        <div key={item.label} className="flex items-center space-x-2">
-                            <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                            <div>
-                                <p className="text-[8px] font-bold text-slate-900 dark:text-white">{item.label}</p>
-                                <p className="text-[7px] text-blue-600 dark:text-blue-400">{item.pts}</p>
+                            <p className="text-[10px] font-bold text-slate-900 dark:text-white uppercase tracking-tight mb-1">{r.name.split(' ')[0]}</p>
+                            <div className="flex items-center gap-1.5 px-2 py-0.5 bg-pg-cobalt/10 border border-pg-cobalt/20 rounded-full">
+                                <span className="text-[8px] font-black text-pg-cobalt uppercase tracking-tighter">{r.sessions} SESSÕES</span>
                             </div>
                         </div>
                     ))}
                 </div>
+            </section>
+
+            {/* Community List */}
+            <section className="space-y-3">
+                <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-2">Comunidade PG</h4>
+                <div className="space-y-2">
+                    {others.map((r) => (
+                        <div key={r.id} className="flex items-center justify-between bg-white/5 border border-white/10 rounded-xl px-4 py-3 group hover:bg-white/[0.08] transition-colors">
+                            <div className="flex items-center space-x-3">
+                                <div className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center text-slate-400 group-hover:text-pg-cobalt transition-colors font-bold text-sm">
+                                    {r.name.charAt(0)}
+                                </div>
+                                <div>
+                                    <p className="text-[10px] font-bold text-slate-900 dark:text-white uppercase tracking-tight">{r.name}</p>
+                                    <p className="text-[8px] text-slate-500 dark:text-slate-400 font-medium uppercase tracking-widest">{r.sessions} sessões concluídas</p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <div className="text-right">
+                                    <p className="text-[10px] font-black text-pg-cobalt tabular-nums">{r.score}</p>
+                                    <p className="text-[6px] text-slate-500 font-bold uppercase tracking-tighter">pts ativação</p>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </section>
+
+            {/* Rewards Info */}
+            <div className="glass-panel border-pg-cobalt/20 bg-pg-cobalt/5 rounded-2xl p-6 space-y-4">
+                <div className="flex items-center gap-3">
+                    <Icons.Gift className="w-5 h-5 text-pg-cobalt" />
+                    <p className="text-[10px] font-black text-pg-cobalt uppercase tracking-[0.2em]">Recompensas & Reconhecimento</p>
+                </div>
+                <p className="text-[9px] text-slate-600 dark:text-slate-400 font-medium leading-relaxed uppercase tracking-widest">
+                    Seus pontos de ativação não servem para competir, mas para celebrar! A Personal Group oferece brindes e benefícios exclusivos para alunos que mantêm a constância. 
+                    <br/><br/>
+                    <span className="text-pg-cobalt font-bold">Confira as premiações vigentes na recepção da sua unidade.</span>
+                </p>
             </div>
         </div>
     );

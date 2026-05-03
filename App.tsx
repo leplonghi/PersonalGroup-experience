@@ -32,6 +32,8 @@ const FloorView = lazy(() => import('./views/FloorView'));
 const StudentBriefing = lazy(() => import('./views/StudentBriefing'));
 const Explore = lazy(() => import('./views/Explore'));
 const Onboarding = lazy(() => import('./views/Onboarding'));
+const Comunidade = lazy(() => import('./views/Comunidade'));
+const ImportacaoAlunos = lazy(() => import('./views/ImportacaoAlunos'));
 
 import Navigation from './components/Navigation';
 import Header from './components/Header';
@@ -116,7 +118,14 @@ const AppLayout: React.FC<{
   const navigate = useNavigate();
   const [selectedStudent, setSelectedStudent] = useState<User | null>(null);
 
-  const showNav = useMemo(() => !!user && !['/login', '/register', '/checkin'].includes(location.pathname), [user, location.pathname]);
+  // Auto-redirect to Onboarding for Alunos
+  useEffect(() => {
+    if (user && user.role === UserRole.ALUNO && !user.onboardingCompleto && location.pathname !== '/onboarding') {
+      navigate('/onboarding', { replace: true });
+    }
+  }, [user, location.pathname, navigate]);
+
+  const showNav = useMemo(() => !!user && !['/login', '/register', '/checkin', '/onboarding'].includes(location.pathname), [user, location.pathname]);
   const showHeader = useMemo(() => !!user && !['/login', '/register', '/onboarding', '/checkin'].includes(location.pathname), [user, location.pathname]);
 
   const headerProps = useHeaderConfig();
@@ -145,9 +154,10 @@ const AppLayout: React.FC<{
         <div className="w-full max-w-[480px] mx-auto min-h-full">
             <Suspense fallback={<PageLoader />}>
               <Routes>
-                <Route path="/home" element={user ? <Home user={user} onStartSession={() => navigate('/session')} onGoWellness={() => navigate('/wellness')} onGoTimeline={() => navigate('/timeline')} onGoMessages={() => navigate('/messages')} onGoAgenda={() => navigate('/agenda')} onGoCheckIn={() => navigate('/checkin')} onGoClub={() => navigate('/club')} onGoEvolution={() => navigate('/evolution')} onGoAdmin={() => navigate('/admin-requests')} onGoSupport={() => navigate('/support')} onGoRanking={() => navigate('/ranking')} onGoWearables={() => navigate('/wearables')} onGoExplore={() => navigate('/explore')} /> : <Navigate to="/login" />} />
+                <Route path="/home" element={user ? <Home user={user} onStartSession={() => navigate('/session')} onGoWellness={() => navigate('/wellness')} onGoTimeline={() => navigate('/timeline')} onGoMessages={() => navigate('/messages')} onGoAgenda={() => navigate('/agenda')} onGoCheckIn={() => navigate('/checkin')} onGoClub={() => navigate('/club')} onGoEvolution={() => navigate('/evolution')} onGoAdmin={() => navigate('/admin-requests')} onGoSupport={() => navigate('/support')} onGoRanking={() => navigate('/ranking')} onGoWearables={() => navigate('/wearables')} onGoExplore={() => navigate('/explore')} onGoComunidade={() => navigate('/comunidade')} /> : <Navigate to="/login" />} />
+                <Route path="/comunidade" element={user ? <Comunidade user={user} isDarkMode={isDarkMode} /> : <Navigate to="/login" />} />
                 <Route path="/club" element={<Club user={user!} onBack={() => navigate('/home')} />} />
-                <Route path="/agenda" element={<Agenda />} />
+                <Route path="/agenda" element={user ? <Agenda user={user} onBack={() => navigate('/home')} /> : <Navigate to="/login" />} />
                 <Route path="/messages" element={<Messages user={user!} />} />
                 <Route path="/timeline" element={<Timeline user={user!} onBack={() => navigate('/home')} />} />
                 <Route path="/wellness" element={<Wellness user={user!} onBack={() => navigate('/home')} />} />
@@ -171,7 +181,9 @@ const AppLayout: React.FC<{
                 <Route path="/support" element={<SupportChat user={user!} onBack={() => navigate('/home')} />} />
                 <Route path="/ranking" element={<Ranking user={user!} onBack={() => navigate('/home')} />} />
                 <Route path="/wearables" element={<Wearables user={user!} onBack={() => navigate('/home')} />} />
-                <Route path="/explore" element={<Explore />} />
+                <Route path="/explore" element={user ? <Explore user={user} /> : <Navigate to="/login" />} />
+                <Route path="/floor-view" element={<FloorView />} />
+                <Route path="/admin/importar" element={user?.role === UserRole.ADMIN ? <ImportacaoAlunos /> : <Navigate to="/home" />} />
 
                 <Route path="*" element={<Navigate to="/home" />} />
               </Routes>
@@ -183,6 +195,7 @@ const AppLayout: React.FC<{
         <Navigation
           role={user.role}
           isDarkMode={isDarkMode}
+          recadosNaoLidos={user?.recadosNaoLidos}
         />
       )}
     </div >
